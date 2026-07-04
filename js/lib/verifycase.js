@@ -11,14 +11,14 @@
   if (typeof module === 'object' && module.exports) {
     module.exports = factory(require('./verify.js'), require('./evaluation.js'),
       require('./verbal.js'), require('./votestatus.js'), require('./compute.js'),
-      require('./folio.js'));
+      require('./folio.js'), require('./disposal.js'));
   } else {
     root.MODPA = root.MODPA || {};
     root.MODPA.verifycase = factory(root.MODPA.verify, root.MODPA.evaluation,
       root.MODPA.verbal, root.MODPA.votestatus, root.MODPA.compute,
-      root.MODPA.folio);
+      root.MODPA.folio, root.MODPA.disposal);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (verify, evaluation, verbal, votestatus, compute, folio) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (verify, evaluation, verbal, votestatus, compute, folio, disposal) {
   'use strict';
 
   /* The case total in cents: evaluation grand total, verbal schedule total,
@@ -56,6 +56,12 @@
     var R = [];
     var isEval = !!(caseFile.evaluation && caseFile.evaluation.items && caseFile.evaluation.items.length);
     var isVerbal = !!(caseFile.verbal && (caseFile.verbal.contacts.length || caseFile.verbal.schedule.length));
+    var isDisposal = caseFile.pathway === 'P4' || !!(caseFile.disposal && caseFile.disposal.items && caseFile.disposal.items.length);
+    if (isDisposal) {
+      R = R.concat(runGeneralChecks(caseFile));
+      R = R.concat(disposal.runDisposalChecks(caseFile.disposal));
+      return R; /* a disposal case has no procurement award or vote status */
+    }
     if (isEval || isVerbal) {
       R = R.concat(runGeneralChecks(caseFile));
       if (isEval) R = R.concat(evaluation.runEvalChecks(caseFile.evaluation));
