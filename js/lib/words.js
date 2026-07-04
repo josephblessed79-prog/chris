@@ -41,6 +41,10 @@
      none of the signed samples uses one). */
   function amountInWords(cents) {
     if (cents === null || cents === undefined || isNaN(cents)) return '';
+    /* No document ever states a negative amount in words; a negative here
+       is a computation reaching the wrong place, and it must be visible,
+       not spelt out as if it were money. */
+    if (cents < 0) return '';
     cents = Math.round(cents);
     var d = Math.floor(cents / 100), c = cents % 100;
     var scales = [[1000000000, 'Billion'], [1000000, 'Million'], [1000, 'Thousand'], [1, '']];

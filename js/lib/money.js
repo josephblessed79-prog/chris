@@ -66,8 +66,11 @@
         hint: 'More than two decimal places — money is entered to the cent.' };
     }
     var whole = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!isFinite(whole) || whole > 90071992547409) {
-      return { ok: false, reason: 'too-large', hint: 'Figure is too large to be handled exactly.' };
+    /* Cap at $999,999,999,999.99 — far beyond any Ministry vote, and it
+       keeps every downstream computation (extended totals, VAT, words)
+       inside exact integer arithmetic. */
+    if (!isFinite(whole) || whole > 999999999999) {
+      return { ok: false, reason: 'too-large', hint: 'Figure is too large to be handled exactly — check the source; no vote carries such a sum.' };
     }
     var cents = whole * 100 + (dec ? parseInt((dec + '0').slice(0, 2), 10) : 0);
     return { ok: true, cents: cents, canonical: fmtMoney(cents) };

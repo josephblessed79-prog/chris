@@ -124,6 +124,12 @@
       out.extendedCents = qty * p.cents;
       out.rate = { num: p.cents, den: 1 };
     }
+    /* Exactness guard: the arithmetic in this system is integer-exact or
+       it is an error — never a silently imprecise float. */
+    if (out.extendedCents != null && !Number.isSafeInteger(out.extendedCents)) {
+      out.errors.push('The extended total for ' + (item ? item.desc : 'this item') + ' is too large to compute exactly. Check the quantity and unit figure.');
+      out.extendedCents = null;
+    }
     return out;
   }
 
