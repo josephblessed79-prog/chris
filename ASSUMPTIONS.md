@@ -4,9 +4,15 @@ The signed samples in `samples/source/` are the format authority. Where
 the samples and the specification disagreed, the samples won. Where the
 samples were silent, contradictory or arithmetically wrong, the
 decisions below were taken — each is deliberate, tested, and open to
-reversal on instruction. **Questions needing an answer are marked ➤.**
+reversal on instruction. **Questions needing an answer are marked ➤;
+items marked RESOLVED carry the decision received and its date.**
 
-## 1. Computed words replace hand-written idioms
+## 1. Computed words replace hand-written idioms — RESOLVED
+
+**Confirmed (July 2026): the formal style stands.** The instruction is
+to use the formal method of writing out numbers, as in international
+banking and formal financial documents — "One Thousand, Two Hundred
+Dollars", never "Twelve Hundred Dollars".
 
 The boxed-meals sample writes "in the sum Twelve Hundred Dollars
 ($1,200.00)". This system prints "in the sum of One Thousand, Two
@@ -26,31 +32,64 @@ $23,652.085 → printed $23,652.09; J. Chai $453,375.00 × 12.5% =
 $56,671.875 → printed $56,671.88. The rate is data
 (`evaluation.vatRate`), not a constant in code.
 
-## 3. The vote balances are computed
+## 3. The vote balances are computed — RESOLVED (verified)
 
 Both sample vote-status tables obey, to the cent:
 - Balance of Releases = Releases − Expenditure − Commitment
-- Balance of Provision = Revised Allocation − Expenditure
+- Balance of Provision = (provision base) − Expenditure
 - Uncommitted Balance = Balance of Provision − Commitment
 
 So the system computes the three balances from the five typed figures.
-➤ Both samples have Original Provision = Revised Allocation, so it is
-not provable which of the two governs Balance of Provision. **Revised
-Allocation** is used. Confirm.
 
-## 4. Evaluation award rules inferred from the pantry sheet
+**Provision base — verified from Ministry of Finance authority (July
+2026).** The Comptroller of Accounts Accounting Manual (Ministry of
+Finance, published by the Auditor General's Department) states, in the
+Vote Book section 2.3.3 — whose cited authority is Financial
+Regulations paragraphs 66–69 to the Exchequer and Audit Act Chapter
+69:01 — that the Vote Book "is a control ledger designed to ensure that
+expenditure incurred in respect of each sub-item does not exceed the
+funds allocated for the current financial year and the releases granted
+to date", and, for the Schedule of Accounts under Financial
+Instructions 1965 paragraph 103(2), that officers "record details of
+amounts added and deducted from the original provision (transfers,
+virements) to date". Vote control is therefore exercised against the
+allocation **as varied** by approved transfers and virements — the
+figure the minute tables label **Revised Allocation** — and that is the
+base this system uses.
+
+Because the manual establishes the control principle without using the
+literal words "Balance of Provision", a per-case selection
+(`voteStatus.provisionBase`) is retained for the event that a written
+instruction directs the Original Provision. The interface offers the
+choice **only when the two figures actually differ** (when they are
+equal the choice changes nothing), explains both options in plain
+language on screen, and the base used is recorded in the H1 check
+detail so every verification certificate shows how the balance was
+worked out. Covered by `tests/votebase.test.js` and
+`tools/browser-smoke-guidance.js`.
+
+## 4. Evaluation award rules inferred from the pantry sheet — RESOLVED
+
+**Confirmed (July 2026), with a condition: the system raises these
+matters only when they actually arise in the case being prepared, and
+whenever the user must decide, the screen explains the choice in plain
+language.** Implemented: the tie, shortfall, non-compliance and override
+explanations appear on the worksheet only while such a situation exists
+in the evaluation (and disappear when it is resolved), each written so a
+first-time reader understands what the situation means, what they must
+do, and what effect the choice has on the documents and totals. Covered
+by `tools/browser-smoke-guidance.js`.
 
 - **Quantity shortfall excludes a quote from the automatic
   recommendation** (Ovaltine: Beyond quoted 48 of 50 packs at a lower
   unit price and did not win). Selecting a shortfall quote is an
-  override and demands a justification. ➤ Confirm this rule.
+  override and demands a justification.
 - **Specification non-compliance excludes** (Granola: boxes of 6 against
   a requirement of boxes of 12; the dearer compliant quote won).
 - **A price tie requires a recorded committee selection** (Digestive
   Biscuits, $2.50 = $2.50, went to Beyond). The selection is marked
   "tied lowest" on the worksheet; a note of the basis is expected
   (warned if absent, not failed, since both prices are the lowest).
-  ➤ Confirm.
 
 ## 5. Sample arithmetic errors are not reproduced
 
@@ -91,13 +130,17 @@ system requires every contact recorded (the register exists to evidence
 them); the dry run uses clearly-marked illustrative names for the two
 unnamed companies. Hardening, not deviation.
 
-## 9. P4 disposal is a scaffold
+## 9. P4 disposal is a scaffold — CONFIRMED PENDING
 
-No sample disposal file was provided. Layouts follow the Act's disposal
-provisions and the house minute style; every P4 document carries a
-visible **SCAFFOLD — AWAITING FORMAT AUTHORITY** banner and verification
-carries a standing caution. ➤ Provide a signed disposal file to confirm
-the formats.
+**Confirmed (July 2026): no sample disposal file exists to provide.**
+The instruction is to keep the disposal items clearly marked pending
+format authority and to change nothing in the required output layout
+unless verified authority supports it. That is exactly the standing
+state: layouts follow the Act's disposal provisions and the house minute
+style; every P4 document carries the visible **SCAFFOLD — AWAITING
+FORMAT AUTHORITY** banner; verification carries a standing caution; and
+the layouts will not be altered until a signed disposal file or other
+verified authority is supplied.
 
 ## 10. Miscellaneous
 

@@ -59,6 +59,14 @@ Details and everything you typed carries over.
    figures from the vote book. The three balances are computed. If the
    money does not cover the total, the minute automatically includes the
    line asking the Director of Finance to address the transfer.
+   If your Original Provision and Revised Allocation are different
+   figures, the screen will explain the difference in plain terms and ask
+   which one the Balance of Provision should be measured against — the
+   Revised Allocation is the standard choice (it is how the Ministry of
+   Finance vote book controls spending), and whichever you pick is
+   recorded on the case and printed on the verification certificate.
+   When the two figures are the same, you are not asked: the choice
+   would change nothing.
 5. Folios: list the papers in the file in order. Tag the verbal
    quotation form line `verbal-form` and the quotation line
    `quote:` followed by the company name exactly — the minute then cites
@@ -81,8 +89,17 @@ Details and everything you typed carries over.
 3. The lowest compliant quotation per item is marked automatically.
    To choose differently, record the committee's selection — the system
    will insist on a written justification and will show the override on
-   the worksheet, in the report and on the certificate. A price tie asks
-   you to record the pick.
+   the worksheet, in the report and on the certificate.
+   You are only asked about special situations when they actually occur
+   in your evaluation, and each one is explained on screen in plain
+   language when it appears: a **price tie** (two suppliers equal at the
+   lowest price — the committee records its pick and a short note; the
+   total does not change, only who is recommended), a **quantity
+   shortfall** (a supplier offered less than you asked for — not
+   recommended automatically; choosing it anyway needs a written
+   reason), and a quotation **not to specification** (excluded — a
+   cheaper wrong item is not a saving). No tie, no question; no
+   shortfall, no question.
 4. The award tables, the Breakdown of Price per Company and the totals
    are computed. When the evaluation is adopted, use **Carry result** —
    the approval minute or formation letter is built from the same

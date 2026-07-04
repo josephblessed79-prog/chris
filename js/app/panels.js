@@ -210,8 +210,27 @@
     h += '</tbody></table></div>';
     h += '<button class="btn sec small" data-action="vsched-add">＋ Add schedule line</button>';
     h += '<div class="notice" style="margin-top:10px"><b>Computed total:</b> <span data-compute="verbal-total">' + (isNaN(t) ? '— fix the flagged lines' : fmtMoney(t) + ' — ' + esc(M.words.amountInWords(t))) + '</span></div>';
+    /* Non-lowest selection explanation — shown ONLY when it has arisen,
+       kept inside a computed container so it appears and disappears live
+       as figures are typed, without disturbing the fields. */
+    h += '<div data-compute="verbal-notlowest">' + verbalNotLowestHTML(v) + '</div>';
     h += '</fieldset>';
     return h;
+  }
+
+  /* The non-lowest verbal selection warning — '' unless it has arisen. */
+  function verbalNotLowestHTML(v) {
+    var selC = M.verbal.selectedContact(v);
+    if (!selC || selC.outcome !== 'quoted') return '';
+    var selCents = M.verbal.contactQuoteCents(selC), lowestC = null;
+    for (var lc = 0; lc < v.contacts.length; lc++) {
+      var qc = M.verbal.contactQuoteCents(v.contacts[lc]);
+      if (qc != null && !isNaN(qc) && (lowestC === null || qc < lowestC)) lowestC = qc;
+    }
+    if (selCents == null || isNaN(selCents) || lowestC === null || selCents <= lowestC) return '';
+    return '<div class="notice red"><b>You have selected a company that did not give the lowest price</b> (' + fmtMoney(selCents) + ' against a lowest of ' + fmtMoney(lowestC) + ').<br>' +
+      'That is allowed, but the rules require the reason in writing: put it in the <b>Justification if the selected company is not the lowest</b> box above (for example: the cheaper company cannot deliver before the event). ' +
+      'The minute will state your selection, and the case cannot clear verification until the reason is recorded.</div>';
   }
 
   /* ---- P1/P2 items editor (the legacy card layout) ---- */
@@ -258,6 +277,84 @@
     h += '<button class="btn" data-action="item-add">＋ Add item</button>';
     var gt = M.compute.grandTotal(items);
     h += '<div class="notice" style="margin-top:14px"><b>Grand total (recommended rows):</b> <span data-compute="items-grand">' + (isNaN(gt) ? '— fix the flagged rows' : gt === 0 ? '$0.00 (no recommended rows yet)' : fmtMoney(gt) + ' — ' + esc(M.words.amountInWords(gt))) + '</span></div>';
+    return h;
+  }
+
+  /* Situation explanations for an evaluation — plain language, and only
+     for situations that actually exist right now. Returns '' when none. */
+  function evalSituationsHTML(ev) {
+    var h = '';
+    var tieItems = [], shortfallItems = [], specItems = [], overrideItems = [];
+    for (var iq = 0; iq < ev.items.length; iq++) {
+      var sq = M.evaluation.effectiveSelection(ev, iq);
+      var label = (iq + 1) + '. ' + (ev.items[iq].desc || 'item');
+      if (sq.auto.tied.length > 1) tieItems.push(label + ' (' + sq.auto.tied.map(function (x) { return ev.suppliers[x].name; }).join(' and ') + ')');
+      for (var ex = 0; ex < sq.auto.excluded.length; ex++) {
+        var exn = ev.suppliers[sq.auto.excluded[ex].supIdx].name;
+        if (sq.auto.excluded[ex].reason === 'quantity shortfall') shortfallItems.push(label + ' (' + exn + ')');
+        if (sq.auto.excluded[ex].reason === 'does not meet specification') specItems.push(label + ' (' + exn + ')');
+      }
+      if (sq.override) overrideItems.push(label);
+    }
+    if (tieItems.length) {
+      h += '<div class="notice"><b>There is a price tie on: ' + esc(tieItems.join('; ')) + '.</b><br>' +
+        'A tie means two or more suppliers quoted exactly the same lowest price for the same item. The system cannot pick between equal prices — that decision belongs to the committee. ' +
+        'Choose the supplier in the <b>Committee selection</b> box for that item and write a short note in <b>Tie note</b> saying why (for example: one delivery instead of two, or that supplier already holds the other items). ' +
+        'Your pick becomes the recommended winner for that item and its price goes into that supplier’s award total. Because the prices are equal, the grand total does not change — only who is recommended. ' +
+        'The case cannot clear verification until every tie has a recorded selection.</div>';
+    }
+    if (shortfallItems.length) {
+      h += '<div class="notice"><b>A supplier offered less than the quantity required on: ' + esc(shortfallItems.join('; ')) + '.</b><br>' +
+        'A quantity shortfall means the supplier can only give you part of what you asked for (for example 48 packs when you need 50). ' +
+        'The system does not recommend a shortfall quote automatically — even at a cheaper price — because it does not meet the full requirement, so the next lowest full quotation is recommended instead. ' +
+        'If the committee still wants the shortfall supplier, select it in the <b>Committee selection</b> box and write the reason in <b>Justification</b>; the documents will then show that choice as an override with your reason printed beside it.</div>';
+    }
+    if (specItems.length) {
+      h += '<div class="notice"><b>A quotation does not meet the specification on: ' + esc(specItems.join('; ')) + '.</b><br>' +
+        'This supplier offered something different from what was asked for (for example boxes of 6 instead of boxes of 12), so its price is not compared automatically — a cheaper wrong item is not a saving. The next lowest quotation that does meet the specification is recommended instead. ' +
+        'Selecting the non-compliant quotation anyway is not permitted by the checks: correct the compliance entry if it was marked in error, or let the compliant recommendation stand.</div>';
+    }
+    if (overrideItems.length) {
+      h += '<div class="notice red"><b>The committee has overridden the computed lowest price on: ' + esc(overrideItems.join('; ')) + '.</b><br>' +
+        'An override means recommending a supplier that did not have the lowest compliant price. That is allowed, but the reason must be written in the <b>Justification</b> box — an override with no written reason can never clear verification. ' +
+        'The override and its reason are shown on the worksheet, in the evaluation report and on the verification certificate, and the totals simply follow your selection.</div>';
+    }
+    return h;
+  }
+
+  /* The provision-base question — '' unless the two figures differ. */
+  function voteBaseBoxHTML(cf) {
+    var comp = M.votestatus.compute(cf.voteStatus);
+    if (!cf.voteStatus || !comp.ok || comp.cents.originalProvision === comp.cents.revisedAllocation) return '';
+    var baseSel = (cf.voteStatus.provisionBase === 'original') ? 'original' : 'revised';
+    return '<div class="notice"><b>Your Original Provision and Revised Allocation are different figures, so you must choose which one the Balance of Provision is measured against.</b><br><br>' +
+      'In plain terms: the <b>Original Provision</b> is the money this vote started the year with. During the year, money can be moved into or out of a vote with approvals (called transfers and virements). The figure after those movements is the <b>Revised Allocation</b>. ' +
+      'The Balance of Provision is the money left on the vote, worked out as your chosen figure minus what has been spent — so the choice changes the balance, and it can change whether the minute says the money covers this purchase.<br><br>' +
+      '<label style="display:block;margin:4px 0"><input type="radio" name="provbase" data-vstatus-base value="revised"' + (baseSel === 'revised' ? ' checked' : '') + '> <b>Revised Allocation</b> (the standard choice) — the Ministry of Finance vote book controls spending against the allocation as varied by approved transfers and virements (Comptroller of Accounts Accounting Manual §2.3.3; Financial Instructions 1965, para 103(2)).</label>' +
+      '<label style="display:block;margin:4px 0"><input type="radio" name="provbase" data-vstatus-base value="original"' + (baseSel === 'original' ? ' checked' : '') + '> <b>Original Provision</b> — choose this only if a written instruction on your file directs that the balance be measured against the original figure.</label>' +
+      'Whichever you choose is recorded on the case and printed in the verification certificate, so the checker can see exactly how the balance was worked out.</div>';
+  }
+
+  /* The computed vote balances, cautions and shortfall notice. */
+  function voteBalancesHTML(cf) {
+    var comp = M.votestatus.compute(cf.voteStatus);
+    var h = '';
+    if (cf.voteStatus && comp.ok) {
+      h += '<div class="notice green"><b>Computed:</b> Balance of Releases ' + fmtMoney(comp.cents.balanceOfReleases) +
+        ' · Balance of Provision ' + fmtMoney(comp.cents.balanceOfProvision) +
+        ' · Uncommitted Balance ' + fmtMoney(comp.cents.uncommittedBalance) +
+        (comp.notes.length ? '<br>' + esc(comp.notes.join(' ')) : '') +
+        (comp.errors.length ? '<br><b>Caution:</b> ' + esc(comp.errors.join(' ')) : '') + '</div>';
+      var total = M.verifycase.caseTotalCents(cf);
+      if (!isNaN(total) && total > 0) {
+        var short = M.votestatus.shortfallCents(cf.voteStatus, total);
+        h += short > 0
+          ? '<div class="notice red"><b>Shortfall:</b> the case total ' + fmtMoney(total) + ' exceeds the uncommitted balance by ' + fmtMoney(short) + '. The transfer line will print in the minute.</div>'
+          : '<div class="notice green">The uncommitted balance covers the case total ' + fmtMoney(total) + '.</div>';
+      }
+    } else if (cf.voteStatus) {
+      h += '<div class="notice red">' + esc(comp.errors.join(' ')) + '</div>';
+    }
     return h;
   }
 
@@ -317,6 +414,11 @@
       }
       h += '</tbody></table></div></fieldset>';
 
+      /* Situation explanations — shown ONLY when the situation actually
+         exists in this evaluation, in plain language. Held in a computed
+         container so they appear and disappear live as figures change,
+         without disturbing the fields being typed in. */
+      h += '<div data-compute="eval-situations">' + evalSituationsHTML(ev) + '</div>';
       /* selections */
       h += '<fieldset class="box"><legend>Recommendation per item (computed lowest unless the committee records otherwise)</legend><div class="scrollx"><table class="q"><thead><tr><th>Item</th><th>Computed</th><th>Committee selection</th><th>Justification (mandatory for an override)</th><th>Tie note</th></tr></thead><tbody>';
       for (var i3 = 0; i3 < ev.items.length; i3++) {
@@ -403,22 +505,12 @@
       h += '<label class="f">' + esc(f[1]) + ' $<input type="text" data-vstatus="' + f[0] + '" value="' + esc(vs[f[0]] || '') + '"></label>';
     });
     h += '</div>';
-    var comp = M.votestatus.compute(cf.voteStatus);
-    if (cf.voteStatus && comp.ok) {
-      h += '<div class="notice green"><b>Computed:</b> Balance of Releases ' + fmtMoney(comp.cents.balanceOfReleases) +
-        ' · Balance of Provision ' + fmtMoney(comp.cents.balanceOfProvision) +
-        ' · Uncommitted Balance ' + fmtMoney(comp.cents.uncommittedBalance) +
-        (comp.errors.length ? '<br><b>Caution:</b> ' + esc(comp.errors.join(' ')) : '') + '</div>';
-      var total = M.verifycase.caseTotalCents(cf);
-      if (!isNaN(total) && total > 0) {
-        var short = M.votestatus.shortfallCents(cf.voteStatus, total);
-        h += short > 0
-          ? '<div class="notice red"><b>Shortfall:</b> the case total ' + fmtMoney(total) + ' exceeds the uncommitted balance by ' + fmtMoney(short) + '. The transfer line will print in the minute.</div>'
-          : '<div class="notice green">The uncommitted balance covers the case total ' + fmtMoney(total) + '.</div>';
-      }
-    } else if (cf.voteStatus) {
-      h += '<div class="notice red">' + esc(comp.errors.join(' ')) + '</div>';
-    }
+    /* The provision-base question lives in a computed container: it is
+       offered ONLY while the two figures actually differ — when they are
+       equal the choice changes nothing and the question would only
+       confuse — and it appears or clears live as figures are typed. */
+    h += '<div data-compute="vote-base-box">' + voteBaseBoxHTML(cf) + '</div>';
+    h += '<div data-compute="vote-balances">' + voteBalancesHTML(cf) + '</div>';
     h += '</fieldset>';
     if (cf.pathway === 'P1' || cf.pathway === 'P2') {
       h += '<fieldset class="box"><legend>Item-and-quotation cases (legacy fields, used by the formation letter and old-style minute)</legend><div class="grid">';
@@ -577,6 +669,20 @@
         } else if (key[0] === 'disposal-total') {
           var dt = M.disposal.totalValuationCents(cf.disposal);
           out = isNaN(dt) ? '— fix the flagged valuations' : fmtMoney(dt);
+        } else if (key[0] === 'eval-situations') {
+          /* guidance containers hold no text inputs, so replacing their
+             innerHTML never disturbs anything being typed */
+          try { nodes[i].innerHTML = evalSituationsHTML(cf.evaluation); } catch (e2) { }
+          continue;
+        } else if (key[0] === 'vote-base-box') {
+          try { nodes[i].innerHTML = voteBaseBoxHTML(cf); } catch (e3) { }
+          continue;
+        } else if (key[0] === 'vote-balances') {
+          try { nodes[i].innerHTML = voteBalancesHTML(cf); } catch (e4) { }
+          continue;
+        } else if (key[0] === 'verbal-notlowest') {
+          try { nodes[i].innerHTML = verbalNotLowestHTML(cf.verbal); } catch (e5) { }
+          continue;
         } else continue;
       } catch (e) { out = '…'; }
       nodes[i].textContent = out;
