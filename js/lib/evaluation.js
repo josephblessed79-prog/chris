@@ -227,7 +227,7 @@
         itemIdx: i,
         desc: ev.items[i].desc,
         variant: ev.items[i].variant || '',
-        qtyText: ev.items[i].qty + (ev.items[i].unitName ? ' ' + ev.items[i].unitName : ''),
+        qtyText: ev.items[i].qtyText || (ev.items[i].qty + (ev.items[i].unitName ? ' ' + ev.items[i].unitName : '')),
         unitCents: c.unitCents,
         packs: c.packs,
         packSize: cellAt(ev, i, sel.supIdx) && cellAt(ev, i, sel.supIdx).packSize || null,
@@ -358,7 +358,7 @@
     h += '</tr>';
     for (i = 0; i < ev.items.length; i++) {
       var sel = effectiveSelection(ev, i);
-      h += '<tr><td class="ctr">' + (i + 1) + '.</td><td>' + esc(ev.items[i].desc) + (ev.items[i].variant ? '<br>' + esc(ev.items[i].variant) : '') + '</td><td class="ctr">' + esc(ev.items[i].qty + (ev.items[i].unitName ? ' ' + ev.items[i].unitName : '')) + '</td>';
+      h += '<tr><td class="ctr">' + (i + 1) + '.</td><td>' + esc(ev.items[i].desc) + (ev.items[i].variant ? '<br>' + esc(ev.items[i].variant) : '') + '</td><td class="ctr">' + esc(ev.items[i].qtyText || (ev.items[i].qty + (ev.items[i].unitName ? ' ' + ev.items[i].unitName : ''))) + '</td>';
       for (s = 0; s < ev.suppliers.length; s++) {
         if (ev.suppliers[s].status !== 'quoted') continue;
         var c = computeCell(ev, i, s);

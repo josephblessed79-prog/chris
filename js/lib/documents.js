@@ -81,7 +81,11 @@
     }
     if (docType === 'checklist') return dChecklist.buildChecklist(st);
     if (docType === 'certificate') {
-      if (extraBuilders['certificate']) return extraBuilders['certificate'](caseFile, profile);
+      /* Legacy profiles keep the byte-identical legacy certificate; hybrid
+         profiles get the pathway-aware certificate once it is loaded. */
+      if (profile.kind === 'hybrid-minute' && extraBuilders['certificate-hybrid']) {
+        return extraBuilders['certificate-hybrid'](caseFile, profile);
+      }
       return dCert.buildCert(st);
     }
     if (extraBuilders[docType]) return extraBuilders[docType](caseFile, profile);

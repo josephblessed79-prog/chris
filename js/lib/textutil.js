@@ -68,6 +68,14 @@
     return m[3] + '/' + m[2] + '/' + m[1].slice(2);
   }
 
+  /* iso yyyy-mm-dd -> "19.05.2026" (verbal-quotation schedule style). */
+  function fmtDateDots(iso) {
+    if (!iso) return '';
+    var m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return iso;
+    return m[3] + '.' + m[2] + '.' + m[1];
+  }
+
   /* Ensure a sentence ends with a stop. */
   function endStop(s) {
     s = (s || '').trim();
@@ -114,6 +122,7 @@
     fmtDateLong: fmtDateLong,
     fmtDateProse: fmtDateProse,
     fmtDateShort: fmtDateShort,
+    fmtDateDots: fmtDateDots,
     endStop: endStop,
     softLower: softLower,
     cleanNoteLine: cleanNoteLine,
