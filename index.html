@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOD Procurement Administration</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="app">
+  <div>
+    <h1>Ministry of Defence — Procurement Administration</h1>
+    <div class="sub">Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015 · Every figure computed, nothing invented · Works entirely on this computer</div>
+  </div>
+  <div id="statusPill">NO CASE OPEN</div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-t="start" class="active">Start</button>
+  <button data-t="case" disabled>Case Details</button>
+  <button data-t="work" disabled>Working Papers</button>
+  <button data-t="vote" disabled>Vote &amp; Funding</button>
+  <button data-t="fol" disabled>Folios</button>
+  <button data-t="ingest" disabled>Import Documents</button>
+  <button data-t="ver" disabled>Verification</button>
+  <button data-t="docs" disabled>Documents</button>
+  <button data-t="settings" disabled>Case File &amp; Register</button>
+</nav>
+
+<main>
+  <section class="panel show" id="tab-start"></section>
+  <section class="panel" id="tab-case"></section>
+  <section class="panel" id="tab-work"></section>
+  <section class="panel" id="tab-vote"></section>
+  <section class="panel" id="tab-fol"></section>
+  <section class="panel" id="tab-ingest"></section>
+  <section class="panel" id="tab-ver"></section>
+  <section class="panel" id="tab-docs"></section>
+  <section class="panel" id="tab-settings"></section>
+</main>
+
+<div class="footerbar">
+  <span id="autosaveNote" class="hint" style="margin-right:auto;align-self:center"></span>
+  <button class="btn sec" id="btnSave" disabled>Save Case (.json)</button>
+  <button class="btn sec" onclick="document.getElementById('loadFile').click()">Open Case / Old Draft</button>
+  <input type="file" id="loadFile" accept=".json" style="display:none">
+</div>
+
+<!-- ============ ENGINE (order matters: dependencies first) ============ -->
+<script src="js/lib/textutil.js"></script>
+<script src="js/lib/money.js"></script>
+<script src="js/lib/words.js"></script>
+<script src="js/lib/compute.js"></script>
+<script src="js/lib/verify.js"></script>
+<script src="js/lib/narrative.js"></script>
+<script src="js/lib/casemodel.js"></script>
+<script src="js/lib/folio.js"></script>
+<script src="js/lib/styleprofile.js"></script>
+<script src="js/lib/evaluation.js"></script>
+<script src="js/lib/verbal.js"></script>
+<script src="js/lib/votestatus.js"></script>
+<script src="js/lib/disposal.js"></script>
+<script src="js/lib/verifycase.js"></script>
+<script src="js/lib/docs/common.js"></script>
+<script src="js/lib/docs/approval.js"></script>
+<script src="js/lib/docs/minute.js"></script>
+<script src="js/lib/docs/checklist.js"></script>
+<script src="js/lib/docs/certificate.js"></script>
+<script src="js/lib/documents.js"></script>
+<script src="js/lib/docs/hybridminute.js"></script>
+<script src="js/lib/docs/verbalform.js"></script>
+<script src="js/lib/docs/evalreport.js"></script>
+<script src="js/lib/docs/hybridcert.js"></script>
+<script src="js/lib/docs/disposaldocs.js"></script>
+<script src="js/lib/ingest.js"></script>
+<script src="js/lib/ingestfiles.js"></script>
+<script src="js/lib/storage.js"></script>
+
+<!-- ============ STYLE PROFILES (data; add yours here) ============ -->
+<script src="styles/ministry-dotted.profile.js"></script>
+<script src="styles/ministry-circled.profile.js"></script>
+<script src="styles/ttcg-formation.profile.js"></script>
+<script src="styles/ministry-minute.profile.js"></script>
+<script src="styles/agency-neutral.profile.js"></script>
+
+<!-- ============ VENDORED PARSERS (see vendor/README.md) ============ -->
+<script src="vendor/xlsx/xlsx.full.min.js"></script>
+<script src="vendor/mammoth/mammoth.browser.min.js"></script>
+<script src="vendor/pdfjs/pdf.min.js"></script>
+<script src="vendor/tesseract/tesseract.min.js"></script>
+
+<!-- ============ APPLICATION ============ -->
+<script src="js/app/panels.js"></script>
+<script src="js/app/ingest-ui.js"></script>
+<script src="js/app/main.js"></script>
+</body>
+</html>

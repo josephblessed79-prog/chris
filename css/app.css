@@ -1,0 +1,110 @@
+/* app.css — application styling. The .doc block (document typography) is
+   kept byte-compatible with the legacy tool so previews match the printed
+   output. Plain CSS, no build step. */
+:root{--navy:#12263a;--blue:#1d4e79;--red:#b3261e;--amber:#9a6a00;--green:#1e6b34;--line:#c9d2dc;--bg:#f2f5f8;--ink:#1a232e}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+header.app{background:var(--navy);color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header.app h1{font-size:18px;margin:0;font-weight:600;letter-spacing:.3px}
+header.app .sub{font-size:12px;opacity:.75}
+#statusPill{font-weight:700;font-size:13px;padding:6px 14px;border-radius:20px;background:#5a6b7c;color:#fff}
+#statusPill.ok{background:var(--green)}#statusPill.bad{background:var(--red)}#statusPill.warn{background:var(--amber)}
+nav.tabs{display:flex;flex-wrap:wrap;background:#fff;border-bottom:2px solid var(--line);padding:0 10px}
+nav.tabs button{border:none;background:none;padding:12px 16px;font-size:14px;font-weight:600;color:#4a5a6a;cursor:pointer;border-bottom:3px solid transparent}
+nav.tabs button.active{color:var(--blue);border-bottom-color:var(--blue)}
+nav.tabs button:disabled{color:#b8c2cc;cursor:default}
+main{max-width:1280px;margin:0 auto;padding:18px 16px 80px}
+section.panel{display:none;background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 22px;margin-bottom:16px}
+section.panel.show{display:block}
+h2.p{margin:0 0 4px;font-size:17px;color:var(--navy)}
+p.hint{margin:0 0 16px;font-size:13px;color:#5a6b7c}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 18px;margin-bottom:8px}
+label.f{display:block;font-size:12.5px;font-weight:600;color:#37475a;margin-bottom:10px}
+label.f span.req{color:var(--red)}
+label.f input[type=text],label.f input[type=date],label.f input[type=number],label.f select,label.f textarea{width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;font-size:14px;font-family:inherit;background:#fcfdfe}
+label.f textarea{min-height:74px;resize:vertical}
+label.f input:focus,label.f select:focus,label.f textarea:focus{outline:2px solid #9dbede;border-color:var(--blue)}
+.wide{grid-column:1/-1}
+fieldset.box{border:1px solid var(--line);border-radius:6px;margin:0 0 18px;padding:14px 16px}
+fieldset.box legend{font-size:13px;font-weight:700;color:var(--blue);padding:0 6px}
+button.btn{background:var(--blue);color:#fff;border:none;border-radius:5px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer}
+button.btn.sec{background:#eef2f6;color:var(--navy);border:1px solid var(--line)}
+button.btn.danger{background:#fbeae9;color:var(--red);border:1px solid #e6b9b5}
+button.btn.small{padding:5px 10px;font-size:12.5px}
+button.btn:hover{filter:brightness(1.06)}
+button.btn:disabled{opacity:.45;cursor:default}
+table.q{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+table.q th{background:#eaf0f5;text-align:left;padding:6px 8px;border:1px solid var(--line);font-size:12px;white-space:nowrap}
+table.q td{border:1px solid var(--line);padding:4px 6px;vertical-align:top}
+table.q input[type=text],table.q input[type=number],table.q select{width:100%;border:1px solid #d7dee6;border-radius:4px;padding:5px 6px;font-size:13px;background:#fff}
+table.q td.tot{font-weight:700;text-align:right;white-space:nowrap;background:#f4f8f4}
+table.q td.ctr{text-align:center}
+table.q td.bad{background:#fbeae9}
+.rowbtns{white-space:nowrap}
+.scrollx{overflow-x:auto}
+ul.checks{list-style:none;margin:0;padding:0}
+ul.checks li{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin-bottom:8px;background:#fff}
+ul.checks li .tag{flex:0 0 62px;text-align:center;font-weight:800;font-size:12px;border-radius:4px;padding:4px 0;color:#fff}
+.tag.PASS{background:var(--green)}.tag.FAIL{background:var(--red)}.tag.WARN{background:var(--amber)}.tag.INFO{background:#5a6b7c}
+ul.checks li .body b{display:block;font-size:13.5px}
+ul.checks li .body span{font-size:12.5px;color:#5a6b7c}
+#docBar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+#preview{background:#8b98a5;padding:26px 10px;border-radius:8px;overflow:auto}
+.sheet{background:#fff;max-width:816px;margin:0 auto;padding:72px 86px;box-shadow:0 2px 14px rgba(0,0,0,.28);min-height:900px}
+.footerbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid var(--line);padding:10px 22px;display:flex;gap:10px;justify-content:flex-end;z-index:5}
+.notice{border-left:4px solid var(--amber);background:#fdf7e8;padding:10px 14px;font-size:13px;border-radius:4px;margin-bottom:14px}
+.notice.red{border-left-color:var(--red);background:#fbeae9}
+.notice.green{border-left-color:var(--green);background:#eaf5ec}
+.pathcard{border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:8px;padding:16px 18px;margin-bottom:12px;background:#fbfcfe;cursor:pointer}
+.pathcard:hover{background:#eef4fa}
+.pathcard h3{margin:0 0 6px;font-size:15px;color:var(--navy)}
+.pathcard p{margin:0;font-size:13px;color:#5a6b7c}
+.cand{border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:8px;background:#fff;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.cand .kind{flex:0 0 74px;text-align:center;font-weight:700;font-size:11px;border-radius:4px;padding:3px 0;background:#e3e9ef;color:var(--navy);text-transform:uppercase}
+.cand .body{flex:1;min-width:260px}
+.cand .body .v{font-weight:700}
+.cand .body .snip{font-size:12px;color:#5a6b7c;font-style:italic}
+.cand .body .note{font-size:12px;color:#7a5b00}
+.cand.accepted{border-left:4px solid var(--green)}
+.cand.rejected{opacity:.45}
+.conf{font-size:11px;font-weight:700;border-radius:4px;padding:2px 8px}
+.conf.high{background:#eaf5ec;color:var(--green)}
+.conf.medium{background:#fdf7e8;color:var(--amber)}
+.conf.low{background:#fbeae9;color:var(--red)}
+/* ---------- generated document typography (legacy-compatible) ---------- */
+.doc{font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.42;color:#000}
+.doc p{margin:0 0 11pt;text-align:justify}
+.doc .lh{text-align:center;line-height:1.15;margin-bottom:4pt}
+.doc .lh .f1{font-weight:bold;font-size:13pt;letter-spacing:.5px}
+.doc .lh .f2{font-size:9.5pt}
+.doc .ttl{text-align:center;font-weight:bold;text-decoration:underline;margin:14pt 0 12pt;text-transform:uppercase}
+.doc table.cmp{border-collapse:collapse;width:100%;font-size:10pt;margin:6pt 0 12pt}
+.doc table.cmp th,.doc table.cmp td{border:1px solid #000;padding:4pt 5pt;vertical-align:top}
+.doc table.cmp th{background:#dbe3ec;text-align:center}
+.doc table.cmp td.num{text-align:right;white-space:nowrap}
+.doc table.cmp td.ctr{text-align:center}
+.doc .np{display:flex;gap:10pt}.doc .np .no{flex:0 0 28pt}
+.doc .uhead{font-weight:bold;text-decoration:underline;margin:12pt 0 6pt}
+.doc ul.rsn{margin:0 0 11pt 40pt;padding:0}
+.doc ul.rsn li{margin-bottom:3pt}
+.doc .sig{margin-top:34pt}
+.doc .sig div{line-height:1.25}
+.doc ol.att{margin:4pt 0 0 40pt;padding:0;font-size:11pt}
+.doc table.fol{width:100%;border-collapse:collapse;font-size:11.5pt}
+.doc table.fol td{padding:2pt 0;vertical-align:bottom}
+.doc table.fol td.d1{border-bottom:1px dotted #000}
+.doc table.fol td.d2{white-space:nowrap;padding-left:8pt}
+.doc .draftstamp{border:2.5px solid #b3261e;color:#b3261e;font-family:Arial;font-weight:800;text-align:center;padding:6pt;margin-bottom:14pt;font-size:11pt;letter-spacing:1px}
+.doc table.cert{border-collapse:collapse;width:100%;font-size:10pt;margin:6pt 0 12pt}
+.doc table.cert th,.doc table.cert td{border:1px solid #000;padding:4pt 5pt;text-align:left;vertical-align:top}
+.doc table.cert th{background:#dbe3ec}
+.doc table.cert td.r{text-align:center;font-weight:bold}
+.doc td.chk{width:34pt;text-align:center}
+@media print{
+ body{background:#fff}
+ header.app,nav.tabs,.footerbar,#docBar,section.panel:not(#tab-docs),p.hint,.notice{display:none!important}
+ main{max-width:none;padding:0}
+ #tab-docs{display:block!important;border:none;padding:0}
+ #preview{background:#fff;padding:0}
+ .sheet{box-shadow:none;max-width:none;padding:0;min-height:0}
+}
