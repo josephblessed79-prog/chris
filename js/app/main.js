@@ -348,6 +348,10 @@
       if (cf.voteStatus) cf.voteStatus.provisionBase = target.value;
       return true;
     }
+    if (target.hasAttribute('data-sheetnum')) {
+      cf.sheetNumbering = target.value;
+      return true;
+    }
     if ((attr = target.getAttribute('data-vstatus'))) {
       if (!cf.voteStatus) cf.voteStatus = { originalProvision: '', revisedAllocation: '', releasesToDate: '', expenditureToDate: '', commitment: '' };
       cf.voteStatus[attr] = v;

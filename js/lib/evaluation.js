@@ -350,7 +350,7 @@
 
   /* The evaluation worksheet: the sample grid, hardened. */
   function worksheetHTML(ev) {
-    var h = '<table class="cmp"><tr><th style="width:4%">No.</th><th>Items Requested</th><th style="width:10%">Quantity Requested</th>';
+    var h = '<table class="cmp"><thead><tr><th style="width:4%">No.</th><th>Items Requested</th><th style="width:10%">Quantity Requested</th>';
     var s, i;
     for (s = 0; s < ev.suppliers.length; s++) {
       if (ev.suppliers[s].status !== 'quoted') continue;
@@ -361,7 +361,7 @@
       if (ev.suppliers[s].status !== 'quoted') continue;
       h += '<th>Unit</th><th>Total</th>';
     }
-    h += '</tr>';
+    h += '</tr></thead>';
     for (i = 0; i < ev.items.length; i++) {
       var sel = effectiveSelection(ev, i);
       h += '<tr><td class="ctr">' + (i + 1) + '.</td><td>' + esc(ev.items[i].desc) + (ev.items[i].variant ? '<br>' + esc(ev.items[i].variant) : '') + '</td><td class="ctr">' + esc(ev.items[i].qtyText || (ev.items[i].qty + (ev.items[i].unitName ? ' ' + ev.items[i].unitName : ''))) + '</td>';
@@ -395,7 +395,7 @@
     h += '</table>';
     var dnq = didNotQuote(ev);
     if (dnq.length) {
-      h += '<table class="cmp" style="width:60%"><tr><th style="width:10%">No.</th><th>Suppliers that Did Not Quote</th></tr>';
+      h += '<table class="cmp" style="width:60%"><thead><tr><th style="width:10%">No.</th><th>Suppliers that Did Not Quote</th></tr></thead>';
       for (var d = 0; d < dnq.length; d++) h += '<tr><td class="ctr">' + (d + 1) + '.</td><td>' + esc(dnq[d]) + '</td></tr>';
       h += '</table>';
     }
@@ -406,8 +406,8 @@
   function awardTableHTML(ev, schedule) {
     var hasNV = schedule.rows.some(function (r) { return !r.vatable; });
     var hasV = schedule.rows.some(function (r) { return r.vatable; });
-    var h = '<table class="cmp"><tr><th style="width:5%">No.</th><th>Items Requested</th><th style="width:14%">Quantity Requested</th><th colspan="2">' + esc(schedule.name) + '</th></tr>';
-    h += '<tr><th></th><th></th><th></th><th style="width:16%">Unit</th><th style="width:16%">Total</th></tr>';
+    var h = '<table class="cmp"><thead><tr><th style="width:5%">No.</th><th>Items Requested</th><th style="width:14%">Quantity Requested</th><th colspan="2">' + esc(schedule.name) + '</th></tr>';
+    h += '<tr><th></th><th></th><th></th><th style="width:16%">Unit</th><th style="width:16%">Total</th></tr></thead>';
     for (var i = 0; i < schedule.rows.length; i++) {
       var r = schedule.rows[i];
       var unitTxt = fmtMoney(r.unitCents);
@@ -432,8 +432,8 @@
   function breakdownTableHTML(ev) {
     var bk = breakdown(ev);
     var anyNV = bk.schedules.some(function (s) { return s.nvCents > 0; });
-    var h = '<table class="cmp"><tr><th colspan="' + (anyNV ? 5 : 4) + '">Breakdown of Price per Company</th></tr>';
-    h += '<tr><th>Suppliers</th>' + (anyNV ? '<th>Sub Total (NV)</th><th>Sub Total (V)</th>' : '<th>Sub Total</th>') + '<th>Vat</th><th>Total</th></tr>';
+    var h = '<table class="cmp"><thead><tr><th colspan="' + (anyNV ? 5 : 4) + '">Breakdown of Price per Company</th></tr>';
+    h += '<tr><th>Suppliers</th>' + (anyNV ? '<th>Sub Total (NV)</th><th>Sub Total (V)</th>' : '<th>Sub Total</th>') + '<th>Vat</th><th>Total</th></tr></thead>';
     for (var i = 0; i < bk.schedules.length; i++) {
       var s = bk.schedules[i];
       h += '<tr><td>' + esc(s.name) + '</td>' +

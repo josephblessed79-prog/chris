@@ -89,9 +89,9 @@
   function tableHTML(vs, columns) {
     var c = compute(vs);
     var cols = columns || ['Original Provision', 'Revised Allocation', 'Releases\nTo Date', 'Expenditure\nto date', 'Commitment', 'Balance of Releases', 'Balance of\nProvision', 'Uncommitted Balance'];
-    var h = '<table class="cmp"><tr>';
+    var h = '<table class="cmp"><thead><tr>';
     for (var i = 0; i < cols.length; i++) h += '<th>' + esc(cols[i]).replace(/\n/g, '<br>') + '</th>';
-    h += '</tr><tr>';
+    h += '</tr></thead><tr>';
     if (!c.ok) {
       h += '<td colspan="' + cols.length + '" style="text-align:center"><b>VOTE FIGURES INCOMPLETE — ' + esc(c.errors.join(' ')) + '</b></td>';
     } else {

@@ -76,6 +76,9 @@
       pathway: pathway,
       styleProfileId: styleProfileId || 'ministry-dotted',
       folioStart: 1,
+      /* null until decided; 'manual' | 'follow-folio'. The question is
+         only put to the user when folioStart is above 1 (see verifycase). */
+      sheetNumbering: null,
       meta: {
         app: APP, appVersion: APP_VERSION,
         createdAt: now, modifiedAt: now,
@@ -168,6 +171,9 @@
     if (!cf.docState || typeof cf.docState !== 'object') errs.push('docState missing.');
     if (typeof cf.styleProfileId !== 'string' || !cf.styleProfileId) errs.push('styleProfileId missing.');
     if (!(Number.isInteger(cf.folioStart) && cf.folioStart >= 1)) errs.push('folioStart must be a whole number of 1 or more.');
+    if (cf.sheetNumbering != null && cf.sheetNumbering !== 'manual' && cf.sheetNumbering !== 'follow-folio') {
+      errs.push('sheetNumbering must be "manual", "follow-folio", or unset.');
+    }
     if (!cf.meta || typeof cf.meta !== 'object' || !Array.isArray(cf.meta.history)) errs.push('meta.history missing.');
     return errs;
   }

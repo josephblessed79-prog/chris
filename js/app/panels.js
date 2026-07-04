@@ -97,7 +97,12 @@
     h += '<label class="f">Pathway<select data-special="pathway">' + Object.keys(M.casemodel.PATHWAYS).map(function (p) {
       return '<option value="' + p + '"' + (cf.pathway === p ? ' selected' : '') + '>' + p + ' — ' + esc(M.casemodel.PATHWAYS[p]) + '</option>';
     }).join('') + '</select></label>';
-    h += '</div></fieldset>';
+    h += '</div>';
+    /* The sheet-numbering question lives in a computed container: it is
+       asked ONLY while the starting folio is above 1 — with folio start 1
+       the sheet number already aligns and there is nothing to decide. */
+    h += '<div data-compute="sheet-number-box">' + sheetNumberBoxHTML(cf) + '</div>';
+    h += '</fieldset>';
     h += '<fieldset class="box"><legend>Reference and subject</legend><div class="grid">';
     h += fieldHTML('Minute file number (File No)', 'docState.minfile', { req: true, placeholder: 'e.g. MOD/PROC: 22/18/7:2026' });
     h += fieldHTML('Sheet number', 'docState.minsheet', { placeholder: '1a' });
@@ -320,6 +325,21 @@
         'The override and its reason are shown on the worksheet, in the evaluation report and on the verification certificate, and the totals simply follow your selection.</div>';
     }
     return h;
+  }
+
+  /* The sheet-numbering question — '' unless a starting folio above 1
+     makes it relevant to the file being prepared. */
+  function sheetNumberBoxHTML(cf) {
+    if (!(Number.isInteger(cf.folioStart) && cf.folioStart > 1)) return '';
+    var typed = (cf.docState && cf.docState.minsheet) || '1a';
+    var mode = cf.sheetNumbering;
+    return '<div class="notice"><b>Your starting folio number is ' + cf.folioStart + '. Should the sheet numbers follow it for this file?</b><br><br>' +
+      'In plain terms: a <b>folio number</b> is stamped on each paper so it can be tracked in an official file — your register here starts at ' + cf.folioStart + '. ' +
+      'A <b>sheet number</b> (like "' + esc(typed) + '") counts the minute sheets themselves. Some offices want the sheet numbers to carry the same starting number as the folios, so the whole file reads in one sequence; other offices treat sheet numbers separately and always start them at 1. ' +
+      'This is your office’s choice for this file, and it changes only the Sheet No printed at the top of the minute.<br><br>' +
+      '<label style="display:block;margin:4px 0"><input type="radio" name="sheetnum" data-sheetnum value="manual"' + (mode === 'manual' ? ' checked' : '') + '> <b>Keep sheet numbers separate</b> — the minute prints Sheet No ' + esc(typed) + ', exactly as typed.</label>' +
+      '<label style="display:block;margin:4px 0"><input type="radio" name="sheetnum" data-sheetnum value="follow-folio"' + (mode === 'follow-folio' ? ' checked' : '') + '> <b>Follow the starting folio</b> — the minute prints Sheet No ' + esc(M.folio.sheetLabel(typed, cf.folioStart, 'follow-folio')) + '.</label>' +
+      'Whichever you choose is recorded on the case and shown in the verification checks (G6), so the checker can see the decision. Until you choose, verification carries a caution.</div>';
   }
 
   /* The provision-base question — '' unless the two figures differ. */
@@ -676,6 +696,9 @@
           continue;
         } else if (key[0] === 'vote-base-box') {
           try { nodes[i].innerHTML = voteBaseBoxHTML(cf); } catch (e3) { }
+          continue;
+        } else if (key[0] === 'sheet-number-box') {
+          try { nodes[i].innerHTML = sheetNumberBoxHTML(cf); } catch (e6) { }
           continue;
         } else if (key[0] === 'vote-balances') {
           try { nodes[i].innerHTML = voteBalancesHTML(cf); } catch (e4) { }

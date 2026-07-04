@@ -108,15 +108,24 @@ the **correct** arithmetic. Catalogue of the signed sheets' own errors:
 | Pantry, Condensed Milk note | "(24/case)" with 5 cases = 240 | the arithmetic is a case of 48 (5 × $826.15 = $4,130.75, as printed); recorded as pack size 48 |
 | Boxed meals, header | File No 22/18/**7** on sheet 1a, 22/18/**4** on sheet 1b | one file number per case; the system prints one |
 
-## 6. Continuation sheets
+## 6. Continuation sheets — RESOLVED
 
-The samples hard-type "Minute (1) Continues…" and fresh headers (Sheet
-No 1b, 2a) at each page break. Page breaks depend on Word's pagination
-at print time, which a generator cannot know. The generated minute is a
-single flowing document; the sheet number field prints once. ➤ If
-continuation headers are required, the practical route is a Word page
-header — say the word and it will be documented in the user guide; the
-engine cannot honestly compute page breaks.
+**Confirmed (July 2026): continuation headers are a documented Word
+formatting step, as a safeguard for printed clarity and administrative
+traceability, with no alteration to the approved output layout beyond
+what proper continuation requires.** Implemented in two parts:
+
+1. **Computed part (tables).** Every generated table now marks its
+   header row as a true table header (`<thead>`), which Word treats as
+   "Repeat as header row at the top of each page". When a schedule,
+   award table, worksheet, register or vote table continues onto another
+   page, its headings repeat automatically. This changes nothing on a
+   single page — the layout is identical.
+2. **Documented part (minute headers).** The samples hard-type
+   "Minute (1) Continues…" and fresh sheet headers (1b, 2a) at page
+   breaks. Page breaks depend on Word's pagination at print time, which
+   a generator cannot honestly compute; the Word step is documented in
+   USER-GUIDE.md ("Continuation sheets") and README-IT.md.
 
 ## 7. OPR line uses the collective "are"
 
@@ -147,9 +156,17 @@ verified authority is supplied.
 - The folio register's wide gaps ("Folios  1   to   6    refers,") are
   reproduced; in the hand-typed originals they existed for manual
   amendment — here the numbers are computed, so the gaps are cosmetic.
-- Sheet numbering (1a, 1b…) stays a typed field; only folio numbers are
-  computed. ➤ Confirm the starting-folio requirement does not extend to
-  sheet numbers.
+- **Sheet numbering — RESOLVED (July 2026):** the starting-folio
+  requirement is not hard-coded onto sheet numbers. When a starting
+  folio above 1 is set, the user decides per case whether the sheet
+  numbers follow it or stay as typed; the question is asked only when
+  it arises, explained on screen in plain terms (a folio number tracks
+  the papers in an official file; some offices carry the same starting
+  number onto the sheet numbers, others keep them separate), and the
+  decision is recorded in the G6 check detail, which prints on every
+  verification certificate. Until decided, verification carries a
+  caution. Covered by `tests/sheetnumbers.test.js` and
+  `tools/browser-smoke-guidance.js`.
 - Case IDs (`CASE-YYYYMMDD-XXXXXX`) are file-management identifiers only
   and never appear in any generated document.
 - Figures are capped at $999,999,999,999.99 so that every computation

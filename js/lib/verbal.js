@@ -72,7 +72,7 @@
   /* The per-date schedule table (Table 1 of the boxed-meals minute). */
   function scheduleTableHTML(verbal) {
     var sel = selectedContact(verbal);
-    var h = '<table class="cmp"><tr><th>Supplier</th><th>Date</th><th>Description</th><th>Quantity</th><th>Rate</th><th>Total</th></tr>';
+    var h = '<table class="cmp"><thead><tr><th>Supplier</th><th>Date</th><th>Description</th><th>Quantity</th><th>Rate</th><th>Total</th></tr></thead>';
     for (var i = 0; i < verbal.schedule.length; i++) {
       var r = verbal.schedule[i];
       var rt = rowTotalCents(r);

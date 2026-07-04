@@ -128,6 +128,32 @@ Whatever route a figure took into the case, the verification
 certificate still requires a person to compare it against the folio
 before the pack is carried for signature.
 
+## Continuation sheets (printing long documents)
+
+When a table is longer than a page, its headings repeat automatically on
+the next page — nothing to do. For the minute sheet itself, the house
+style carries "Minute (1) Continues…" and a fresh header (Sheet No 1b,
+2a…) at each page break. Where a page break falls depends on Word at
+print time, so this is a quick Word step, done once after downloading:
+
+1. Open the downloaded `.doc` in Word and look where the pages break.
+2. At the top of each continuation page, use **Insert → Header** (or
+   type at the top of the page) to add the same header line — File No,
+   and the next sheet number — and add "Minute (1) Continues…" at the
+   foot of the page before it, exactly as the office has always done.
+3. Change nothing else; the figures and text are already final.
+
+## Starting folio and sheet numbers
+
+If your physical file does not begin at folio 1, set the starting folio
+number on Case Details — every folio reference in every document
+renumbers itself. When you do that, the screen will ask one question:
+should the **sheet numbers** follow the same starting number, or stay as
+typed? It explains the difference in plain terms; whichever you choose
+is recorded on the case and shown in the verification checks, and it
+changes only the Sheet No printed at the top of the minute. If your
+starting folio is 1, you are not asked.
+
 ## The verification certificate
 
 Print it last. Part A is the automated checks. Part B lists every

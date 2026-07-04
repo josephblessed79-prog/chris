@@ -85,6 +85,26 @@ const { chromium } = require('playwright-core');
   check('shortfall: explanation appears', workText.includes('offered less than the quantity required'));
   check('shortfall: explains the override route', workText.includes('show that choice as an override'));
 
+  // ---- sheet numbering: asked only when the starting folio is above 1
+  await page.click('nav.tabs button[data-t="case"]');
+  await page.waitForTimeout(200);
+  let caseText = await page.textContent('#tab-case');
+  check('folio start 1: NO sheet-number question', !caseText.includes('Should the sheet numbers follow it'));
+  await page.fill('[data-special="folioStart"]', '5');
+  await page.dispatchEvent('[data-special="folioStart"]', 'change');
+  await page.waitForTimeout(250);
+  caseText = await page.textContent('#tab-case');
+  check('folio start 5: sheet-number question appears', caseText.includes('Should the sheet numbers follow it for this file?'));
+  check('sheet question explains folio vs sheet plainly', caseText.includes('stamped on each paper so it can be tracked'));
+  await page.check('input[data-sheetnum][value="follow-folio"]');
+  await page.waitForTimeout(250);
+  const sheetChoice = await page.evaluate(() => window.APP.caseFile.sheetNumbering);
+  check('sheet-number decision recorded on the case', sheetChoice === 'follow-folio');
+  await page.click('nav.tabs button[data-t="ver"]');
+  await page.waitForTimeout(250);
+  const verText2 = await page.textContent('#tab-ver');
+  check('G6 records the decision in the checks', verText2.includes('Decision recorded on this case'));
+
   check('no page errors', errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));
   await browser.close();

@@ -87,7 +87,7 @@
     /* header */
     h += '<table style="width:100%;border-collapse:collapse;font-size:11.5pt"><tr>' +
       '<td><b>' + esc(p.header.fileNoLabel) + '\u00A0\u00A0 ' + esc(st.minfile || st.ref || '[file number]') + '\u00A0\u00A0 ' + esc(p.header.tempVol) + '</b></td>' +
-      '<td style="text-align:right"><b>Sheet No:\u00A0 ' + esc(st.minsheet || '1a') + '</b></td></tr></table>';
+      '<td style="text-align:right"><b>Sheet No:\u00A0 ' + esc(folio.sheetLabel(st.minsheet || '1a', caseFile.folioStart, caseFile.sheetNumbering)) + '</b></td></tr></table>';
     h += '<div class="ttl" style="margin-top:10pt">' + esc(p.header.title) + '</div>';
 
     /* folio register — numbering computed from folioStart in the profile style */

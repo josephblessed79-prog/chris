@@ -84,12 +84,33 @@
     return h;
   }
 
+  /* Sheet number label for the minute header.
+     A folio number tracks the papers in the file; a sheet number tracks
+     the minute sheets. Some offices want the sheet numbers to follow the
+     same starting number as the folios; others treat them separately.
+     That is a per-case decision (caseFile.sheetNumbering):
+       'manual' (or unset) — the typed sheet number is printed as typed;
+       'follow-folio'      — the leading digits of the typed sheet number
+                             are replaced with the starting folio number
+                             ('1a' with start 41 prints '41a').
+     The decision is recorded in the verification detail (see verifycase). */
+  function sheetLabel(typed, folioStart, mode) {
+    var t = String(typed == null ? '' : typed).trim();
+    if (mode !== 'follow-folio') return t;
+    var start = Number.isInteger(folioStart) && folioStart >= 1 ? folioStart : 1;
+    if (!t) return start + 'a';
+    var m = t.match(/^\d+(.*)$/);
+    if (m) return start + m[1];
+    return start + t;
+  }
+
   return {
     circled: circled,
     numbered: numbered,
     numberOfTag: numberOfTag,
     rangeText: rangeText,
     proseRef: proseRef,
-    registerHTML: registerHTML
+    registerHTML: registerHTML,
+    sheetLabel: sheetLabel
   };
 });

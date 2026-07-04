@@ -35,7 +35,7 @@
   }
 
   function inventoryTable(d) {
-    var h = '<table class="cmp"><tr><th style="width:4%">No.</th><th>Description of property</th><th style="width:12%">Identification</th><th style="width:6%">Qty</th><th style="width:12%">Condition</th><th style="width:12%">Location</th><th style="width:12%">Valuation</th><th style="width:16%">Valuation basis / date</th></tr>';
+    var h = '<table class="cmp"><thead><tr><th style="width:4%">No.</th><th>Description of property</th><th style="width:12%">Identification</th><th style="width:6%">Qty</th><th style="width:12%">Condition</th><th style="width:12%">Location</th><th style="width:12%">Valuation</th><th style="width:16%">Valuation basis / date</th></tr></thead>';
     for (var i = 0; i < d.items.length; i++) {
       var it = d.items[i];
       var v = disposal.itemValuationCents(it);
@@ -60,7 +60,7 @@
     var d = caseFile.disposal || disposal.newDisposal();
     var st = caseFile.docState;
     var h = AUTHORITY_BANNER + verifycase.draftStamp(caseFile);
-    h += '<table style="width:100%;border-collapse:collapse;font-size:11.5pt"><tr><td><b>File No:   ' + esc(st.minfile || st.ref || '[file number]') + '</b></td><td style="text-align:right"><b>Sheet No:  ' + esc(st.minsheet || '1a') + '</b></td></tr></table>';
+    h += '<table style="width:100%;border-collapse:collapse;font-size:11.5pt"><tr><td><b>File No:   ' + esc(st.minfile || st.ref || '[file number]') + '</b></td><td style="text-align:right"><b>Sheet No:  ' + esc(folio.sheetLabel(st.minsheet || '1a', caseFile.folioStart, caseFile.sheetNumbering)) + '</b></td></tr></table>';
     h += '<div class="ttl" style="margin-top:10pt">MINUTE SHEET — DISPOSAL COMMITTEE</div>';
     h += folio.registerHTML(st.folios, caseFile.folioStart, (profile && profile.folio && profile.folio.style) || 'dotted');
     var range = folio.rangeText(st.folios, caseFile.folioStart);
@@ -72,7 +72,7 @@
     for (var g = 0; g < groups.length; g++) {
       var grp = groups[g];
       h += '<p style="margin:0 0 4pt"><b>Recommended method: ' + esc(grp.method) + '</b> — ' + grp.items.length + ' item(s), valuation ' + (grp.bad ? 'CHECK' : fmtMoney(grp.cents)) + '</p>';
-      h += '<table class="cmp"><tr><th style="width:5%">No.</th><th>Description</th><th style="width:12%">Condition</th><th style="width:14%">Valuation</th><th>Reason</th></tr>';
+      h += '<table class="cmp"><thead><tr><th style="width:5%">No.</th><th>Description</th><th style="width:12%">Condition</th><th style="width:14%">Valuation</th><th>Reason</th></tr></thead>';
       for (var i = 0; i < grp.items.length; i++) {
         var it = grp.items[i];
         var v = disposal.itemValuationCents(it);

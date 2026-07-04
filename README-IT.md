@@ -118,6 +118,16 @@ disposal file is available, its formats must be confirmed and the banner
 removed (in `js/lib/docs/disposaldocs.js`) — that is the one place a
 deliberate code change is expected.
 
+## Continuation formatting
+
+Generated tables wrap their heading rows in `<thead>`, which Word maps
+to "Repeat as header row at the top of each page" — long schedules stay
+readable when they spill onto a second page, with no visual change on a
+single page. Do not remove the `<thead>` markers when editing a document
+builder. The minute sheet's own continuation headers ("Minute (1)
+Continues…", Sheet No 1b) remain a documented Word step (USER-GUIDE.md,
+"Continuation sheets") because page breaks are only known at print time.
+
 ## Updating a vendored library
 
 See `vendor/README.md` for exact versions and files. Replace the file(s)

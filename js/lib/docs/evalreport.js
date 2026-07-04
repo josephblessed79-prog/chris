@@ -48,7 +48,7 @@
       (dnq.length ? ' and ' + textutil.countWord(dnq.length) + ' (' + dnq.length + ') did not quote' : '') +
       '. The comparison of every quoted item is at the attached worksheet; the committee’s determinations are set out below.</p>';
     /* per-item determinations, overrides spelled out */
-    h += '<table class="cert"><tr><th style="width:5%">No.</th><th>Item</th><th style="width:22%">Determination</th><th>Basis</th></tr>';
+    h += '<table class="cert"><thead><tr><th style="width:5%">No.</th><th>Item</th><th style="width:22%">Determination</th><th>Basis</th></tr></thead>';
     for (var i = 0; i < ev.items.length; i++) {
       var sel = evaluation.effectiveSelection(ev, i);
       var det, basis;

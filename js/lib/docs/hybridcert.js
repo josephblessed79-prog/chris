@@ -88,13 +88,13 @@
     h += '<p style="font-size:10.5pt"><b>Part A — Automated consistency checks.</b> Computed from the case data at the time of printing. ' +
       (fails ? ('<b style="color:#b3261e">' + fails + ' check(s) FAILED — the pack must not be carried for signature.</b>') : 'All checks passed.') +
       (warns ? (' ' + warns + ' caution(s) noted.') : '') + '</p>';
-    h += '<table class="cert"><tr><th style="width:9%">ID</th><th>Check</th><th style="width:10%">Result</th><th>Detail</th></tr>';
+    h += '<table class="cert"><thead><tr><th style="width:9%">ID</th><th>Check</th><th style="width:10%">Result</th><th>Detail</th></tr></thead>';
     for (var j = 0; j < R.length; j++) {
       h += '<tr><td>' + esc(R[j].id) + '</td><td>' + esc(R[j].name) + '</td><td class="r">' + R[j].result + '</td><td style="font-size:9pt">' + esc(R[j].detail) + '</td></tr>';
     }
     h += '</table>';
     h += '<p style="font-size:10.5pt;margin-top:14pt"><b>Part B — Figure-by-figure source verification (manual, mandatory).</b> The computer cannot read the paper file, and figures brought in by document ingestion are no more trustworthy than typed ones. For every line below, the checker compares the figure against the source document at the stated folio and initials the box. No pack proceeds to signature with an empty box.</p>';
-    h += '<table class="cert"><tr><th>Item</th><th>Supplier</th><th style="width:8%">Qty</th><th style="width:12%">Unit / Rate</th><th style="width:7%">V/NV</th><th style="width:12%">Total</th><th style="width:9%">Folio</th><th class="chk">✓</th></tr>';
+    h += '<table class="cert"><thead><tr><th>Item</th><th>Supplier</th><th style="width:8%">Qty</th><th style="width:12%">Unit / Rate</th><th style="width:7%">V/NV</th><th style="width:12%">Total</th><th style="width:9%">Folio</th><th class="chk">✓</th></tr></thead>';
     h += partBRows(caseFile);
     var total = verifycase.caseTotalCents(caseFile);
     h += '<tr><td colspan="5" style="text-align:right"><b>Case total (awarded / recommended)</b></td><td style="text-align:right"><b>' + (isNaN(total) ? 'CHECK' : fmtMoney(total)) + '</b></td><td></td><td class="chk"></td></tr>';

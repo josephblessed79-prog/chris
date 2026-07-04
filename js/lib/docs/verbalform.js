@@ -41,7 +41,7 @@
     h += '<p style="text-align:center;margin-top:-6pt">File: ' + esc(st.minfile || st.ref || '[file number]') + (st.date ? ' &nbsp;·&nbsp; Date: ' + esc(textutil.fmtDateProse(st.date)) : '') + '</p>';
     h += '<p><b>Requirement:</b> ' + esc(v.purpose || st.subject || '[purpose not stated]') + '</p>';
     h += '<p>The following companies were contacted by telephone and asked to quote verbally. The figures below are as given verbally; the written confirmation (where obtained) is filed at the folio noted in the minute.</p>';
-    h += '<table class="cert"><tr><th style="width:5%">No.</th><th>Company</th><th style="width:14%">Telephone</th><th style="width:13%">Date</th><th style="width:18%">Spoke to</th><th style="width:20%">Outcome</th></tr>';
+    h += '<table class="cert"><thead><tr><th style="width:5%">No.</th><th>Company</th><th style="width:14%">Telephone</th><th style="width:13%">Date</th><th style="width:18%">Spoke to</th><th style="width:20%">Outcome</th></tr></thead>';
     for (var i = 0; i < v.contacts.length; i++) {
       var c = v.contacts[i];
       h += '<tr><td class="r">' + (i + 1) + '</td><td>' + esc(c.name) + (v.selected === i ? ' <b>[SELECTED]</b>' : '') + '</td><td>' + esc(c.phone || '') + '</td><td>' + esc(textutil.fmtDateShort(c.date) || '') + '</td><td>' + esc(c.spokeTo || '') + '</td><td>' + outcomeText(c) + '</td></tr>';
@@ -69,7 +69,7 @@
     var h = verifycase.draftStamp(caseFile);
     h += '<div class="ttl">TELEPHONE-CONTACT REGISTER</div>';
     h += '<p style="text-align:center;margin-top:-6pt">File: ' + esc(st.minfile || st.ref || '[file number]') + '</p>';
-    h += '<table class="cert"><tr><th style="width:5%">No.</th><th>Company</th><th style="width:14%">Telephone</th><th style="width:13%">Date</th><th style="width:16%">Officer calling</th><th style="width:16%">Spoke to</th><th>Outcome</th></tr>';
+    h += '<table class="cert"><thead><tr><th style="width:5%">No.</th><th>Company</th><th style="width:14%">Telephone</th><th style="width:13%">Date</th><th style="width:16%">Officer calling</th><th style="width:16%">Spoke to</th><th>Outcome</th></tr></thead>';
     for (var i = 0; i < v.contacts.length; i++) {
       var c = v.contacts[i];
       h += '<tr><td class="r">' + (i + 1) + '</td><td>' + esc(c.name) + '</td><td>' + esc(c.phone || '') + '</td><td>' + esc(textutil.fmtDateShort(c.date) || '') + '</td><td>' + esc(c.officer || '') + '</td><td>' + esc(c.spokeTo || '') + '</td><td>' + outcomeText(c) + '</td></tr>';

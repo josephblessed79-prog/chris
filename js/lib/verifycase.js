@@ -60,6 +60,7 @@
     if (isDisposal) {
       R = R.concat(runGeneralChecks(caseFile));
       R = R.concat(disposal.runDisposalChecks(caseFile.disposal));
+      R = R.concat(sheetNumberingCheck(caseFile));
       return R; /* a disposal case has no procurement award or vote status */
     }
     if (isEval || isVerbal) {
@@ -69,8 +70,30 @@
     } else {
       R = R.concat(verify.runChecks(caseFile.docState));
     }
+    R = R.concat(sheetNumberingCheck(caseFile));
     R = R.concat(votestatus.runVoteChecks(caseFile.voteStatus, caseTotalCents(caseFile)));
     return R;
+  }
+
+  /* G6 — sheet numbering against a custom starting folio. The question
+     only exists when a starting folio other than 1 is set (with folio
+     start 1 the sheet number already aligns and nothing is asked). The
+     recorded decision is carried in the check detail so every
+     certificate shows how the sheet number was arrived at. */
+  function sheetNumberingCheck(caseFile) {
+    if (!(Number.isInteger(caseFile.folioStart) && caseFile.folioStart > 1)) return [];
+    var typed = (caseFile.docState && caseFile.docState.minsheet) || '';
+    if (caseFile.sheetNumbering === 'follow-folio') {
+      return [{ id: 'G6', name: 'Sheet numbering decision recorded', result: 'PASS',
+        detail: 'Sheet numbers follow the starting folio number (' + caseFile.folioStart + '): the minute prints Sheet No ' + folio.sheetLabel(typed, caseFile.folioStart, 'follow-folio') + '. Decision recorded on this case.', action: '' }];
+    }
+    if (caseFile.sheetNumbering === 'manual') {
+      return [{ id: 'G6', name: 'Sheet numbering decision recorded', result: 'PASS',
+        detail: 'Sheet numbers are kept separate from the folio numbering: the minute prints Sheet No ' + (typed || '1a') + ' as typed. Decision recorded on this case.', action: '' }];
+    }
+    return [{ id: 'G6', name: 'Sheet numbering decision recorded', result: 'WARN',
+      detail: 'The starting folio number is ' + caseFile.folioStart + ', and no decision is recorded on whether the sheet numbers should follow it or stay as typed (' + (typed || '1a') + ' at present).',
+      action: 'On Case Details, choose whether the sheet numbers follow the starting folio or are kept separate for this file.' }];
   }
 
   function stats(caseFile) {
