@@ -1,0 +1,159 @@
+====TABLE====
+| 	 | Items Requested | Quantity Requested | Suppliers |
+|  |  |  | Beyond Office Solutions Limited | Ramsackal’s Central Supermarket Limited |
+|  |  |  | Unit | Total | Unit | Total |
+| 1. | Brown Sugar | 1800g | 100 Packs | $25.50 | $2,550.00 | $20.50 | $2,050.00 |
+| 2. | White Sugar | 1800g | 100 Packs | $24.70(96 Packs) | $2,371.20v | $19.75 | $1,975.00v |
+| 3. | English Breakfast Tea  | Twinning’s | 20 Boxes | $39.95 | $799.00v | $38.00 | $760.00 |
+| 4. | Ensure | Chocolate 237ml | 108 Bottles | $19.25 | $2,079.00v | $20.00 | $2,160.00v |
+| 5. | Ensure | Vanilla 237ml | 108 Bottles | $19.25 | $2,079.00v | $20.00 | $2,160.00v |
+| 6. | Milo | 400g | 100 Packs | $45.55 | $4,555.00 | $42.00 | $4,200.00v |
+| 7. | Lucozade | Orange 360ml | 60 Bottles | $320.003 cases =72 (24/case) | $960.00v | $12.80 | $768.00v |
+| 8. | Lucozade | Tropical 360ml | 60 Bottles | $320.003 cases =72 (24/case) | $960.00v | $12.80 | $768.00v |
+| 9. | Condensed Milk | 395g | 240 Tins | $826.155 cases =240 (24/case) | $4,130.75 | $16.00 | $3,840.00 |
+| 10. | Evaporated Milk | Green Butterfly Evaporated Milk 250ml | 240 Packs  | $212.2510 cases =240 (24/case) | $2,122.50 | $8.00 | $1,920.00 |
+| 11. | Mauby | 750 ml | 60 Bottles | $242.005 cases =60 (12/case) | $1,210.00 | $16.00 | $960.00v |
+| 12. | Trinidad Juices | Orange 540ml | 200 Tins | $190.0017 cases =204 (12/case) | $3,230.00 | $15.50 | $3,100.00 |
+| 13. | Trinidad Juices | Grapefruit 540ml | 200 Tins | $172.0017 cases =204 (12/case) | $2,924.00v | $13.78 | $2,756.00v |
+| 14. | Trinidad Juices | Pineapple 540ml | 200 Tins | $172.0017 cases =204 (12/case) | $2,924.00 | $13.78 | $2,756.00v |
+| 15. | Wheat Crisp | Original 32g | 10 Packs of 9 Each | $25.75 | $257.50 | $25.00 | $250.00 |
+| 16. | Wheat Crisp | Garden Herb 32g | 10 Packs of 9 Each | $25.75 | $257.50 | $25.00 | $250.00 |
+| 17. | Ovaltine Biscuit | 150g | 50 Packs of 4 | $19.9548 packs  | $957.60 | $20.00 | $1,000.00 |
+| 18. | Cashew Nuts | Lightly salted 34g (Sunshine) | 100 Packs | $11.50(96) | $1,104.00v | $5.60 | $560.00v |
+| 19. | Peanuts | Salted Peanuts 30g (Sunshine) | 100 Packs | $5.00(96) | $480.00v | $2.75 | $275.00v |
+| 20. | Sun Mix | Salty Sweet 57g | 100 Packs | $11.50(96) | $1,104.00v | $8.00 | $800.00v |
+| 21. | Sun Mix | Fruit Fest 57g | 100 Packs | $11.50(96) | $1,104.00v | $8.90 | $890.00v |
+| 22. | Exotica Nuts | Fruit and Nut fusion 60g | 100 Packs | $9.95(96) | $955.20v | $8.90 | $890.00v |
+| 23. | Exotica Nuts | Premium Mix 49g | 100 Packs | $9.95(96) | $955.20v | $8.90 | $890.00v |
+| 24. | Digestive Biscuits | 41g | 96 Packs | $2.50 | $240.00 | $2.50 | $240.00 |
+| 25. | Dixee Crackers | Cheese 49g | 96 Packs | $5.60 | $537.60 | $5.00 | $480.00 |
+| 26. | Dixee Crackers | Peanut Butter 49g | 96 Packs | $5.60 | $537.60 | $5.00 | $480.00 |
+| 27. | Dixee Crackers | Guava 49g | 96 Packs | $5.60 | $537.60 | $5.00 | $480.00 |
+| 28. | Crix Snack Crackers | Cheese 50g | 60 Packs | $5.60 | $336.00 | $5.00 | $300.00 |
+| 29. | Crix Snack Crackers | Cheese and Spinach 50g | 60 Packs | $5.60 | $336.00 | $5.00 | $300.00 |
+| 30. | Plantain Chips | Lightly Salted 42g | 120 Packs | $6.00 | $720.00v | $5.50 | $660.00v |
+| 31. | Granola Bars | Nature Valley Variety Pack 42g | 25 Boxes of 12 | $50.95(25 box of 6)1 @ 8.50 | $1,273.75v | $84.001 @ 7.00 | $2,100.00v |
+| 32. | Tea Time Biscuits | Chocolate 40g | 200 Packs | $3.00 | $600.00 | $2.50 | $500.00 |
+| 33. | Tea Time Biscuits | Vanilla 40g | 200 Packs | $3.00 | $600.00 | $2.50 | $500.00 |
+| No.  | Suppliers that Did Not Quote. |
+| 1. | Massy Stores Limited |
+| 2. | A. S. Brydens & Sons (Trinidad) Limited |
+| 3. | Micon Marketing Limited |
+| 4. | The Food Hall Limited |
+| 5. | Pigalle’s Limited |
+====END TABLE====
+
+
+
+Sub Total (NV)
+$25,919.65
+Sub Total (NV)
+$16,450.00
+
+Sub Total (V)
+$19,868.35
+Sub Total (V)
+$25,568.00
+
+Vat
+$2,483.54
+Vat
+$3,196.00
+
+
+
+
+
+
+Total
+$48,271.54
+Total
+$45,214.00
+====TABLE====
+| Breakdown of Price per Company |
+| Suppliers | Sub Total (NV) | Sub Total (V) | Vat | Total |
+| Beyond Office Solutions Limited | $240.00 | $4,158.00 | $519.75 | $4,917.75 |
+| Ramsackal’s Central Supermarket Limited | $16,210.00 | $20,948.00 | $2,618.50 | $39,776.50 |
+|  | Total | $44,694.25 |
+====END TABLE====
+
+
+
+
+
+
+
+====TABLE====
+| No. | Items Requested | Quantity Requested | Suppliers |
+|  |  |  | Beyond Office Solutions Limited |
+|  |  |  | Unit | Total |
+| 1. | Ensure | Chocolate 237ml | 108 Bottles | $19.25 | $2,079.00v |
+| 2. | Ensure | Vanilla 237ml | 108 Bottles | $19.25 | $2,079.00v |
+| 3. | Digestive Biscuits | 41g | 96 Packs | $2.50 | $240.00 |
+|  | Sub Total (NV) | $240.00 |
+|  | Sub Total (V) | $4,158.00 |
+|  | Vat | $519.75 |
+|  | Total | $4,917.75 |
+====END TABLE====
+
+====TABLE====
+| No. | Items Requested | Quantity Requested | Suppliers |
+|  |  |  | Ramsackal’s Central Supermarket Limited |
+|  |  |  | Unit | Total |
+| 1. | Brown Sugar | 1800g | 100 Packs | $20.50 | $2,050.00 |
+| 2. | White Sugar | 1800g | 100 Packs | $19.75 | $1,975.00v |
+| 3. | English Breakfast Tea  | Twinning’s | 20 Boxes | $38.00 | $760.00 |
+| 4. | Milo | 400g | 100 Packs | $42.00 | $4,200.00v |
+| 5. | Lucozade | Orange 360ml | 60 Bottles | $12.80 | $768.00v |
+| 6. | Lucozade | Tropical 360ml | 60 Bottles | $12.80 | $768.00v |
+| 7. | Condensed Milk | 395g | 240 Tins | $16.00 | $3,840.00 |
+| 8. | Evaporated Milk | Green Butterfly Evaporated Milk 250ml | 240 Packs  | $8.00 | $1,920.00 |
+| 9. | Mauby | 750 ml | 60 Bottles | $16.00 | $960.00v |
+| 10. | Trinidad Juices | Orange 540ml | 200 Tins | $15.50 | $3,100.00 |
+| 11. | Trinidad Juices | Grapefruit 540ml | 200 Tins | $13.78 | $2,756.00v |
+| 12. | Trinidad Juices | Pineapple 540ml | 200 Tins | $13.78 | $2,756.00v |
+| 13. | Wheat Crisp | Original 32g | 10 Packs of 9 Each | $25.00 | $250.00 |
+| 14. | Wheat Crisp | Garden Herb 32g | 10 Packs of 9 Each | $25.00 | $250.00 |
+| 15. | Ovaltine Biscuit | 150g | 50 Packs of 4 | $20.00 | $1,000.00 |
+| 16. | Cashew Nuts | Lightly salted 34g (Sunshine) | 100 Packs | $5.60 | $560.00v |
+| 17. | Peanuts | Salted Peanuts 30g (Sunshine) | 100 Packs | $2.75 | $275.00v |
+| 18. | Sun Mix | Salty Sweet 57g | 100 Packs | $8.00 | $800.00v |
+| 19. | Sun Mix | Fruit Fest 57g | 100 Packs | $8.90 | $890.00v |
+| 20. | Exotica Nuts | Fruit and Nut fusion 60g | 100 Packs | $8.90 | $890.00v |
+| 21. | Exotica Nuts | Premium Mix 49g | 100 Packs | $8.90 | $890.00v |
+| 22. | Dixee Crackers | Cheese 49g | 96 Packs | $5.00 | $480.00 |
+| 23. | Dixee Crackers | Peanut Butter 49g | 96 Packs | $5.00 | $480.00 |
+| 24. | Dixee Crackers | Guava 49g | 96 Packs | $5.00 | $480.00 |
+| 25. | Crix Snack Crackers | Cheese 50g | 60 Packs | $5.00 | $300.00 |
+| 26. | Crix Snack Crackers | Cheese and Spinach 50g | 60 Packs | $5.00 | $300.00 |
+| 27. | Plantain Chips | Lightly Salted 42g | 120 Packs | $5.50 | $660.00v |
+| 28. | Granola Bars | Nature Valley Variety Pack 42g | 25 Boxes of 12 | $84.001 @ 7.00 | $2,100.00v |
+| 29. | Tea Time Biscuits | Chocolate 40g | 200 Packs | $2.50 | $500.00 |
+| 30. | Tea Time Biscuits | Vanilla 40g | 200 Packs | $2.50 | $500.00 |
+|  | Sub Total (NV) | $16,210.00 |
+|  | Sub Total (V) | $20,948.00 |
+|  | Vat | $2,618.50 |
+|  | Total | $39,776.50 |
+====END TABLE====
+	
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+		
+	

@@ -1,0 +1,40 @@
+====TABLE====
+| No. | Items Requested | Quantity Requested | Suppliers |
+|  |  |  | FT Farfan Ltd | Pillai Tools Co. Ltd  | J. Chai Trading Co. Ltd | Trintrac Limited |
+|  |  |  | Unit | Total | Unit | Total | Unit | Total |  |  |
+| 1. |       Brush cutterHigh power/high torqueFor professional useLightweight GasolineUsage: difficult terrainEngine: 2-MixPower output: 3.2Cutting tool: Auto Cut 46-2 Handle grip: Ergonomic | 8 Each | $6,222.50 (NV) | $49,780.00 | $7,425.00 | $59,405.44 | $6,600.00(NV) | $52,800.00 | $5,250.00(NV) | $42,000.00 |
+| 2. | Lower Back Pack Blower Low noiseGasolineProfessional useEngine: 4-MixFuel Capacity: 1.4L | 4 Each | $4,322.50 (V) | $17,290.00 | $4860.68 | $19,442.72 | $4,550.00(V) | $18,200.00 | $5,088.89(V) | $20,355.56 |
+| 3. | Pressure Washer GasolineHose length (50ft)Max pressure (4,200psi)Fuel capacity (7L)Engine: 4-Mix | 4 Each | $12,398.55(V) | $49,594.20 | $19,238.18 | $76,952.72 | $16,000.00(V) | $64,000.00 | $12,355.56(V) | $49,422.24 |
+| 4. | Ride-on Lawn Mower/Cutter GasolineZero TurnHeavy dutyEngine: 4-MixCutting Height: 35-90mmArea Mowed: 8,000 sq. ft | 2 Each | $40,570.00 (V) | $81,140.00 | $181,858.50 | $363,717.00 | $168,500.00(V) | $337,000.00 | $56,995.00(V) | $113,990.00 |
+| 5. | Pole Pruner GasolineEngine: 4-MixTelescopic Shaft: 16ftNon-Slip GripSemi-automatic choke | 3 Each | $4,930.50 (V) | $14,791.50 | $6,656.18 | $19,968.54 | $5,195.00(V) | $15,585.00 | $4,675.00(NV) | $14,025.00 |
+| 6. | Gas Hedge Trimmer High power/high torqueGasolineEngine: 2-MixFuel capacity (15.6oz) | 2 Each | $5,120.50 (V) | $10,241.00 | $6,912.68 Quoted (x3) | $20,738.04 | $3,600.00(V) | $7,200.00 | $2,724.44(V) | $5,448.88 |
+| 7. |  Chain Saw					 | 2 Each | $5,367.50 (NV)Option 1 | $10,735.00 | $7,246.13 | $14,492.26 | $5,695.00 (V) | $11,3900.00 | $5,495.00(NV) | $10,990.00 |
+|  | Sub Total (NV)  | $60,515.00 | Sub Total (NV) | - | Sub Total (NV) | $52,800.00 | Sub Total (NV)  | $67,015.00 |
+|  | Sub Total (V) | $173,056.70 | Sub Total (V) | $57,4716.72 | Sub Total (V) | $453,375.00 | Sub Total (V) | $189,216.68 |
+|  | Vat | $21,632.09 | Vat | $60,106.32 | Vat | $56,671.88 | Vat | $23,652.09 |
+|  | Total | $255,203.79 | Total | $634,823.04 | Total | 	 | Total | $256,231.68 |
+====END TABLE====
+	
+====TABLE====
+| 	 | 	 | 	 |
+| 	 | 	 | 	 |
+| 	 | 	 | 	 |
+| 	 | 	 | 	 |
+====END TABLE====
+	
+	
+	
+	
+====TABLE====
+| 	 |
+| 	 | 	 |
+| 	NV) | 	  |
+| 	V) | 	 |
+| 	 | 	 required |
+====END TABLE====
+	
+		
+	
+ 
+
+	

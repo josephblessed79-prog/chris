@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Approvals Composer</title>
+<style>
+:root{--navy:#12263a;--blue:#1d4e79;--red:#b3261e;--amber:#9a6a00;--green:#1e6b34;--line:#c9d2dc;--bg:#f2f5f8;--ink:#1a232e}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+header.app{background:var(--navy);color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header.app h1{font-size:18px;margin:0;font-weight:600;letter-spacing:.3px}
+header.app .sub{font-size:12px;opacity:.75}
+#statusPill{font-weight:700;font-size:13px;padding:6px 14px;border-radius:20px;background:#5a6b7c;color:#fff}
+#statusPill.ok{background:var(--green)}#statusPill.bad{background:var(--red)}#statusPill.warn{background:var(--amber)}
+nav.tabs{display:flex;flex-wrap:wrap;background:#fff;border-bottom:2px solid var(--line);padding:0 10px}
+nav.tabs button{border:none;background:none;padding:12px 16px;font-size:14px;font-weight:600;color:#4a5a6a;cursor:pointer;border-bottom:3px solid transparent}
+nav.tabs button.active{color:var(--blue);border-bottom-color:var(--blue)}
+nav.tabs button .n{display:inline-block;background:#e3e9ef;border-radius:50%;width:20px;height:20px;line-height:20px;text-align:center;font-size:12px;margin-right:6px}
+nav.tabs button.active .n{background:var(--blue);color:#fff}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 80px}
+section.panel{display:none;background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 22px;margin-bottom:16px}
+section.panel.show{display:block}
+h2.p{margin:0 0 4px;font-size:17px;color:var(--navy)}
+p.hint{margin:0 0 16px;font-size:13px;color:#5a6b7c}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 18px;margin-bottom:8px}
+label.f{display:block;font-size:12.5px;font-weight:600;color:#37475a;margin-bottom:10px}
+label.f span.req{color:var(--red)}
+label.f input[type=text],label.f input[type=date],label.f input[type=number],label.f select,label.f textarea{width:100%;margin-top:4px;padding:8px 10px;border:1px solid var(--line);border-radius:5px;font-size:14px;font-family:inherit;background:#fcfdfe}
+label.f textarea{min-height:74px;resize:vertical}
+label.f input:focus,label.f select:focus,label.f textarea:focus{outline:2px solid #9dbede;border-color:var(--blue)}
+.wide{grid-column:1/-1}
+fieldset.box{border:1px solid var(--line);border-radius:6px;margin:0 0 18px;padding:14px 16px}
+fieldset.box legend{font-size:13px;font-weight:700;color:var(--blue);padding:0 6px}
+button.btn{background:var(--blue);color:#fff;border:none;border-radius:5px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer}
+button.btn.sec{background:#eef2f6;color:var(--navy);border:1px solid var(--line)}
+button.btn.danger{background:#fbeae9;color:var(--red);border:1px solid #e6b9b5}
+button.btn.small{padding:5px 10px;font-size:12.5px}
+button.btn:hover{filter:brightness(1.06)}
+.itemCard{border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:6px;padding:14px 16px;margin-bottom:16px;background:#fbfcfe}
+.itemCard h3{margin:0 0 10px;font-size:14.5px;color:var(--navy)}
+table.q{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+table.q th{background:#eaf0f5;text-align:left;padding:6px 8px;border:1px solid var(--line);font-size:12px;white-space:nowrap}
+table.q td{border:1px solid var(--line);padding:4px 6px;vertical-align:top}
+table.q input[type=text],table.q input[type=number],table.q select{width:100%;border:1px solid #d7dee6;border-radius:4px;padding:5px 6px;font-size:13px;background:#fff}
+table.q td.tot{font-weight:700;text-align:right;white-space:nowrap;background:#f4f8f4}
+table.q td.ctr{text-align:center}
+.rowbtns{white-space:nowrap}
+ul.checks{list-style:none;margin:0;padding:0}
+ul.checks li{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin-bottom:8px;background:#fff}
+ul.checks li .tag{flex:0 0 62px;text-align:center;font-weight:800;font-size:12px;border-radius:4px;padding:4px 0;color:#fff}
+.tag.PASS{background:var(--green)}.tag.FAIL{background:var(--red)}.tag.WARN{background:var(--amber)}.tag.INFO{background:#5a6b7c}
+ul.checks li .body b{display:block;font-size:13.5px}
+ul.checks li .body span{font-size:12.5px;color:#5a6b7c}
+#docBar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+#preview{background:#8b98a5;padding:26px 10px;border-radius:8px;overflow:auto}
+.sheet{background:#fff;max-width:816px;margin:0 auto;padding:72px 86px;box-shadow:0 2px 14px rgba(0,0,0,.28);min-height:900px}
+.footerbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid var(--line);padding:10px 22px;display:flex;gap:10px;justify-content:flex-end;z-index:5}
+.notice{border-left:4px solid var(--amber);background:#fdf7e8;padding:10px 14px;font-size:13px;border-radius:4px;margin-bottom:14px}
+.notice.red{border-left-color:var(--red);background:#fbeae9}
+.notice.green{border-left-color:var(--green);background:#eaf5ec}
+/* ---------- generated document typography ---------- */
+.doc{font-family:"Times New Roman",Times,serif;font-size:12pt;line-height:1.42;color:#000}
+.doc p{margin:0 0 11pt;text-align:justify}
+.doc .lh{text-align:center;line-height:1.15;margin-bottom:4pt}
+.doc .lh .f1{font-weight:bold;font-size:13pt;letter-spacing:.5px}
+.doc .lh .f2{font-size:9.5pt}
+.doc .ttl{text-align:center;font-weight:bold;text-decoration:underline;margin:14pt 0 12pt;text-transform:uppercase}
+.doc table.cmp{border-collapse:collapse;width:100%;font-size:10pt;margin:6pt 0 12pt}
+.doc table.cmp th,.doc table.cmp td{border:1px solid #000;padding:4pt 5pt;vertical-align:top}
+.doc table.cmp th{background:#dbe3ec;text-align:center}
+.doc table.cmp td.num{text-align:right;white-space:nowrap}
+.doc table.cmp td.ctr{text-align:center}
+.doc .np{display:flex;gap:10pt}.doc .np .no{flex:0 0 28pt}
+.doc .uhead{font-weight:bold;text-decoration:underline;margin:12pt 0 6pt}
+.doc ul.rsn{margin:0 0 11pt 40pt;padding:0}
+.doc ul.rsn li{margin-bottom:3pt}
+.doc .sig{margin-top:34pt}
+.doc .sig div{line-height:1.25}
+.doc ol.att{margin:4pt 0 0 40pt;padding:0;font-size:11pt}
+.doc table.fol{width:100%;border-collapse:collapse;font-size:11.5pt}
+.doc table.fol td{padding:2pt 0;vertical-align:bottom}
+.doc table.fol td.d1{border-bottom:1px dotted #000}
+.doc table.fol td.d2{white-space:nowrap;padding-left:8pt}
+.doc .draftstamp{border:2.5px solid #b3261e;color:#b3261e;font-family:Arial;font-weight:800;text-align:center;padding:6pt;margin-bottom:14pt;font-size:11pt;letter-spacing:1px}
+.doc table.cert{border-collapse:collapse;width:100%;font-size:10pt;margin:6pt 0 12pt}
+.doc table.cert th,.doc table.cert td{border:1px solid #000;padding:4pt 5pt;text-align:left;vertical-align:top}
+.doc table.cert th{background:#dbe3ec}
+.doc table.cert td.r{text-align:center;font-weight:bold}
+.doc td.chk{width:34pt;text-align:center}
+@media print{
+ body{background:#fff}
+ header.app,nav.tabs,.footerbar,#docBar,section.panel:not(#tab-docs),p.hint,.notice{display:none!important}
+ main{max-width:none;padding:0}
+ #tab-docs{display:block!important;border:none;padding:0}
+ #preview{background:#fff;padding:0}
+ .sheet{box-shadow:none;max-width:none;padding:0;min-height:0}
+}
+</style>
+</head>
+<body>
+<header class="app">
+  <div>
+    <h1>Approvals Composer</h1>
+    <div class="sub">Deterministic drafting &amp; verification control — every figure entered once, every document computed, nothing invented.</div>
+  </div>
+  <div id="statusPill">NOT CHECKED</div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-t="start" class="active"><span class="n">0</span>Start</button>
+  <button data-t="case"><span class="n">1</span>Case Details</button>
+  <button data-t="items"><span class="n">2</span>Items &amp; Quotations</button>
+  <button data-t="rec"><span class="n">3</span>Recommendation &amp; Vote</button>
+  <button data-t="fol"><span class="n">4</span>Folios &amp; Attachments</button>
+  <button data-t="ver"><span class="n">5</span>Verification</button>
+  <button data-t="docs"><span class="n">6</span>Documents</button>
+</nav>
+
+<main>
+
+<!-- ============ TAB 0 START ============ -->
+<section class="panel show" id="tab-start">
+  <h2 class="p">How this works</h2>
+  <p class="hint">Read once. Two minutes.</p>
+  <div class="notice green"><b>The rule of the tool.</b> Every name, quantity, price and vote is typed <b>once</b>, straight from the document in the file. The tool does the arithmetic, writes every amount in words, builds the comparison table, and produces the Approval, the Minute Sheet, the Checklist and the Verification Certificate. It invents nothing. Anything missing is shown as a red failure, not papered over. Nothing leaves this computer; no internet is used at any point.</div>
+  <fieldset class="box"><legend>The six steps</legend>
+    <p><b>1 &mdash; Case Details.</b> File reference, date, addressee, subject, and signatory.</p>
+    <p><b>2 &mdash; Items &amp; Quotations.</b> One card per item. Choose the entry mode per card: <i>Quantity &times; unit cost</i> for priced line items (shoes, cable, laptops), or <i>Amount only</i> where a supplier gives one overall figure (promotional items, general supplies). Under each item, one row per supplier &mdash; including those that did not quote. Tick <b>Recommend</b> on the winning row of each item; different items may go to different suppliers, and the documents will set the award out supplier by supplier, with each supplier's items and amount.</p>
+    <p><b>3 &mdash; Recommendation &amp; Vote.</b> The procurement method, the reasons for the recommendation, the vote, and (optionally) narrative composed from your notes.</p>
+    <p><b>4 &mdash; Folios &amp; Attachments.</b> The minute-sheet folio list and the letter's attachments list. One click seeds both from the supplier rows.</p>
+    <p><b>5 &mdash; Verification.</b> Every control the supervisor would apply is run automatically. Green means the pack is internally consistent. Red tells you what to fix and, on that page, a <b>Fix &rarr;</b> button takes you straight to the field.</p>
+    <p><b>6 &mdash; Documents.</b> Preview, print, or download each document as a Word file.</p>
+  </fieldset>
+  <fieldset class="box"><legend>What the tool will not do</legend>
+    <p style="margin:0">It will not read the paper quotations for you, and it will not confirm that a typed figure matches the folio &mdash; only a person with the file open in front of them can do that. The Verification Certificate therefore prints every figure with a folio box and a tick box, so the checker confirms each one against the source before the pack is carried for signature. Any document generated while checks are failing is stamped <b style="color:var(--red)">DRAFT &mdash; NOT CLEARED</b> across the top.</p>
+  </fieldset>
+  <fieldset class="box"><legend>Saving your work</legend>
+    <p style="margin:0">Use <b>Save Draft</b> (bottom bar) at any time; a small <code>.json</code> file is downloaded. To continue later or on another computer, open this page and use <b>Load Draft</b>. Nothing is sent anywhere.</p>
+  </fieldset>
+  <button class="btn" onclick="go('case')">Begin &mdash; Case Details &rarr;</button>
+</section>
+
+<!-- ============ TAB 1 CASE ============ -->
+<section class="panel" id="tab-case">
+  <h2 class="p">1 · Case Details</h2>
+  <p class="hint">Fields marked <span style="color:var(--red)">*</span> are required before the pack can clear verification.</p>
+
+  <fieldset class="box"><legend>Letterhead (approval letter)</legend>
+    <div class="grid">
+      <label class="f wide">Formation name<input type="text" id="f_formation" value="TRINIDAD AND TOBAGO COAST GUARD"></label>
+      <label class="f wide">Letterhead lines (one per line)<textarea id="f_lhlines">C/O CARENAGE POST OFFICE
+REPUBLIC OF TRINIDAD AND TOBAGO
+WEST INDIES
+TELEPHONE: 224-3324
+634-1476</textarea></label>
+      <label class="f"><input type="checkbox" id="f_prelh"> Printing on pre-printed letterhead (suppress typed letterhead and leave space)</label>
+    </div>
+  </fieldset>
+
+  <fieldset class="box"><legend>Reference, date and addressee</legend>
+    <div class="grid">
+      <label class="f">File reference <span class="req">*</span><input type="text" id="f_ref" placeholder="e.g. CG: 5/4/7"></label>
+      <label class="f">Document date <span class="req">*</span><input type="date" id="f_date"></label>
+      <label class="f"><input type="checkbox" id="f_handdate"> Day inserted by hand (print month and year only)</label>
+      <label class="f wide">Addressee block <span class="req">*</span> (one line per line of the address)<textarea id="f_addr">Permanent Secretary
+Ministry of National Security
+Temple Court 2
+52-60 Abercromby Street
+PORT OF SPAIN</textarea></label>
+      <label class="f wide">Subject / title of approval <span class="req">*</span><input type="text" id="f_subject" placeholder="e.g. APPROVAL TO PURCHASE UNIFORM ITEMS (BLACK SHOES AND WHITE SHOES)"></label>
+    </div>
+  </fieldset>
+
+  <fieldset class="box"><legend>Signature block</legend>
+    <div class="grid">
+      <label class="f">Name (initial and surname) <span class="req">*</span><input type="text" id="f_signame" placeholder="e.g. S. White"></label>
+      <label class="f">Rank (optional)<input type="text" id="f_sigrank" placeholder="e.g. Lieutenant Commander"></label>
+      <label class="f">Appointment <span class="req">*</span><input type="text" id="f_sigapp" placeholder="e.g. Supply Officer"></label>
+      <label class="f">Formation line (optional)<input type="text" id="f_sigform" placeholder="e.g. Trinidad and Tobago Coast Guard"></label>
+    </div>
+  </fieldset>
+
+  <fieldset class="box"><legend>Minute sheet header (Ministry format)</legend>
+    <div class="grid">
+      <label class="f">Minute file number<input type="text" id="f_minfile" placeholder="e.g. MOD/PROC: 22/15/9: 2026"></label>
+      <label class="f">Sheet number<input type="text" id="f_minsheet" value="1a"></label>
+      <label class="f">Minute addressee<input type="text" id="f_minaddr" value="Permanent Secretary (Accounting Officer)"></label>
+      <label class="f">Routing line (Ufs)<input type="text" id="f_minufs" value="Ufs AOV"></label>
+      <label class="f">Minute signed by — name (optional, if different from the signature block above)<input type="text" id="f_minsigname" placeholder="e.g. O. Dennis"></label>
+      <label class="f">Minute signatory post (optional)<input type="text" id="f_minsigpost" placeholder="e.g. Public Procurement Supervisor"></label>
+    </div>
+  </fieldset>
+  <button class="btn" onclick="go('items')">Next — Items &amp; Quotations →</button>
+</section>
+
+<!-- ============ TAB 2 ITEMS ============ -->
+<section class="panel" id="tab-items">
+  <h2 class="p">2 · Items &amp; Quotations</h2>
+  <p class="hint">One card per item or requirement. Each card has two entry modes: <b>Quantity &times; unit cost</b> for priced line items, or <b>Amount only</b> where a supplier gives one overall figure. Under each item, one row per supplier the RFQ was sent to &mdash; including those that did not respond. Copy figures exactly as they appear on the quotation; the tool computes every total.</p>
+  <div id="itemsHost"></div>
+  <button class="btn" onclick="addItem()">＋ Add item</button>
+  <div style="margin-top:14px" class="notice"><b>Grand total (recommended lines):</b> <span id="grandLive">$0.00</span> — <span id="grandWordsLive" style="font-style:italic"></span></div>
+  <button class="btn" onclick="go('rec')">Next — Recommendation &amp; Vote →</button>
+</section>
+
+<!-- ============ TAB 3 RECOMMENDATION ============ -->
+<section class="panel" id="tab-rec">
+  <h2 class="p">3 · Recommendation &amp; Vote</h2>
+  <fieldset class="box"><legend>Procurement method</legend>
+    <div class="grid">
+      <label class="f">Method <span class="req">*</span>
+        <select id="f_method">
+          <option>Request for Quotation</option>
+          <option>Open Tender</option>
+          <option>Selective Tender</option>
+          <option>Direct Contracting</option>
+          <option>Single / National Provider</option>
+          <option>Emergency Procurement</option>
+        </select></label>
+      <label class="f">Statutory citation (auto-suggested, editable)<input type="text" id="f_act"></label>
+      <label class="f">Date RFQ / invitation issued<input type="date" id="f_rfqdate"></label>
+      <label class="f">Closing date for submissions<input type="date" id="f_deadline"></label>
+      <label class="f wide">Justification if Direct / Single Provider / Emergency <span class="req" id="justReq" style="display:none">*</span><textarea id="f_methodjust" placeholder="Required whenever the method is not competitive, or urgency is claimed."></textarea></label>
+    </div>
+  </fieldset>
+  <fieldset class="box"><legend>Background / operational need (approval paragraph 3)</legend>
+    <label class="f wide">State factually why the items or service are required and the consequence of not acquiring them. <span class="req">*</span><textarea id="f_need" style="min-height:96px" placeholder="e.g. Black Shoes and White Shoes are compulsory items of kit required by Ratings and Officers of the Trinidad and Tobago Coast Guard, as part of certain uniforms. The quantity requested will serve to satisfy the size deficiencies that currently exist within the Clothing Stores…"></textarea></label>
+  </fieldset>
+  <fieldset class="box"><legend>Basis of recommendation</legend>
+    <div class="grid">
+      <label class="f"><input type="checkbox" id="r_comm" checked> The company met the commercial criteria</label>
+      <label class="f"><input type="checkbox" id="r_tech" checked> The company met the technical criteria</label>
+      <label class="f"><input type="checkbox" id="r_low" checked> The company proposed the lowest cost</label>
+      <label class="f wide">OR alternative single basis (replaces the reasons above — e.g. <i>they are the national provider of air travel services between Trinidad and Tobago</i>)<input type="text" id="r_alt"></label>
+      <label class="f wide">Justification if the recommended supplier is <b>not</b> the lowest quoted (mandatory in that case)<textarea id="r_notlowest"></textarea></label>
+    </div>
+  </fieldset>
+  <fieldset class="box"><legend>VAT treatment and vote</legend>
+    <div class="grid">
+      <label class="f">VAT treatment <span class="req">*</span>
+        <select id="f_vat">
+          <option value="">— select —</option>
+          <option>VAT Inclusive</option>
+          <option>VAT Exclusive (VAT shown separately)</option>
+          <option>VAT and Duty Free</option>
+          <option>VAT Not Applicable</option>
+        </select></label>
+      <label class="f wide">Vote to be utilised <span class="req">*</span> (one line, or one line per vote element)<textarea id="f_vote" style="min-height:56px" placeholder="e.g. 02 Goods and Services, 006 Coast Guard, 03 - Uniform&#10;or one per line: Head: 84 Ministry of Defence / Sub-Head: 02 Goods and Services / Item / Sub-Item"></textarea></label>
+      <label class="f">Available funds on vote (optional, TT$)<input type="text" id="f_funds" placeholder="e.g. 250000.00"></label>
+    </div>
+  </fieldset>
+  <fieldset class="box"><legend>Minute sheet — additional narrative (optional)</legend>
+    <label class="f wide">Extra paragraphs for the minute (evaluation committee, supplier terms, urgency background). Separate paragraphs with a blank line. Leave empty if not needed.<textarea id="f_minextra" style="min-height:90px"></textarea></label>
+  </fieldset>
+  <fieldset class="box"><legend>Narrative composer (optional)</legend>
+    <p class="hint">The three narrative fields above take ordinary prose. Write them yourself, or use the composer below: enter the facts of the case and, if you wish, some rough notes, and the composer will stitch them into a starting draft in the house register. It runs on this computer &mdash; nothing leaves the machine, no internet is used, and no figure is invented (every dollar amount in the documents remains computed by the tool). The draft appears in a preview; nothing goes into the field until you read it and click Insert. Treat it as a first draft, not the finished paragraph.</p>
+    <div class="grid">
+      <label class="f">Write into
+        <select id="da_target">
+          <option value="need">Background / operational need</option>
+          <option value="methodjust">Method justification</option>
+          <option value="minextra">Extra minute paragraphs</option>
+        </select></label>
+      <label class="f">Activity / purpose<input type="text" id="da_activity" placeholder="e.g. Accounts Training for Finance Branch personnel"></label>
+      <label class="f">For whom / beneficiary<input type="text" id="da_who" placeholder="e.g. thirty-five members of staff"></label>
+      <label class="f">Date(s) / period<input type="text" id="da_when" placeholder="e.g. 14&ndash;18 July 2026"></label>
+      <label class="f wide">Consequence if not procured<input type="text" id="da_cons" placeholder="e.g. the training cannot be conducted and the annual training plan will slip"></label>
+      <label class="f wide">Rough notes (facts, fragments, anything &mdash; one point per line, or one paragraph per blank line for the extra minute paragraphs)<textarea id="da_notes" style="min-height:70px"></textarea></label>
+    </div>
+    <button class="btn" id="da_offline" type="button">Compose</button>
+    <span id="da_status" class="hint" style="display:inline-block;margin-left:8px"></span>
+    <div id="da_preview" style="display:none;border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin-top:10px;background:#fff;font-family:Georgia,serif"></div>
+    <div id="da_actions" style="display:none;margin-top:8px">
+      <button class="btn" id="da_insert" type="button">Insert into field</button>
+      <button class="btn sec" id="da_discard" type="button">Discard</button>
+    </div>
+  </fieldset>
+  <button class="btn" onclick="go('fol')">Next — Folios &amp; Attachments →</button>
+</section>
+
+<!-- ============ TAB 4 FOLIOS ============ -->
+<section class="panel" id="tab-fol">
+  <h2 class="p">4 · Folios &amp; Attachments</h2>
+  <fieldset class="box"><legend>Attachments list (approval letter)</legend>
+    <p class="hint">Click auto-build to create one line per quotation received and one per RFQ sent, from your supplier rows. Then adjust as needed.</p>
+    <button class="btn sec small" onclick="autoAttach()">Auto-build from supplier rows</button>
+    <table class="q" style="margin-top:10px"><thead><tr><th style="width:36px">No.</th><th>Attachment</th><th style="width:70px"></th></tr></thead><tbody id="attHost"></tbody></table>
+    <button class="btn sec small" onclick="addAtt('')">＋ Add attachment line</button>
+  </fieldset>
+  <fieldset class="box"><legend>Folio list (minute sheet)</legend>
+    <p class="hint">The numbered folio register at the head of the minute sheet, each with its date. Click auto-build to seed it from the attachments, then set the dates.</p>
+    <button class="btn sec small" onclick="autoFolios()">Auto-build from attachments</button>
+    <table class="q" style="margin-top:10px"><thead><tr><th style="width:36px">No.</th><th>Folio description</th><th style="width:150px">Date (dd/mm/yy)</th><th style="width:70px"></th></tr></thead><tbody id="folHost"></tbody></table>
+    <button class="btn sec small" onclick="addFol('','')">＋ Add folio line</button>
+  </fieldset>
+  <button class="btn" onclick="go('ver')">Next — Verification →</button>
+</section>
+
+<!-- ============ TAB 5 VERIFICATION ============ -->
+<section class="panel" id="tab-ver">
+  <h2 class="p">5 · Verification</h2>
+  <p class="hint">Every control the supervisor would apply, run automatically. Fix each red item, then print the Verification Certificate for the figure-by-figure folio check and sign-off.</p>
+  <div id="verSummary"></div>
+  <ul class="checks" id="verHost"></ul>
+  <button class="btn" onclick="go('docs')">Next — Documents →</button>
+</section>
+
+<!-- ============ TAB 6 DOCS ============ -->
+<section class="panel" id="tab-docs">
+  <h2 class="p">6 · Documents</h2>
+  <div id="docBar">
+    <label class="f" style="margin:0">Document
+      <select id="docSel" onchange="renderDoc()">
+        <option value="approval">Approval (formation letter)</option>
+        <option value="minute">Minute Sheet (Ministry format)</option>
+        <option value="checklist">Approvals Checklist</option>
+        <option value="cert">Verification Certificate (PPO / AO V)</option>
+      </select></label>
+    <button class="btn" onclick="window.print()">Print</button>
+    <button class="btn" onclick="downloadDoc()">Download as Word (.doc)</button>
+    <button class="btn sec" onclick="downloadAllDoc()">Download all documents (.doc)</button>
+  </div>
+  <div id="docNotice"></div>
+  <div id="preview"><div class="sheet"><div class="doc" id="docHost"></div></div></div>
+</section>
+
+</main>
+
+<div class="footerbar">
+  <button class="btn sec" onclick="saveDraft()">Save Draft (.json)</button>
+  <button class="btn sec" onclick="document.getElementById('loadFile').click()">Load Draft</button>
+  <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadDraft(this)">
+</div>
+
+<script>
+/* ================================================================
+   CORE — pure functions (no DOM). Kept dependency-free and testable.
+   ================================================================ */
+//<<CORE
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* Money handled in integer cents throughout. */
+function parseMoney(s){
+  if(s===null||s===undefined) return null;
+  var t=String(s).replace(/[$,\s]/g,'').replace(/^TT\$?/i,'');
+  if(t==='') return null;
+  if(!/^\d+(\.\d{1,2})?$/.test(t)) return NaN;
+  var parts=t.split('.');
+  var c=parseInt(parts[0],10)*100;
+  if(parts[1]) c+=parseInt((parts[1]+'0').slice(0,2),10);
+  return c;
+}
+function fmtMoney(cents){
+  if(cents===null||cents===undefined||isNaN(cents)) return '';
+  var neg=cents<0; cents=Math.abs(cents);
+  var d=Math.floor(cents/100), c=cents%100;
+  var s=String(d).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  return (neg?'-':'')+'$'+s+'.'+(c<10?'0':'')+c;
+}
+/* Amount in words — Trinidad & Tobago Ministry house style:
+   "One Hundred and Ninety-Five Thousand Dollars"
+   "Three Hundred and Sixty-Eight Thousand, Nine Dollars and Forty-Six Cents" */
+var _ones=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+var _tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+function _threeWords(n){ /* 0-999 */
+  var out='';
+  var h=Math.floor(n/100), r=n%100;
+  if(h) out=_ones[h]+' Hundred';
+  if(r){
+    if(out) out+=' and ';
+    if(r<20) out+=_ones[r];
+    else{ out+=_tens[Math.floor(r/10)]; if(r%10) out+='-'+_ones[r%10]; }
+  }
+  return out;
+}
+function amountInWords(cents){
+  if(cents===null||cents===undefined||isNaN(cents)) return '';
+  cents=Math.round(cents);
+  var d=Math.floor(cents/100), c=cents%100;
+  var scales=[[1000000000,'Billion'],[1000000,'Million'],[1000,'Thousand'],[1,'']];
+  var chunks=[], rem=d;
+  for(var i=0;i<scales.length;i++){
+    var q=Math.floor(rem/scales[i][0]);
+    rem=rem%scales[i][0];
+    if(q) chunks.push(_threeWords(q)+(scales[i][1]?' '+scales[i][1]:''));
+  }
+  var dw='';
+  if(d===0) dw='Zero';
+  else dw=chunks.join(', ');
+  var s=dw+(d===1?' Dollar':' Dollars');
+  if(d===0&&c>0) s='';
+  if(c>0){
+    var cw=_threeWords(c)+(c===1?' Cent':' Cents');
+    s=s?(s+' and '+cw):cw;
+  }
+  return s;
+}
+/* Number as word for small counts: five (5) suppliers */
+function countWord(n){
+  var w=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+  return (n>=0&&n<=20)?w[n]:String(n);
+}
+function fmtDateLong(iso,handDay){ /* iso yyyy-mm-dd -> "01 July, 2026" or "     July, 2026" */
+  if(!iso) return '';
+  var m=iso.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return iso;
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var mon=months[parseInt(m[2],10)-1];
+  return (handDay?'\u00A0\u00A0\u00A0\u00A0\u00A0':m[3]+' ')+mon+', '+m[1];
+}
+function fmtDateProse(iso){ /* "18 July 2024" */
+  if(!iso) return '';
+  var m=iso.match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return iso;
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return String(parseInt(m[3],10))+' '+months[parseInt(m[2],10)-1]+' '+m[1];
+}
+
+/* ---- computation over the state ---- */
+function lineTotal(q){ /* quote row -> cents or null/NaN */
+  if(q.status!=='Quoted') return null;
+  var v=q.vat===''||q.vat==null?0:parseMoney(q.vat);
+  if(v===null||isNaN(v)) return NaN;
+  if(q.mode==='amount'){
+    var sub=parseMoney(q.sub);
+    if(sub===null||isNaN(sub)) return NaN;
+    return sub+v;
+  }
+  var qty=parseFloat(q.qty), u=parseMoney(q.unit);
+  if(isNaN(qty)||qty<=0||u===null||isNaN(u)) return NaN;
+  return Math.round(qty*u)+v;
+}
+function grandTotal(items){
+  var t=0, any=false;
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    for(var j=0;j<it.quotes.length;j++){
+      var q=it.quotes[j];
+      if(q.recommended){
+        var lt=lineTotal(q);
+        if(lt===null||isNaN(lt)) return NaN;
+        t+=lt; any=true;
+      }
+    }
+  }
+  return any?t:0;
+}
+function recommendedSuppliers(items){ /* unique, in order, with addresses */
+  var seen={}, out=[];
+  for(var i=0;i<items.length;i++) for(var j=0;j<items[i].quotes.length;j++){
+    var q=items[i].quotes[j];
+    var nm=(q.supplier||'').trim();
+    if(q.recommended&&nm&&!seen[nm.toLowerCase()]){
+      seen[nm.toLowerCase()]=1;
+      out.push({name:nm,address:q.address||''});
+    }
+  }
+  return out;
+}
+function joinAnd(a){ if(!a.length) return ''; if(a.length===1) return a[0]; return a.slice(0,-1).join(', ')+' and '+a[a.length-1]; }
+function awardItemLabel(it){
+  if(it.mode==='amount'||!it.qty) return it.desc||'[item]';
+  return (it.desc||'[item]')+' ('+it.qty+(it.unitname?' '+it.unitname:'')+')';
+}
+function awardSummary(items){ /* recommended rows grouped by supplier: name, address, items awarded, total cents */
+  var map={}, order=[];
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    for(var j=0;j<it.quotes.length;j++){
+      var q=it.quotes[j];
+      if(!q.recommended) continue;
+      var k=(q.supplier||'').trim().toLowerCase(); if(!k) continue;
+      if(!map[k]){ map[k]={name:q.supplier.trim(),address:q.address||'',cents:0,bad:false,items:[]}; order.push(k); }
+      if(!map[k].address&&q.address) map[k].address=q.address;
+      var lt=lineTotal(q);
+      if(lt===null||isNaN(lt)) map[k].bad=true; else map[k].cents+=lt;
+      map[k].items.push(awardItemLabel(it));
+    }
+  }
+  return order.map(function(k){return map[k];});
+}
+function allSuppliers(items){ /* unique names with status summary */
+  var map={}, order=[];
+  for(var i=0;i<items.length;i++) for(var j=0;j<items[i].quotes.length;j++){
+    var q=items[i].quotes[j];
+    var nm=(q.supplier||'').trim(); if(!nm) continue;
+    var k=nm.toLowerCase().replace(/\s+/g,' ');
+    if(!map[k]){map[k]={name:nm,quoted:false};order.push(k);}
+    if(q.status==='Quoted') map[k].quoted=true;
+  }
+  return order.map(function(k){return map[k];});
+}
+
+/* ---- verification engine ----
+   state -> array of {id,name,result,detail,action}  result in PASS/FAIL/WARN/INFO */
+function runChecks(st){
+  var R=[], items=st.items;
+  function add(id,name,result,detail,action){R.push({id:id,name:name,result:result,detail:detail||'',action:action||''});}
+  add('C1','File reference entered', st.ref?'PASS':'FAIL', st.ref||'Missing','Enter the file reference on Case Details.');
+  add('C2','Document date entered', st.date?'PASS':'FAIL', st.date?fmtDateLong(st.date,st.handdate):'Missing','Enter the date on Case Details.');
+  add('C3','Addressee entered', (st.addr&&st.addr.trim())?'PASS':'FAIL','','Enter the addressee block.');
+  add('C4','Subject / title entered', (st.subject&&st.subject.trim())?'PASS':'FAIL','','Enter the subject on Case Details.');
+  add('C5','Signature block complete (name and appointment)', (st.signame&&st.sigapp)?'PASS':'FAIL','Rank is optional.','Complete name and appointment.');
+
+  if(!items.length){ add('C6','At least one item entered','FAIL','No items.','Add an item on tab 2.'); }
+  var noncomp = st.method==='Direct Contracting'||st.method==='Single / National Provider'||st.method==='Emergency Procurement';
+  for(var i=0;i<items.length;i++){
+    var it=items[i], tag='Item '+(i+1)+(it.desc?' ('+it.desc+')':'');
+    var amountMode = it.mode==='amount';
+    var itemComplete = amountMode ? !!it.desc : !!(it.desc&&it.qty&&parseFloat(it.qty)>0);
+    add('C6.'+(i+1), tag+(amountMode?': description':': description and quantity'), itemComplete?'PASS':'FAIL','',
+        amountMode?'Enter the item / requirement description.':'Complete description and quantity.');
+    if(!it.quotes.length){ add('C7.'+(i+1), tag+': supplier rows','FAIL','No supplier rows.','Add supplier rows including non-respondents.'); continue; }
+    var recRows=it.quotes.filter(function(q){return q.recommended;});
+    add('C8.'+(i+1), tag+': recommended supplier selected', recRows.length?'PASS':'FAIL','','Tick Recommended on the winning row.');
+    if(recRows.length>1&&!amountMode){
+      add('C8b.'+(i+1), tag+': one recommended supplier per priced item','FAIL',
+        'This item has '+recRows.length+' recommended rows. In quantity mode every recommended row is costed at the full item quantity, so the award would be double-counted.',
+        'Split the item: create a separate item for each supplier with that supplier\u2019s own quantity, or switch the card to Amount mode and enter each supplier\u2019s own amount.');
+    }
+    var arithBad=false, minC=null, badDetail='';
+    for(var j=0;j<it.quotes.length;j++){
+      var q=it.quotes[j];
+      if(q.status==='Quoted'){
+        var lt=lineTotal(q);
+        if(isNaN(lt)){arithBad=true;badDetail='Row '+(j+1)+' ('+(q.supplier||'unnamed')+') has an invalid '+(amountMode?'amount or VAT figure':'quantity, unit cost or VAT figure')+'.';}
+        else if(q.compliant!=='No'&&(minC===null||lt<minC)) minC=lt;
+      }
+      if(!q.supplier) {arithBad=true; badDetail='Row '+(j+1)+' has no supplier name.';}
+    }
+    add('C9.'+(i+1), tag+': figures valid and computable', arithBad?'FAIL':'PASS', badDetail,'Correct the flagged row.');
+    for(var j2=0;j2<recRows.length;j2++){
+      var r=recRows[j2];
+      if(r.status!=='Quoted') add('C10.'+(i+1),tag+': recommended row has a quotation','FAIL','Recommended supplier '+(r.supplier||'')+' is marked '+r.status+'.','A supplier without a quotation cannot be recommended.');
+      else if(r.compliant==='No') add('C10.'+(i+1),tag+': recommended row meets specification','FAIL',(r.supplier||'')+' is marked non-compliant.','Change the recommendation or correct the compliance entry.');
+      else{
+        var lt2=lineTotal(r);
+        if(!isNaN(lt2)&&minC!==null&&lt2>minC&&!(st.notlowest&&st.notlowest.trim()))
+          add('C10.'+(i+1),tag+': lowest-cost rule','FAIL','Recommended total '+fmtMoney(lt2)+' exceeds the lowest compliant quote '+fmtMoney(minC)+' and no justification is given.','Justify the non-lowest recommendation on tab 3, or change the recommendation.');
+        else
+          add('C10.'+(i+1),tag+': lowest-cost rule','PASS', minC!==null?('Recommended '+fmtMoney(lt2)+'; lowest compliant quote '+fmtMoney(minC)+(lt2>minC?' — justification recorded':'')):'', '');
+      }
+    }
+  }
+  var gt=grandTotal(items);
+  if(isNaN(gt)) add('C11','Grand total computed','FAIL','A recommended row has invalid figures.','Fix the flagged rows.');
+  else if(gt===0) add('C11','Grand total computed','FAIL','No recommended lines carry a value.','Tick Recommended on the winning rows.');
+  else add('C11','Grand total computed','PASS', fmtMoney(gt)+' — '+amountInWords(gt)+' — figures and words generated from the same number, so they cannot disagree.','');
+
+  add('C12','VAT treatment stated', st.vat?'PASS':'FAIL', st.vat||'','Select the VAT treatment on tab 3.');
+  if(st.vat==='VAT Inclusive'){
+    var dbl=false;
+    for(var a=0;a<items.length;a++) for(var b=0;b<items[a].quotes.length;b++){
+      var vq=items[a].quotes[b];
+      if(vq.status==='Quoted'&&vq.vat&&parseMoney(vq.vat)>0) dbl=true;
+    }
+    add('C13','No VAT double-count', dbl?'WARN':'PASS', dbl?'Treatment is VAT Inclusive but a separate VAT amount is also entered on a line — confirm the amount entered does not already include VAT.':'', dbl?'If the amount is already VAT-inclusive, set the line VAT to 0.':'');
+  }
+  add('C14','Procurement method justified', (!noncomp&&st.urgency!=='Urgent')||((st.methodjust||'').trim())?'PASS':'FAIL', noncomp?('Method is '+st.method):'','Non-competitive or urgent routes require a recorded justification on tab 3.');
+  add('C15','Vote to be utilised entered', (st.vote&&st.vote.trim())?'PASS':'FAIL','','Enter the vote on tab 3.');
+  if(st.funds!==''&&st.funds!=null){
+    var f=parseMoney(st.funds);
+    if(f===null||isNaN(f)) add('C16','Available funds figure valid','FAIL','Unreadable figure: '+st.funds,'Enter a plain figure, e.g. 250000.00');
+    else if(!isNaN(gt)&&gt>0) add('C16','Available funds cover the total', f>=gt?'PASS':'FAIL', 'Funds '+fmtMoney(f)+' vs total '+fmtMoney(gt),(f>=gt?'':'Confirm funding before submission or record the shortfall for decision.'));
+  } else add('C16','Available funds','INFO','Not entered — the pack does not claim funds are available.','Optional: enter available funds for a cover check.');
+  add('C17','Operational need stated', (st.need&&st.need.trim())?'PASS':'FAIL','','Complete the background / operational need on tab 3.');
+  var basisOk = (st.r_alt&&st.r_alt.trim()) || st.r_comm||st.r_tech||st.r_low;
+  add('C18','Basis of recommendation stated', basisOk?'PASS':'FAIL','','Tick at least one reason or state an alternative basis.');
+
+  var sup=allSuppliers(items), quoted=sup.filter(function(s){return s.quoted;});
+  add('C19','Competition recorded', sup.length?'PASS':'FAIL', sup.length? (countWord(sup.length)+' ('+sup.length+') supplier(s) approached; '+countWord(quoted.length)+' ('+quoted.length+') quoted.'):'','Enter all suppliers the RFQ was sent to, including non-respondents.');
+  if(st.method==='Request for Quotation'&&sup.length>0&&sup.length<3)
+    add('C19a','Breadth of competition','WARN','Only '+sup.length+' supplier(s) recorded for an RFQ. House practice is to invite several (the exemplar files invited five).','Confirm the full invitation list is recorded.');
+
+  var att=st.attachments.filter(function(a){return a&&a.trim();});
+  var missA=[];
+  for(var s2=0;s2<quoted.length;s2++){
+    var nm=quoted[s2].name.trim().toLowerCase().replace(/\s+/g,' '), found=false;
+    for(var a2=0;a2<att.length;a2++){
+      var line=att[a2].trim().toLowerCase().replace(/\s+/g,' ');
+      if(line.indexOf(nm)>=0&&/quotation/i.test(att[a2])) {found=true;break;}
+    }
+    if(!found) missA.push(quoted[s2].name.trim());
+  }
+  add('C20','Attachments cover every quotation', att.length? (missA.length?'FAIL':'PASS'):'FAIL', missA.length?('No quotation attachment listed for: '+missA.join('; ')):(att.length?att.length+' attachment line(s).':'No attachments listed.'),'Use Auto-build on tab 4, then verify against the physical file.');
+  add('C21','Folio list present (minute sheet)', st.folios.filter(function(f){return f.desc&&f.desc.trim();}).length?'PASS':'FAIL','','Use Auto-build on tab 4 and set the folio dates.');
+  /* chronology */
+  if(st.rfqdate&&st.deadline){
+    if(st.rfqdate>st.deadline) add('C22','Dates in order (issue before closing)','FAIL','Issue date '+fmtDateProse(st.rfqdate)+' is after the closing date '+fmtDateProse(st.deadline)+'. This exact error has appeared in signed files.','Correct the dates on tab 3.');
+    else add('C22','Dates in order (issue before closing)','PASS','Issued '+fmtDateProse(st.rfqdate)+'; closed '+fmtDateProse(st.deadline)+'.','');
+  }
+  if(st.deadline&&st.date&&st.deadline>st.date){
+    add('C22a','Closing date not after the document date','WARN','The quotation closing date ('+fmtDateProse(st.deadline)+') is after the date of this document ('+fmtDateProse(st.date)+'). An approval is normally written after quotations close.','Confirm the dates are correct.');
+  }
+  return R;
+}
+function checkStats(R){
+  var f=0,w=0;
+  for(var i=0;i<R.length;i++){if(R[i].result==='FAIL')f++;if(R[i].result==='WARN')w++;}
+  return {fail:f,warn:w};
+}
+/* ---- drafting assistant: pure logic ---- */
+function endStop(s){ s=(s||'').trim(); if(!s) return ''; return /[.!?:;]$/.test(s)?s:s+'.'; }
+function softLower(s){
+  s=(s||'').trim();
+  var m=s.match(/^([A-Za-z]+)\b/); if(!m) return s;
+  var starters={'The':1,'A':1,'An':1,'This':1,'That':1,'These':1,'Those':1,'It':1,'They':1,'We':1,'Our':1,'There':1,'No':1,'Should':1,'When':1,'If':1,'Because':1,'Owing':1,'Given':1};
+  if(starters[m[1]]) return m[1].toLowerCase()+s.slice(m[1].length);
+  return s;
+}
+function cleanNoteLine(s){
+  s=(s||'').trim(); if(!s) return '';
+  /* Bullet leaders trimmed, first letter capitalised only if the word is sentence-case-lowered. */
+  s=s.replace(/^[\s\-\u2013\u2014\*\u2022]+/,'').trim();
+  if(!s) return '';
+  if(/^[a-z]/.test(s) && !/^(the|a|an|it|they|we|our|this|that|these|those|there)\b/.test(s)===false){
+    s=s.charAt(0).toUpperCase()+s.slice(1);
+  } else if(/^[a-z]/.test(s)){
+    s=s.charAt(0).toUpperCase()+s.slice(1);
+  }
+  return endStop(s);
+}
+function notesToSentences(notes){
+  if(!notes) return [];
+  return notes.split(/\r?\n/).map(cleanNoteLine).filter(function(x){return x;});
+}
+function composeOffline(target, f, ctx){
+  /* target: 'need' | 'methodjust' | 'minextra'
+     f: {activity, who, when, cons, notes}
+     ctx: {subject, method, itemsLine}
+     Deterministic. Uses only the words supplied. Returns '' when nothing usable. */
+  f=f||{}; ctx=ctx||{};
+  var activity=(f.activity||'').trim(), who=(f.who||'').trim(), when=(f.when||'').trim(), cons=(f.cons||'').trim(), notes=(f.notes||'').trim();
+  if(target==='minextra'){
+    if(!notes) return '';
+    return notes.split(/\n\s*\n/).map(function(p){
+      var sents=p.split(/\n/).map(cleanNoteLine).filter(function(x){return x;});
+      return sents.join(' ');
+    }).filter(function(x){return x;}).join('\n\n');
+  }
+  if(target==='need'){
+    if(!activity && !cons && !notes) return '';
+    var parts=[];
+    /* Opening sentence: pick the pattern that fits the facts supplied. */
+    if(activity){
+      var s='The items listed in this approval are required to facilitate '+softLower(activity);
+      if(who) s+=' for '+softLower(who);
+      if(when) s+=', carded for '+when;
+      parts.push(endStop(s));
+    } else if(who){
+      parts.push(endStop('The items listed in this approval are required for '+softLower(who)+(when?', carded for '+when:'')));
+    }
+    /* Note lines become supporting sentences. */
+    var nl=notesToSentences(notes); for(var i=0;i<nl.length;i++) parts.push(nl[i]);
+    /* Consequence sentence last, in the standard construction. */
+    if(cons) parts.push(endStop('Should the items not be procured, '+softLower(cons)));
+    return parts.join(' ');
+  }
+  if(target==='methodjust'){
+    if(!ctx.method && !notes && !activity) return '';
+    var out=[];
+    if(ctx.method) out.push('The procurement was conducted by way of '+ctx.method+'.');
+    var nl2=notesToSentences(notes);
+    if(nl2.length){
+      /* Prepend a bridging phrase to the first note line if it does not already read as a reason. */
+      var first=nl2[0];
+      if(!/^(this method\b|owing to\b|given\b|because\b|due to\b|as [a-z])/i.test(first)) first='This method was adopted because '+softLower(first);
+      out.push(first);
+      for(var j=1;j<nl2.length;j++) out.push(nl2[j]);
+    } else if(activity){
+      out.push(endStop('This method was adopted to meet the requirement for '+softLower(activity)+(when?', carded for '+when:'')));
+    }
+    if(cons) out.push(endStop('Should the requirement not be met, '+softLower(cons)));
+    return out.length>1 ? out.join(' ') : '';
+  }
+  return '';
+}
+function buildAssistPrompt(){return '';}
+function extractAssistText(){return '';}
+
+//CORE>>
+
+/* ================================================================
+   DOCUMENT BUILDERS (pure string builders over state)
+   ================================================================ */
+//<<BUILD
+function draftStampIfNeeded(st){
+  var R=runChecks(st), s=checkStats(R);
+  return s.fail>0?'<div class="draftstamp">DRAFT — NOT CLEARED — '+s.fail+' VERIFICATION CHECK'+(s.fail===1?'':'S')+' FAILED</div>':'';
+}
+function letterheadHTML(st){
+  if(st.prelh) return '<div style="height:96pt"></div>';
+  var lines=(st.lhlines||'').split(/\n/).map(function(l){return esc(l.trim());}).filter(Boolean).join('<br>');
+  return '<div class="lh"><div class="f1">'+esc(st.formation)+'</div><div class="f2">'+lines+'</div></div><hr style="border:none;border-top:1.5px solid #000;margin:6pt 0 10pt">';
+}
+function vatCellText(st,q){
+  var v=q.vat===''||q.vat==null?0:parseMoney(q.vat);
+  if(v&&v>0) return fmtMoney(v).replace('$','');
+  if(st.vat==='VAT and Duty Free') return 'VAT/DUTY FREE';
+  if(st.vat==='VAT Not Applicable') return 'N/A';
+  return '—';
+}
+function comparisonTableHTML(st){
+  var h='<table class="cmp"><tr><th style="width:5%">Ser.</th><th style="width:9%">Qty</th><th style="width:17%">Description</th><th style="width:20%">Supplier</th><th style="width:11%">Unit / Amount $</th><th style="width:11%">V.A.T $</th><th style="width:12%">Total Cost $</th><th style="width:15%">Recommended Supplier</th></tr>';
+  for(var i=0;i<st.items.length;i++){
+    var it=st.items[i], rows=it.quotes.length||1, rec=null;
+    for(var r0=0;r0<it.quotes.length;r0++) if(it.quotes[r0].recommended){rec=it.quotes[r0];break;}
+    var recTxt='';
+    if(rec){
+      var basis = (st.r_alt&&st.r_alt.trim()) ? esc(st.r_alt.trim())
+        : (st.r_low ? 'the lowest cost supplier that met all specifications' : 'the recommended supplier');
+      recTxt='<b>'+esc(rec.supplier)+'</b> — '+basis;
+    }
+    var amountMode = it.mode==='amount';
+    for(var j=0;j<Math.max(1,it.quotes.length);j++){
+      var q=it.quotes[j]||{};
+      h+='<tr>';
+      if(j===0){
+        h+='<td class="ctr" rowspan="'+rows+'">'+(i+1)+'.</td>';
+        h+='<td class="ctr" rowspan="'+rows+'">'+(amountMode?'&mdash;':(esc(it.qty)+(it.unitname?' '+esc(it.unitname):'')))+'</td>';
+        h+='<td rowspan="'+rows+'">'+esc(it.desc)+'</td>';
+      }
+      if(q.status==='Quoted'){
+        var lt=lineTotal(q);
+        var amtCell = amountMode
+          ? esc(String(fmtMoney(parseMoney(q.sub)).replace('$','')))
+          : esc(String(fmtMoney(parseMoney(q.unit)).replace('$','')));
+        h+='<td>'+esc(q.supplier)+'</td><td class="num">'+amtCell+'</td><td class="num">'+vatCellText(st,q)+'</td><td class="num">'+(isNaN(lt)?'CHECK':fmtMoney(lt).replace('$',''))+'</td>';
+      } else {
+        h+='<td>'+esc(q.supplier||'')+'</td><td class="ctr" colspan="3">'+(q.status==='No Response'?'No response':'Did not quote')+'</td>';
+      }
+      if(j===0) h+='<td rowspan="'+rows+'">'+recTxt+'</td>';
+      h+='</tr>';
+    }
+  }
+  h+='</table>';
+  return h;
+}
+function methodParagraph(st){
+  var sup=allSuppliers(st.items), quoted=sup.filter(function(s){return s.quoted;});
+  var non=sup.filter(function(s){return !s.quoted;}).map(function(s){return s.name;});
+  var p='In line with the '+esc(st.act||'Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015')+', ';
+  if(st.method==='Request for Quotation'){
+    p+='requests for quotations were sent to '+countWord(sup.length)+' ('+sup.length+') suppliers'+(st.rfqdate?' on '+fmtDateProse(st.rfqdate):'')+(st.deadline?' with a closing date of '+fmtDateProse(st.deadline):'')+', of which '+countWord(quoted.length)+' ('+quoted.length+') submitted quotations.';
+    if(non.length) p+=' '+esc(non.join(', '))+' did not submit quotes.';
+  } else if(st.method==='Single / National Provider'||st.method==='Direct Contracting'||st.method==='Emergency Procurement'){
+    p+='the procurement was conducted by way of '+esc(st.method)+'. '+esc((st.methodjust||'').trim());
+  } else {
+    p+='an invitation was issued by way of '+esc(st.method)+(st.rfqdate?' on '+fmtDateProse(st.rfqdate):'')+(st.deadline?' with a closing date of '+fmtDateProse(st.deadline):'')+'. '+countWord(quoted.length)+' ('+quoted.length+') submission(s) were received.';
+  }
+  return p;
+}
+function recommendationParagraph(st){
+  var recs=recommendedSuppliers(st.items);
+  /* Single winner: house phrasing unchanged. */
+  if(recs.length<=1){
+    var names=recs.map(function(r){return '<b>Messrs. '+esc(r.name)+'</b>'+(r.address?' of '+esc(r.address):'');});
+    var joined = names[0]||'<b>[no supplier recommended]</b>';
+    var p='It is therefore recommended that the purchase of the above mentioned items be awarded to '+joined;
+    if(st.r_alt&&st.r_alt.trim()){ p+=' since '+esc(st.r_alt.trim())+'.'; return {p:p,schedule:[],lead:'',bullets:[]}; }
+    var bullets=[];
+    if(st.r_comm) bullets.push('The company met the commercial criteria');
+    if(st.r_tech) bullets.push('The company met the technical criteria');
+    if(st.r_low) bullets.push('The company proposed the lowest cost');
+    if(st.notlowest&&st.notlowest.trim()) bullets.push(esc(st.notlowest.trim()));
+    p+=' for the following reasons:';
+    return {p:p,schedule:[],lead:'',bullets:bullets};
+  }
+  /* Split award: schedule of supplier — items — amount. */
+  var aw=awardSummary(st.items);
+  var p2='It is therefore recommended that the procurement be awarded as follows:';
+  var schedule=aw.map(function(s){
+    var amt = s.bad ? '[FIGURES INVALID]' : amountInWords(s.cents)+' ('+fmtMoney(s.cents)+')';
+    return '<b>Messrs. '+esc(s.name)+'</b>'+(s.address?' of '+esc(s.address):'')+' \u2014 '+esc(joinAnd(s.items))+' \u2014 '+amt;
+  });
+  if(st.r_alt&&st.r_alt.trim()){
+    return {p:p2,schedule:schedule,lead:'The awards are recommended since '+esc(st.r_alt.trim())+'.',bullets:[]};
+  }
+  var bullets2=[];
+  if(st.r_comm) bullets2.push('The recommended suppliers met the commercial criteria');
+  if(st.r_tech) bullets2.push('The recommended suppliers met the technical criteria');
+  if(st.r_low) bullets2.push('Each recommended supplier proposed the lowest cost for the item(s) awarded to it');
+  if(st.notlowest&&st.notlowest.trim()) bullets2.push(esc(st.notlowest.trim()));
+  return {p:p2,schedule:schedule,lead:bullets2.length?'The awards are recommended for the following reasons:':'',bullets:bullets2};
+}
+function renderRecommendation(rp,np){
+  var h = np ? np(rp.p) : '<p>'+rp.p+'</p>';
+  if(rp.schedule.length) h+='<ol class="rsn" style="margin:0 0 11pt 40pt;padding:0">'+rp.schedule.map(function(s){return '<li style="margin-bottom:4pt">'+s+'</li>';}).join('')+'</ol>';
+  if(rp.lead) h+='<p style="margin:0 0 6pt">'+rp.lead+'</p>';
+  if(rp.bullets.length) h+='<ul class="rsn">'+rp.bullets.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>';
+  return h;
+}
+function buildApproval(st){
+  var gt=grandTotal(st.items);
+  var totWords=isNaN(gt)?'[FIGURES INVALID]':amountInWords(gt);
+  var vatSuffix = st.vat==='VAT Inclusive'?' (VAT Inclusive)': st.vat==='VAT and Duty Free'?' (VAT and Duty Free)':'';
+  var recs=recommendedSuppliers(st.items);
+  var svc = recs.length===0 ? '[no supplier recommended]'
+          : recs.length===1 ? '<b>'+esc(recs[0].name)+'</b>'
+          : 'the undermentioned suppliers';
+  var n=0; function np(t){n++;return '<div class="np"><div class="no">'+n+'.</div><div style="flex:1"><p style="margin:0 0 11pt">'+t+'</p></div></div>';}
+  var h=draftStampIfNeeded(st)+letterheadHTML(st);
+  h+='<p style="margin:4pt 0 2pt">'+esc(st.ref)+'</p>';
+  h+='<table style="width:100%;border-collapse:collapse"><tr><td style="vertical-align:top">'+
+     (st.addr||'').split(/\n/).map(function(l,ix){return (ix===0?'<b>':'')+esc(l)+(ix===0?'</b>':'');}).join('<br>')+
+     '</td><td style="vertical-align:bottom;text-align:right;white-space:nowrap">'+esc(fmtDateLong(st.date,st.handdate))+'</td></tr></table>';
+  h+='<div class="ttl">'+esc(st.subject)+'</div>';
+  h+=np('Approval is requested to engage the services of '+svc+' for the supply and delivery of the undermentioned items for the '+esc(st.sigform||st.formation||'')+', at a total cost of <b>'+totWords+' ('+fmtMoney(isNaN(gt)?0:gt)+')'+vatSuffix+'</b>.');
+  h+=np('The following table outlines the quantities, description of the items required, their cost and the recommended supplier:');
+  h+=comparisonTableHTML(st);
+  if(st.need&&st.need.trim()) h+=np(esc(st.need.trim()).replace(/\n+/g,'</p><p style="margin:0 0 11pt">'));
+  h+=np(methodParagraph(st));
+  var rp=recommendationParagraph(st);
+  h+=renderRecommendation(rp,np);
+  h+='<div class="uhead">Vote to be utilised</div>';
+  h+=np('It is carded that this purchase will be funded from <b>'+esc(st.vote).replace(/\n/g,', ')+'</b>.');
+  h+=np('Submitted for your approval.');
+  h+='<div class="sig"><div style="border-top:1px dotted #555;width:200pt;margin-bottom:2pt">&nbsp;</div><div><b>'+esc(st.signame)+'</b></div>'+(st.sigrank?'<div>'+esc(st.sigrank)+'</div>':'')+'<div>'+esc(st.sigapp)+'</div>'+(st.sigform?'<div>'+esc(st.sigform)+'</div>':'')+'</div>';
+  var att=st.attachments.filter(function(a){return a&&a.trim();});
+  if(att.length){ h+='<div class="uhead" style="margin-top:22pt">Attachments:</div><ol class="att">'+att.map(function(a){return '<li>'+esc(a)+'</li>';}).join('')+'</ol>'; }
+  return h;
+}
+function buildMinute(st){
+  var gt=grandTotal(st.items);
+  var totWords=isNaN(gt)?'[FIGURES INVALID]':amountInWords(gt);
+  var vatTag = st.vat==='VAT Inclusive'?' VAT Inclusive': st.vat==='VAT and Duty Free'?' VAT and Duty Free':'';
+  var recs=recommendedSuppliers(st.items);
+  var fol=st.folios.filter(function(f){return f.desc&&f.desc.trim();});
+  var h=draftStampIfNeeded(st);
+  h+='<table style="width:100%;border-collapse:collapse;font-size:11.5pt"><tr><td><b>File No: '+esc(st.minfile||st.ref)+'</b></td><td style="text-align:right"><b>Sheet No: '+esc(st.minsheet||'1a')+'</b></td></tr></table>';
+  h+='<div class="ttl" style="margin-top:10pt">MINUTE SHEET</div>';
+  if(fol.length){
+    h+='<table class="fol">';
+    for(var i=0;i<fol.length;i++) h+='<tr><td style="width:26pt;vertical-align:bottom">('+(i+1)+')</td><td class="d1">'+esc(fol[i].desc)+'</td><td class="d2">'+esc(fol[i].date||'')+'</td></tr>';
+    h+='</table>';
+  }
+  h+='<p style="margin:16pt 0 4pt">(1)</p>';
+  h+='<p style="margin:0"><b>'+esc(st.minaddr||'Permanent Secretary (Accounting Officer)')+'</b></p>';
+  if(st.minufs) h+='<p style="margin:0 0 10pt">'+esc(st.minufs)+'</p>';
+  if(fol.length) h+='<p>Folios (1) to ('+fol.length+') for your attention please.</p>';
+  /* award lines */
+  var awardIntro='Approval is sought to incur expenditure in the total amount of <b>'+totWords+' ('+fmtMoney(isNaN(gt)?0:gt)+')'+vatTag+'</b> in favour of ';
+  if(recs.length===1){
+    h+='<p>'+awardIntro+'<b>'+esc(recs[0].name)+'</b> for '+esc(st.subjectProse||st.subject||'the undermentioned requirement')+'.</p>';
+  } else if(recs.length>1){
+    h+='<p>'+awardIntro+'the following suppliers for '+esc(st.subjectProse||st.subject||'the undermentioned requirement')+':</p>';
+    var aw=awardSummary(st.items);
+    h+='<ol style="margin:0 0 11pt 40pt;padding:0">';
+    for(var o=0;o<aw.length;o++){
+      var s=aw[o];
+      var amt = s.bad ? '[FIGURES INVALID]' : amountInWords(s.cents)+' ('+fmtMoney(s.cents)+')'+vatTag;
+      h+='<li style="margin-bottom:4pt"><b>'+esc(s.name)+'</b> \u2014 '+esc(joinAnd(s.items))+' \u2014 in the amount of '+amt+'.</li>';
+    }
+    h+='</ol>';
+  } else h+='<p>'+awardIntro+'<b>[no supplier recommended]</b>.</p>';
+  /* narrative */
+  var sup=allSuppliers(st.items), quoted=sup.filter(function(s){return s.quoted;});
+  if(st.method==='Request for Quotation'&&sup.length){
+    h+='<p>The '+esc((st.minaddr||'Permanent Secretary').replace(/\s*\(.*\)$/,''))+' is advised that'+(st.rfqdate?' on '+fmtDateProse(st.rfqdate):'')+' Requests for Quotations were issued'+(st.deadline?' with a closing date of '+fmtDateProse(st.deadline):'')+'. The following suppliers were approached and '+countWord(quoted.length)+' ('+quoted.length+') submitted quotations:</p>';
+    h+='<ul class="rsn">'+sup.map(function(s){return '<li>'+esc(s.name)+(s.quoted?' — (Submitted a Quotation)':'');}).join('</li>')+'</li></ul>';
+  } else if(st.methodjust&&st.methodjust.trim()){
+    h+='<p>'+esc(st.methodjust.trim())+'</p>';
+  }
+  if(st.need&&st.need.trim()) h+='<p>'+esc(st.need.trim()).replace(/\n+/g,'</p><p>')+'</p>';
+  if(st.minextra&&st.minextra.trim()) h+=st.minextra.trim().split(/\n\s*\n/).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');
+  var rp=recommendationParagraph(st);
+  h+=renderRecommendation(rp,null);
+  h+='<p>The expenditure is to be met from the following vote:</p><p style="margin-left:24pt"><b>'+esc(st.vote||'[vote not entered]').replace(/\n/g,'<br>')+'</b></p>';
+  h+='<p>Submitted for your consideration please.</p>';
+  var msn=(st.minsigname&&st.minsigname.trim())?st.minsigname.trim():st.signame;
+  var msp=(st.minsigpost&&st.minsigpost.trim())?st.minsigpost.trim():((st.sigrank?st.sigrank+', ':'')+(st.sigapp||''));
+  h+='<div class="sig"><div style="border-top:1px dotted #555;width:200pt;margin-bottom:2pt">&nbsp;</div><div><b>'+esc(msn)+'</b></div><div>'+esc(msp)+'</div>'+(st.date?'<div>'+esc(fmtDateProse(st.date))+'</div>':'')+'</div>';
+  return h;
+}
+function buildChecklist(st){
+  var R=runChecks(st);
+  function res(id){for(var i=0;i<R.length;i++){if(R[i].id===id)return R[i];}return null;}
+  function agg(prefix){ /* worst result among ids starting with prefix */
+    var worst='PASS',found=false;
+    for(var i=0;i<R.length;i++) if(R[i].id.indexOf(prefix)===0){found=true;if(R[i].result==='FAIL')worst='FAIL';else if(R[i].result==='WARN'&&worst!=='FAIL')worst='WARN';}
+    return found?worst:'—';
+  }
+  var rows=[
+    ['Request and subject are clear', agg('C4')],
+    ['Operational need is stated', agg('C17')],
+    ['Procurement method is stated and justified where required', agg('C14')],
+    ['Suppliers contacted are recorded (including non-respondents)', agg('C19')],
+    ['Supplier responses are evidenced by quotations on file', agg('C20')],
+    ['Recommended supplier is supported (lowest responsive cost or written justification)', agg('C10')],
+    ['Arithmetic is correct (unit cost × quantity + VAT, line and grand totals)', agg('C9')==='—'?agg('C11'):agg('C9')],
+    ['Amount in words agrees with figures (computer-generated from the same number)', agg('C11')],
+    ['VAT treatment is clear and not double-counted', agg('C12')],
+    ['Funding vote is stated'+(st.funds?' and available funds cover the total':''), agg('C15')==='FAIL'?'FAIL':agg('C16')==='—'?agg('C15'):agg('C16')],
+    ['Attachments match the narrative', agg('C20')],
+    ['Minute sheet folio register is complete', agg('C21')],
+    ['Approval and minute state the same supplier(s), amount, method and vote (single data source)', 'PASS']
+  ];
+  var h=draftStampIfNeeded(st);
+  h+='<div class="ttl">APPROVAL PACK CHECKLIST</div>';
+  h+='<p style="text-align:center;margin-top:-6pt"><b>'+esc(st.subject||'[subject]')+'</b> — File: '+esc(st.ref||'[ref]')+'</p>';
+  h+='<p style="font-size:10.5pt">Automated results below are computed from the pack data. The Folio column and final sign-off are completed by hand against the physical file. If any item shows FAIL, return the file for correction before submission.</p>';
+  h+='<table class="cert"><tr><th style="width:6%">No.</th><th>Check</th><th style="width:12%">Result</th><th style="width:14%">Folio</th><th style="width:12%">Verified (initial)</th></tr>';
+  for(var i=0;i<rows.length;i++) h+='<tr><td class="r">'+(i+1)+'</td><td>'+rows[i][0]+'</td><td class="r">'+rows[i][1]+'</td><td></td><td></td></tr>';
+  h+='</table>';
+  h+='<p style="margin-top:20pt">Prepared / checked by: ____________________________&nbsp;&nbsp;Date: ______________</p>';
+  h+='<p>Supervisor / PPO / AO V review: ____________________________&nbsp;&nbsp;Date: ______________</p>';
+  return h;
+}
+function buildCert(st){
+  var R=runChecks(st), s=checkStats(R);
+  var h=draftStampIfNeeded(st);
+  h+='<div class="ttl">VERIFICATION CERTIFICATE — PROCUREMENT APPROVAL PACK</div>';
+  h+='<p style="text-align:center;margin-top:-6pt"><b>'+esc(st.subject||'[subject]')+'</b><br>File: '+esc(st.ref||'[ref]')+' &nbsp;·&nbsp; Date: '+esc(fmtDateLong(st.date,false)||'[date]')+'</p>';
+  h+='<p style="font-size:10.5pt"><b>Part A — Automated consistency checks.</b> Computed from the pack data at the time of printing. '+(s.fail?('<b style="color:#b3261e">'+s.fail+' check(s) FAILED — the pack must not be carried for signature.</b>'):'All checks passed.')+(s.warn?(' '+s.warn+' caution(s) noted.'):'')+'</p>';
+  h+='<table class="cert"><tr><th style="width:9%">ID</th><th>Check</th><th style="width:10%">Result</th><th>Detail</th></tr>';
+  for(var i=0;i<R.length;i++) h+='<tr><td>'+R[i].id+'</td><td>'+esc(R[i].name)+'</td><td class="r">'+R[i].result+'</td><td style="font-size:9pt">'+esc(R[i].detail)+'</td></tr>';
+  h+='</table>';
+  h+='<p style="font-size:10.5pt;margin-top:14pt"><b>Part B — Figure-by-figure source verification (manual).</b> The computer cannot read the paper quotations. For every line below, the checker compares the figure against the quotation at the stated folio and initials the box. No pack proceeds to signature with an empty box.</p>';
+  h+='<table class="cert"><tr><th>Item</th><th>Supplier</th><th style="width:8%">Qty</th><th style="width:12%">Unit / Amount</th><th style="width:10%">VAT</th><th style="width:12%">Total</th><th style="width:9%">Folio</th><th class="chk">✓</th></tr>';
+  for(var a=0;a<st.items.length;a++){
+    var it=st.items[a], amountMode=it.mode==='amount';
+    for(var b=0;b<it.quotes.length;b++){
+      var q=it.quotes[b];
+      if(q.status!=='Quoted'){ h+='<tr><td>'+esc(it.desc)+'</td><td>'+esc(q.supplier)+'</td><td colspan="4" style="text-align:center">'+(q.status==='No Response'?'No response':'Did not quote')+'</td><td></td><td class="chk"></td></tr>'; continue; }
+      var lt=lineTotal(q);
+      var qtyCell = amountMode?'&mdash;':esc(it.qty);
+      var amtCell = amountMode?fmtMoney(parseMoney(q.sub)):fmtMoney(parseMoney(q.unit));
+      h+='<tr><td>'+esc(it.desc)+'</td><td>'+esc(q.supplier)+'</td><td style="text-align:center">'+qtyCell+'</td><td class="num" style="text-align:right">'+amtCell+'</td><td style="text-align:right">'+fmtMoney(q.vat===''||q.vat==null?0:parseMoney(q.vat))+'</td><td style="text-align:right"><b>'+(isNaN(lt)?'CHECK':fmtMoney(lt))+'</b></td><td></td><td class="chk"></td></tr>';
+    }
+  }
+  var gt=grandTotal(st.items);
+  h+='<tr><td colspan="5" style="text-align:right"><b>Grand total (recommended lines)</b></td><td style="text-align:right"><b>'+(isNaN(gt)?'CHECK':fmtMoney(gt))+'</b></td><td></td><td class="chk"></td></tr>';
+  h+='</table>';
+  h+='<p style="font-size:10.5pt"><b>Amount in words (as it appears in both documents):</b> '+(isNaN(gt)?'[FIGURES INVALID]':amountInWords(gt))+' ('+fmtMoney(isNaN(gt)?0:gt)+')</p>';
+  h+='<p style="margin-top:22pt">Prepared by: ____________________________&nbsp;&nbsp;Rank/Post: ______________&nbsp;&nbsp;Date: ______________</p>';
+  h+='<p>Verified by (PPO / AO V / Supervisor): ____________________________&nbsp;&nbsp;Date: ______________</p>';
+  h+='<p style="font-size:9.5pt;color:#333">Certification: I have compared every figure in Part B against the source document at the stated folio, confirmed the attachments listed in the approval are present in the file, and confirm the pack is fit to be carried for signature.</p>';
+  return h;
+}
+//BUILD>>
+
+/* ================================================================
+   UI LAYER
+   ================================================================ */
+var state={
+  formation:'TRINIDAD AND TOBAGO COAST GUARD',lhlines:'',prelh:false,
+  ref:'',date:'',handdate:false,addr:'',subject:'',subjectProse:'',
+  signame:'',sigrank:'',sigapp:'',sigform:'',
+  minfile:'',minsheet:'1a',minaddr:'Permanent Secretary (Accounting Officer)',minufs:'Ufs AOV',minsigname:'',minsigpost:'',
+  method:'Request for Quotation',act:'Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015, Part IV, Section 10 (Request for Quotation)',
+  rfqdate:'',deadline:'',methodjust:'',urgency:'Normal',
+  need:'',r_comm:true,r_tech:true,r_low:true,r_alt:'',notlowest:'',
+  vat:'',vote:'',funds:'',minextra:'',
+  da_target:'need',da_activity:'',da_who:'',da_when:'',da_cons:'',da_notes:'',
+  items:[],attachments:[],folios:[]
+};
+function $(id){return document.getElementById(id);}
+function go(t){
+  var tabs=document.querySelectorAll('nav.tabs button');
+  for(var i=0;i<tabs.length;i++) tabs[i].classList.toggle('active',tabs[i].getAttribute('data-t')===t);
+  var panels=document.querySelectorAll('section.panel');
+  for(var j=0;j<panels.length;j++) panels[j].classList.toggle('show',panels[j].id==='tab-'+t);
+  if(t==='ver') renderChecks();
+  if(t==='docs') renderDoc();
+  window.scrollTo(0,0);
+}
+document.getElementById('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(b){syncFromForm();go(b.getAttribute('data-t'));}
+});
+
+/* ---- form <-> state ---- */
+var FIELDS=['formation','lhlines','ref','date','addr','subject','signame','sigrank','sigapp','sigform','minfile','minsheet','minaddr','minufs','minsigname','minsigpost','method','act','rfqdate','deadline','methodjust','need','r_alt','notlowest','vat','vote','funds','minextra','da_target','da_activity','da_who','da_when','da_cons','da_notes'];
+var IDMAP={formation:'f_formation',lhlines:'f_lhlines',ref:'f_ref',date:'f_date',addr:'f_addr',subject:'f_subject',signame:'f_signame',sigrank:'f_sigrank',sigapp:'f_sigapp',sigform:'f_sigform',minfile:'f_minfile',minsheet:'f_minsheet',minaddr:'f_minaddr',minufs:'f_minufs',minsigname:'f_minsigname',minsigpost:'f_minsigpost',method:'f_method',act:'f_act',rfqdate:'f_rfqdate',deadline:'f_deadline',methodjust:'f_methodjust',need:'f_need',r_alt:'r_alt',notlowest:'r_notlowest',vat:'f_vat',vote:'f_vote',funds:'f_funds',minextra:'f_minextra',da_target:'da_target',da_activity:'da_activity',da_who:'da_who',da_when:'da_when',da_cons:'da_cons',da_notes:'da_notes'};
+function syncFromForm(){
+  for(var i=0;i<FIELDS.length;i++){var el=$(IDMAP[FIELDS[i]]); if(el) state[FIELDS[i]]=el.value;}
+  state.prelh=$('f_prelh').checked; state.handdate=$('f_handdate').checked;
+  state.r_comm=$('r_comm').checked; state.r_tech=$('r_tech').checked; state.r_low=$('r_low').checked;
+  syncItemsFromDOM(); syncAttFromDOM(); syncFolFromDOM();
+  updateActSuggestion(); updateStatusPill(); updateGrandLive();
+}
+function syncToForm(){
+  for(var i=0;i<FIELDS.length;i++){var el=$(IDMAP[FIELDS[i]]); if(el) el.value=state[FIELDS[i]]||'';}
+  $('f_prelh').checked=!!state.prelh; $('f_handdate').checked=!!state.handdate;
+  $('r_comm').checked=!!state.r_comm; $('r_tech').checked=!!state.r_tech; $('r_low').checked=!!state.r_low;
+  renderItems(); renderAtt(); renderFol();
+}
+function updateActSuggestion(){
+  var m=state.method, el=$('f_act');
+  var sug={'Request for Quotation':'Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015, Part IV, Section 10 (Request for Quotation)',
+    'Open Tender':'Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015 (Open Tendering)',
+    'Selective Tender':'Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015 (Selective Tendering)',
+    'Direct Contracting':'Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015 (Direct Contracting)',
+    'Single / National Provider':'Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015',
+    'Emergency Procurement':'Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015 (Emergency Procurement)'};
+  if(el&&(!el.value||el.getAttribute('data-auto')!=='0')){el.value=sug[m]||el.value;state.act=el.value;}
+  var need = m==='Direct Contracting'||m==='Single / National Provider'||m==='Emergency Procurement';
+  $('justReq').style.display=need?'inline':'none';
+}
+$('f_act').addEventListener('input',function(){this.setAttribute('data-auto','0');});
+$('f_method').addEventListener('change',function(){state.method=this.value;updateActSuggestion();});
+
+/* ---- items ---- */
+function addItem(){
+  state.items.push({desc:'',qty:'',unitname:'pairs',mode:'qty',quotes:[]});
+  renderItems();
+}
+function addQuote(i){
+  var it=state.items[i];
+  it.quotes.push({supplier:'',status:'Quoted',qty:it.qty,unit:'',sub:'',vat:'',compliant:'Yes',recommended:false,address:'',mode:it.mode||'qty'});
+  renderItems();
+}
+function renderItems(){
+  var host=$('itemsHost'), h='';
+  for(var i=0;i<state.items.length;i++){
+    var it=state.items[i]; if(!it.mode) it.mode='qty';
+    var amountMode = it.mode==='amount';
+    h+='<div class="itemCard" data-i="'+i+'"><h3>Item '+(i+1)+'</h3>';
+    h+='<div class="modebar" style="margin:0 0 10px;font-size:13px">Entry mode: '+
+       '<label style="margin-right:14px;font-weight:600"><input type="radio" name="mode-'+i+'" class="it-mode" value="qty"'+(amountMode?'':' checked')+'> Quantity × unit cost</label>'+
+       '<label style="font-weight:600"><input type="radio" name="mode-'+i+'" class="it-mode" value="amount"'+(amountMode?' checked':'')+'> Amount only (subtotal + VAT)</label>'+
+       '<div class="hint" style="margin:4px 0 0">'+(amountMode
+          ? 'Enter each supplier&rsquo;s overall amount and VAT. No quantity or unit cost required.'
+          : 'Enter quantity and unit cost per supplier; the tool multiplies and adds VAT.')+'</div></div>';
+    h+='<div class="grid">';
+    h+='<label class="f wide" style="grid-column:span 2">Description / requirement <span class="req">*</span><input type="text" class="it-desc" value="'+esc(it.desc)+'" placeholder="'+(amountMode?'e.g. Promotional Items for Public Service Week':'e.g. Black Shoes')+'"></label>';
+    if(!amountMode){
+      h+='<label class="f">Quantity <span class="req">*</span><input type="number" class="it-qty" min="0" step="any" value="'+esc(it.qty)+'"></label>';
+      h+='<label class="f">Unit (pairs, only, metres…)<input type="text" class="it-unit" value="'+esc(it.unitname)+'"></label>';
+    }
+    h+='</div>';
+    var midHead = amountMode
+      ? '<th style="width:120px">Amount (VAT-excl.) $</th><th style="width:100px">VAT $</th>'
+      : '<th style="width:110px">Unit Cost $</th><th style="width:100px">VAT $ (line)</th>';
+    h+='<table class="q"><thead><tr><th>Supplier <span style="color:var(--red)">*</span></th><th style="width:120px">Status</th>'+midHead+'<th style="width:90px">Total</th><th style="width:80px">Meets spec?</th><th style="width:60px">Recommend</th><th style="width:190px">Supplier address (if recommended)</th><th style="width:60px"></th></tr></thead><tbody>';
+    for(var j=0;j<it.quotes.length;j++){
+      var q=it.quotes[j]; q.mode=it.mode; var lt=lineTotal(q);
+      var _totMsg;
+      if(q.status!=='Quoted') _totMsg='—';
+      else if(lt!==null&&!isNaN(lt)) _totMsg=fmtMoney(lt);
+      else if(amountMode){ _totMsg=(parseMoney(q.sub)===null||isNaN(parseMoney(q.sub)))?'enter amount':'check'; }
+      else { var _qy=parseFloat(q.qty), _u=parseMoney(q.unit);
+        _totMsg = (isNaN(_qy)||_qy<=0)?'enter qty': (_u===null||isNaN(_u))?'enter unit cost':'check';
+      }
+      var midCells = amountMode
+        ? '<td><input type="text" class="q-sub" value="'+esc(q.sub||'')+'"'+(q.status!=='Quoted'?' disabled':'')+' placeholder="e.g. 7312.50"></td>'+
+          '<td><input type="text" class="q-vat" value="'+esc(q.vat)+'"'+(q.status!=='Quoted'?' disabled':'')+' placeholder="0"></td>'
+        : '<td><input type="text" class="q-unit" value="'+esc(q.unit)+'"'+(q.status!=='Quoted'?' disabled':'')+'></td>'+
+          '<td><input type="text" class="q-vat" value="'+esc(q.vat)+'"'+(q.status!=='Quoted'?' disabled':'')+' placeholder="0"></td>';
+      h+='<tr data-j="'+j+'">'+
+        '<td><input type="text" class="q-sup" value="'+esc(q.supplier)+'"></td>'+
+        '<td><select class="q-status"><option'+(q.status==='Quoted'?' selected':'')+'>Quoted</option><option'+(q.status==='Did Not Quote'?' selected':'')+'>Did Not Quote</option><option'+(q.status==='No Response'?' selected':'')+'>No Response</option></select></td>'+
+        midCells+
+        '<td class="tot">'+_totMsg+'</td>'+
+        '<td class="ctr"><select class="q-comp"'+(q.status!=='Quoted'?' disabled':'')+'><option'+(q.compliant==='Yes'?' selected':'')+'>Yes</option><option'+(q.compliant==='No'?' selected':'')+'>No</option></select></td>'+
+        '<td class="ctr"><input type="checkbox" class="q-rec"'+(q.recommended?' checked':'')+(q.status!=='Quoted'?' disabled':'')+'></td>'+
+        '<td><input type="text" class="q-addr" value="'+esc(q.address)+'" placeholder="e.g. #12 Sea View Gardens, Carenage"></td>'+
+        '<td class="rowbtns"><button class="btn danger small q-del">✕</button></td></tr>';
+    }
+    h+='</tbody></table>';
+    h+='<button class="btn sec small it-addq">＋ Add supplier row</button> <button class="btn danger small it-del">Delete item</button></div>';
+  }
+  host.innerHTML=h||'<p class="hint">No items yet — click Add item.</p>';
+  updateGrandLive();
+}
+function syncItemsFromDOM(){
+  var cards=document.querySelectorAll('#itemsHost .itemCard');
+  for(var i=0;i<cards.length;i++){
+    var c=cards[i], it=state.items[i]; if(!it) continue;
+    var modeEl=c.querySelector('.it-mode:checked'); if(modeEl) it.mode=modeEl.value;
+    var descEl=c.querySelector('.it-desc'); if(descEl) it.desc=descEl.value;
+    var qtyEl=c.querySelector('.it-qty'); if(qtyEl) it.qty=qtyEl.value;
+    var unitEl=c.querySelector('.it-unit'); if(unitEl) it.unitname=unitEl.value;
+    var rows=c.querySelectorAll('tbody tr');
+    for(var j=0;j<rows.length;j++){
+      var r=rows[j], q=it.quotes[j]; if(!q) continue;
+      q.supplier=r.querySelector('.q-sup').value;
+      q.status=r.querySelector('.q-status').value;
+      var uEl=r.querySelector('.q-unit'); if(uEl) q.unit=uEl.value;
+      var sEl=r.querySelector('.q-sub'); if(sEl) q.sub=sEl.value;
+      q.vat=r.querySelector('.q-vat').value;
+      q.compliant=r.querySelector('.q-comp').value;
+      q.recommended=r.querySelector('.q-rec').checked;
+      q.address=r.querySelector('.q-addr').value;
+      q.qty=it.qty; q.mode=it.mode;
+    }
+  }
+}
+$('itemsHost').addEventListener('click',function(e){
+  var card=e.target.closest('.itemCard'); if(!card) return;
+  var i=parseInt(card.getAttribute('data-i'),10);
+  if(e.target.classList.contains('it-addq')){syncItemsFromDOM();addQuote(i);}
+  else if(e.target.classList.contains('it-del')){if(confirm('Delete this item and its supplier rows?')){syncItemsFromDOM();state.items.splice(i,1);renderItems();}}
+  else if(e.target.classList.contains('q-del')){var tr=e.target.closest('tr');var j=parseInt(tr.getAttribute('data-j'),10);syncItemsFromDOM();state.items[i].quotes.splice(j,1);renderItems();}
+});
+$('itemsHost').addEventListener('change',function(){syncItemsFromDOM();renderItems();});
+
+/* Live in-place update while the user is typing (no re-render, keeps focus). */
+function updateItemTotalsLive(){
+  var cards=document.querySelectorAll('#itemsHost .itemCard');
+  for(var i=0;i<cards.length;i++){
+    var it=state.items[i]; if(!it) continue;
+    var rows=cards[i].querySelectorAll('tbody tr');
+    for(var j=0;j<rows.length;j++){
+      var q=it.quotes[j]; if(!q) continue;
+      var cell=rows[j].querySelector('td.tot'); if(!cell) continue;
+      if(q.status!=='Quoted'){ cell.textContent='—'; continue; }
+      var lt=lineTotal(q);
+      if(lt!==null&&!isNaN(lt)){ cell.textContent=fmtMoney(lt); continue; }
+      if(it.mode==='amount'){
+        var sub=parseMoney(q.sub);
+        cell.textContent=(sub===null||isNaN(sub))?'enter amount':'check';
+      } else {
+        var qty=parseFloat(q.qty), u=parseMoney(q.unit);
+        cell.textContent=(isNaN(qty)||qty<=0)?'enter qty':(u===null||isNaN(u))?'enter unit cost':'check';
+      }
+    }
+  }
+  updateGrandLive();
+}
+$('itemsHost').addEventListener('input',function(e){
+  if(e.target.classList&&e.target.classList.contains('it-mode')){syncItemsFromDOM();renderItems();return;}
+  syncItemsFromDOM();updateItemTotalsLive();
+});
+
+function updateGrandLive(){
+  var gt=grandTotal(state.items);
+  var el=$('grandLive'), ew=$('grandWordsLive');
+  if(el){
+    if(isNaN(gt)) el.textContent='— fix the row(s) marked need qty / need unit cost';
+    else if(gt===0) el.textContent='$0.00 (no recommended lines yet)';
+    else el.textContent=fmtMoney(gt);
+  }
+  if(ew) ew.textContent=(isNaN(gt)||gt===0)?'':amountInWords(gt);
+}
+
+/* ---- attachments / folios ---- */
+function addAtt(v){state.attachments.push(v);renderAtt();}
+function renderAtt(){
+  var h='';
+  for(var i=0;i<state.attachments.length;i++)
+    h+='<tr><td class="ctr">'+(i+1)+'</td><td><input type="text" class="att-v" value="'+esc(state.attachments[i])+'"></td><td class="rowbtns"><button class="btn danger small att-del" data-i="'+i+'">✕</button></td></tr>';
+  $('attHost').innerHTML=h;
+}
+function syncAttFromDOM(){
+  var els=document.querySelectorAll('#attHost .att-v');
+  for(var i=0;i<els.length;i++) state.attachments[i]=els[i].value;
+}
+$('attHost').addEventListener('click',function(e){
+  if(e.target.classList.contains('att-del')){syncAttFromDOM();state.attachments.splice(parseInt(e.target.getAttribute('data-i'),10),1);renderAtt();}
+});
+function autoAttach(){
+  syncFromForm();
+  var out=[], sup=allSuppliers(state.items);
+  for(var i=0;i<sup.length;i++) if(sup[i].quoted) out.push('Quotation received from '+sup[i].name);
+  for(var j=0;j<sup.length;j++) out.push('Request for Quotation sent to '+sup[j].name);
+  state.attachments=out; renderAtt();
+}
+function addFol(d,dt){state.folios.push({desc:d,date:dt});renderFol();}
+function renderFol(){
+  var h='';
+  for(var i=0;i<state.folios.length;i++)
+    h+='<tr><td class="ctr">('+(i+1)+')</td><td><input type="text" class="fol-d" value="'+esc(state.folios[i].desc)+'"></td><td><input type="text" class="fol-t" value="'+esc(state.folios[i].date)+'" placeholder="dd/mm/yy"></td><td class="rowbtns"><button class="btn danger small fol-del" data-i="'+i+'">✕</button></td></tr>';
+  $('folHost').innerHTML=h;
+}
+function syncFolFromDOM(){
+  var ds=document.querySelectorAll('#folHost .fol-d'), ts=document.querySelectorAll('#folHost .fol-t');
+  for(var i=0;i<ds.length;i++){state.folios[i].desc=ds[i].value;state.folios[i].date=ts[i].value;}
+}
+$('folHost').addEventListener('click',function(e){
+  if(e.target.classList.contains('fol-del')){syncFolFromDOM();state.folios.splice(parseInt(e.target.getAttribute('data-i'),10),1);renderFol();}
+});
+function autoFolios(){
+  syncFromForm();
+  state.folios=state.attachments.filter(function(a){return a&&a.trim();}).map(function(a){return {desc:a,date:''};});
+  renderFol();
+}
+
+/* ---- verification ---- */
+/* Map a check id to the tab that owns the failing field, and the field to focus. */
+function checkJumpTarget(id){
+  if(id==='C1') return {tab:'case',focus:'f_ref'};
+  if(id==='C2') return {tab:'case',focus:'f_date'};
+  if(id==='C3') return {tab:'case',focus:'f_addr'};
+  if(id==='C4') return {tab:'case',focus:'f_subject'};
+  if(id==='C5') return {tab:'case',focus:'f_signame'};
+  if(id.indexOf('C6.')===0||id.indexOf('C7.')===0||id.indexOf('C8.')===0||id.indexOf('C8b.')===0||id.indexOf('C9.')===0||id.indexOf('C10.')===0) return {tab:'items'};
+  if(id==='C11') return {tab:'items'};
+  if(id==='C12') return {tab:'rec',focus:'f_vat'};
+  if(id==='C13') return {tab:'items'};
+  if(id==='C14') return {tab:'rec',focus:'f_methodjust'};
+  if(id==='C15') return {tab:'rec',focus:'f_vote'};
+  if(id==='C16') return {tab:'rec',focus:'f_funds'};
+  if(id==='C17') return {tab:'rec',focus:'f_need'};
+  if(id==='C18') return {tab:'rec',focus:'r_alt'};
+  if(id==='C19'||id==='C19a') return {tab:'items'};
+  if(id==='C20') return {tab:'fol'};
+  if(id==='C21') return {tab:'fol'};
+  if(id==='C22'||id==='C22a') return {tab:'rec',focus:'f_rfqdate'};
+  return null;
+}
+function jumpToCheck(id){
+  var t=checkJumpTarget(id); if(!t) return;
+  go(t.tab);
+  setTimeout(function(){
+    var el=null;
+    if(t.focus) el=document.getElementById(t.focus);
+    else if(t.tab==='items'){
+      var m=id.match(/^C(?:6|7|8b?|9|10)\.(\d+)$/);
+      var card=null;
+      if(m){ card=document.querySelectorAll('#itemsHost .itemCard')[parseInt(m[1],10)-1]||null; }
+      if(card){
+        /* focus the first empty required field in that card */
+        var cand=card.querySelector('.it-desc');
+        if(cand&&!cand.value.trim()) el=cand;
+        if(!el){ var qy=card.querySelector('.it-qty'); if(qy&&!qy.value.trim()) el=qy; }
+        if(!el){
+          var rowInputs=card.querySelectorAll('tbody tr');
+          for(var ri=0;ri<rowInputs.length&&!el;ri++){
+            var sup=rowInputs[ri].querySelector('.q-sup');
+            var amt=rowInputs[ri].querySelector('.q-sub')||rowInputs[ri].querySelector('.q-unit');
+            if(sup&&!sup.value.trim()){el=sup;break;}
+            if(amt&&!amt.disabled&&!amt.value.trim()){el=amt;break;}
+          }
+        }
+        if(!el) el=card;
+      }
+      if(!el) el=document.getElementById('itemsHost');
+    } else if(t.tab==='fol'){
+      var f=document.getElementById(id==='C21'?'folHost':'attHost');
+      el=f?f.closest('fieldset'):null;
+    }
+    if(!el) return;
+    try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){el.scrollIntoView();}
+    if(el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.tagName==='SELECT') el.focus();
+    var old=el.style.outline;
+    el.style.outline='2px solid #b3261e'; el.style.outlineOffset='2px';
+    setTimeout(function(){el.style.outline=old||'';el.style.outlineOffset='';},1800);
+  },60);
+}
+function renderChecks(){
+  syncFromForm();
+  var R=runChecks(state), s=checkStats(R), h='';
+  var sum = s.fail? '<div class="notice red"><b>'+s.fail+' check(s) failed.</b> The pack is not cleared. Click <b>Fix</b> beside any red item and it will take you to the field.</div>'
+          : s.warn? '<div class="notice"><b>All mandatory checks passed;</b> '+s.warn+' caution(s) noted below. Review before release.</div>'
+          : '<div class="notice green"><b>All checks passed.</b> Print the Verification Certificate, verify each figure against the folios, and carry for signature.</div>';
+  $('verSummary').innerHTML=sum;
+  for(var i=0;i<R.length;i++){
+    var c=R[i];
+    var fixBtn=(c.result==='FAIL'||c.result==='WARN')&&checkJumpTarget(c.id)
+      ? '<button class="btn small" data-jump="'+esc(c.id)+'" style="flex:0 0 auto;margin-left:8px">Fix →</button>' : '';
+    h+='<li><div class="tag '+c.result+'">'+c.result+'</div><div class="body"><b>'+esc(c.id)+' — '+esc(c.name)+'</b><span>'+esc(c.detail)+(c.result!=='PASS'&&c.action?(' → '+esc(c.action)):'')+'</span></div>'+fixBtn+'</li>';
+  }
+  $('verHost').innerHTML=h;
+  updateStatusPill(s);
+}
+$('verHost').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-jump]'); if(b) jumpToCheck(b.getAttribute('data-jump'));
+});
+function updateStatusPill(s){
+  if(!s){var R=runChecks(state);s=checkStats(R);}
+  var p=$('statusPill');
+  if(s.fail){p.textContent=s.fail+' CHECK(S) FAILED';p.className='bad';p.id='statusPill';p.classList.add('bad');}
+  else if(s.warn){p.textContent='CLEARED WITH CAUTION';p.className='warn';}
+  else {p.textContent='ALL CHECKS PASSED';p.className='ok';}
+  p.id='statusPill';
+}
+
+/* ---- documents ---- */
+function currentDocHTML(which){
+  if(which==='approval') return buildApproval(state);
+  if(which==='minute') return buildMinute(state);
+  if(which==='checklist') return buildChecklist(state);
+  return buildCert(state);
+}
+function renderDoc(){
+  syncFromForm();
+  var which=$('docSel').value;
+  $('docHost').innerHTML=currentDocHTML(which);
+  var s=checkStats(runChecks(state));
+  $('docNotice').innerHTML = s.fail? '<div class="notice red">This document is stamped <b>DRAFT — NOT CLEARED</b> because '+s.fail+' verification check(s) are failing. The stamp is removed automatically once every check passes.</div>':'';
+}
+function wordWrap(bodyHtml,title){
+  return '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>'+esc(title)+'</title>'+
+  '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]-->'+
+  '<style>@page Sec1{size:8.5in 11.0in;margin:1.0in 1.0in 1.0in 1.0in;} div.Sec1{page:Sec1;} body{font-family:"Times New Roman",serif;font-size:12pt;line-height:1.42;} '+
+  'p{margin:0 0 11pt;text-align:justify} .lh{text-align:center;line-height:1.15} .lh .f1{font-weight:bold;font-size:13pt} .lh .f2{font-size:9.5pt} '+
+  '.ttl{text-align:center;font-weight:bold;text-decoration:underline;margin:14pt 0 12pt;text-transform:uppercase} '+
+  'table.cmp,table.cert{border-collapse:collapse;width:100%;font-size:10pt} table.cmp th,table.cmp td,table.cert th,table.cert td{border:1px solid #000;padding:4pt 5pt;vertical-align:top} table.cmp th,table.cert th{background:#dbe3ec;text-align:center} '+
+  'td.num{text-align:right} td.ctr,td.r{text-align:center} .uhead{font-weight:bold;text-decoration:underline;margin:12pt 0 6pt} '+
+  'ul.rsn{margin:0 0 11pt 40pt} ol.att{margin:4pt 0 0 40pt;font-size:11pt} .np{margin:0} '+
+  'table.fol{width:100%;border-collapse:collapse;font-size:11.5pt} table.fol td{padding:2pt 0;vertical-align:bottom} td.d1{border-bottom:1px dotted #000} td.d2{padding-left:8pt} '+
+  '.draftstamp{border:2.5pt solid #b3261e;color:#b3261e;font-family:Arial;font-weight:bold;text-align:center;padding:6pt;margin-bottom:14pt;letter-spacing:1pt} .sig{margin-top:34pt}</style></head>'+
+  '<body><div class="Sec1">'+bodyHtml+'</div></body></html>';
+}
+function downloadBlob(html,fname){
+  var blob=new Blob(['\ufeff',html],{type:'application/msword'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=fname;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+}
+function safeName(s){return (s||'Approval').replace(/[^A-Za-z0-9 _-]/g,'').trim().replace(/\s+/g,'_').slice(0,60)||'Approval';}
+function downloadDoc(){
+  syncFromForm();
+  var which=$('docSel').value, names={approval:'Approval',minute:'Minute_Sheet',checklist:'Checklist',cert:'Verification_Certificate'};
+  downloadBlob(wordWrap(currentDocHTML(which),state.subject||names[which]), safeName(state.subject)+'_'+names[which]+'.doc');
+}
+function downloadAllDoc(){
+  syncFromForm();
+  var brk='<br clear="all" style="mso-special-character:line-break;page-break-before:always">';
+  var all=buildApproval(state)+brk+buildMinute(state)+brk+buildChecklist(state)+brk+buildCert(state);
+  downloadBlob(wordWrap(all,state.subject||'Approvals'), safeName(state.subject)+'_Approvals.doc');
+}
+
+/* ---- draft save/load ---- */
+function saveDraft(){
+  syncFromForm();
+  var blob=new Blob([JSON.stringify(state,null,1)],{type:'application/json'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=safeName(state.subject)+'_draft.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},400);
+}
+function loadDraft(input){
+  var f=input.files[0]; if(!f) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    try{
+      var obj=JSON.parse(rd.result);
+      if(!obj||typeof obj!=='object'||!('items' in obj)) throw new Error('bad');
+      for(var k in state) if(Object.prototype.hasOwnProperty.call(obj,k)) state[k]=obj[k];
+      if(!Array.isArray(state.items)) state.items=[];
+      for(var _i=0;_i<state.items.length;_i++){
+        var _it=state.items[_i]; if(!_it.mode) _it.mode='qty';
+        if(Array.isArray(_it.quotes)) for(var _j=0;_j<_it.quotes.length;_j++){
+          var _q=_it.quotes[_j]; if(_q.sub==null) _q.sub=''; _q.mode=_it.mode;
+        }
+      }
+      if(!Array.isArray(state.attachments)) state.attachments=[];
+      if(!Array.isArray(state.folios)) state.folios=[];
+      syncToForm(); updateActSuggestion(); updateStatusPill(); updateGrandLive();
+      alert('Draft loaded.');
+    }catch(e){alert('That file is not a valid draft saved by this tool.');}
+  };
+  rd.readAsText(f); input.value='';
+}
+
+/* ---- drafting assistant wiring ---- */
+var daDraft='';
+function daCollect(){
+  return {activity:$('da_activity').value,who:$('da_who').value,when:$('da_when').value,cons:$('da_cons').value,notes:$('da_notes').value};
+}
+function daCtx(){
+  syncFromForm();
+  var names=state.items.map(function(it){return it.desc;}).filter(function(d){return d&&d.trim();});
+  return {subject:state.subject, method:state.method, itemsLine:names.join('; ')};
+}
+function daStatus(msg){ $('da_status').textContent=msg||''; }
+function daShow(text){
+  daDraft=text;
+  $('da_preview').style.display='block';
+  $('da_preview').innerHTML=text.split(/\n\s*\n/).map(function(p){return '<p style="margin:0 0 8px">'+esc(p)+'</p>';}).join('');
+  $('da_actions').style.display='block';
+}
+function daHide(){ daDraft=''; $('da_preview').style.display='none'; $('da_actions').style.display='none'; }
+$('da_offline').addEventListener('click',function(){
+  var t=$('da_target').value, out=composeOffline(t, daCollect(), daCtx());
+  if(!out){ daHide(); daStatus(t==='minextra'?'Enter the paragraphs in Rough notes first.':'Enter at least the activity, or write your points into Rough notes.'); return; }
+  daShow(out); daStatus('First draft below. Read it, then Insert to place it in the field \u2014 or Discard and try again.');
+});
+$('da_insert').addEventListener('click',function(){
+  if(!daDraft) return;
+  var t=$('da_target').value, id=(t==='need'?'f_need':t==='methodjust'?'f_methodjust':'f_minextra');
+  var el=$(id);
+  el.value = el.value.trim() ? (el.value.trim()+'\n\n'+daDraft) : daDraft;
+  syncFromForm(); daHide();
+  daStatus('Inserted into "'+(t==='need'?'Background / operational need':t==='methodjust'?'Method justification':'Extra minute paragraphs')+'". Edit it there as any other field.');
+  el.focus();
+});
+$('da_discard').addEventListener('click',function(){ daHide(); daStatus('Discarded.'); });
+
+/* ---- boot ---- */
+document.body.addEventListener('change',function(e){ if(e.target.closest('section.panel')) syncFromForm(); });
+addItem();
+updateActSuggestion();
+updateStatusPill();
+</script>
+</body>
+</html>
