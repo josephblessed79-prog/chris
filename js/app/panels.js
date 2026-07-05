@@ -129,6 +129,7 @@
     h += fieldHTML('Signed by — name', 'docState.minsigname', { req: true });
     h += fieldHTML('Post (e.g. Clerk IV (Ag))', 'docState.minsigpost', {});
     h += '</div></fieldset>';
+    h += composerHTML(cf);
     if (cf.pathway === 'P1' || cf.pathway === 'P2') {
       h += '<fieldset class="box"><legend>Procurement method (item-and-quotation cases)</legend><div class="grid">';
       h += fieldHTML('Method', 'docState.method', { type: 'select', options: ['Request for Quotation', 'Open Tender', 'Selective Tender', 'Direct Contracting', 'Single / National Provider', 'Emergency Procurement'].map(function (x) { return [x, x]; }) });
@@ -282,6 +283,37 @@
     h += '<button class="btn" data-action="item-add">＋ Add item</button>';
     var gt = M.compute.grandTotal(items);
     h += '<div class="notice" style="margin-top:14px"><b>Grand total (recommended rows):</b> <span data-compute="items-grand">' + (isNaN(gt) ? '— fix the flagged rows' : gt === 0 ? '$0.00 (no recommended rows yet)' : fmtMoney(gt) + ' — ' + esc(M.words.amountInWords(gt))) + '</span></div>';
+    return h;
+  }
+
+  /* The offline narrative composer (restored from the original Approvals
+     Composer). Deterministic: it stitches only the words the user
+     supplies into a first draft in the house register — no figure is
+     ever composed, and nothing enters a field until the user reads the
+     draft and clicks Insert. Engine: js/lib/narrative.js (parity-tested
+     against the legacy tool). */
+  function composerHTML(cf) {
+    var targets = [['need', 'Background / operational need']];
+    if (cf.pathway === 'P1' || cf.pathway === 'P2') {
+      targets.push(['methodjust', 'Method justification']);
+      targets.push(['minextra', 'Extra minute paragraphs']);
+    }
+    var h = '<fieldset class="box"><legend>Narrative composer (offline, optional)</legend>';
+    h += '<p class="hint">Write the narrative fields yourself, or enter the facts of the case below and click Compose: the composer stitches them into a starting draft in the house register. It runs entirely on this computer — nothing leaves the machine, no internet is used, and no figure is invented (every dollar amount in the documents remains computed). The draft appears in a preview; nothing goes into the field until you read it and click Insert. Treat it as a first draft, not the finished paragraph.</p>';
+    h += '<div class="grid">';
+    h += '<label class="f">Write into<select data-path="docState.da_target">' + targets.map(function (t) {
+      return '<option value="' + t[0] + '">' + esc(t[1]) + '</option>';
+    }).join('') + '</select></label>';
+    h += fieldHTML('Activity / purpose', 'docState.da_activity', { placeholder: 'e.g. Accounts Training for Finance Branch personnel' });
+    h += fieldHTML('For whom / beneficiary', 'docState.da_who', { placeholder: 'e.g. thirty-five members of staff' });
+    h += fieldHTML('Date(s) / period', 'docState.da_when', { placeholder: 'e.g. 14–18 July 2026' });
+    h += fieldHTML('Consequence if not procured', 'docState.da_cons', { wide: true, placeholder: 'e.g. the training cannot be conducted and the annual training plan will slip' });
+    h += fieldHTML('Rough notes (facts, fragments — one point per line; for extra minute paragraphs, a blank line between paragraphs)', 'docState.da_notes', { type: 'textarea', wide: true });
+    h += '</div>';
+    h += '<button class="btn" data-action="da-compose">Compose</button> <span id="daStatus" class="hint" style="display:inline-block;margin-left:8px"></span>';
+    h += '<div id="daPreview" style="display:none;border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin-top:10px;background:#fff;font-family:Georgia,serif"></div>';
+    h += '<div id="daActions" style="display:none;margin-top:8px"><button class="btn" data-action="da-insert">Insert into field</button> <button class="btn sec" data-action="da-discard">Discard</button></div>';
+    h += '</fieldset>';
     return h;
   }
 

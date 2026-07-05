@@ -504,6 +504,56 @@
       render('fol');
     },
     'fix': function (t) { go(t.getAttribute('data-tab')); },
+    /* ---- offline narrative composer (engine: js/lib/narrative.js) ---- */
+    'da-compose': function () {
+      var st = APP.caseFile.docState;
+      var target = st.da_target || 'need';
+      var itemsLine = (st.items || []).map(function (it) { return it.desc; }).filter(function (d) { return d && d.trim(); }).join('; ');
+      var out = M.narrative.composeOffline(target,
+        { activity: st.da_activity, who: st.da_who, when: st.da_when, cons: st.da_cons, notes: st.da_notes },
+        { subject: st.subject, method: st.method, itemsLine: itemsLine });
+      var status = el('daStatus'), preview = el('daPreview'), acts = el('daActions');
+      if (!out) {
+        APP.daDraft = '';
+        if (preview) preview.style.display = 'none';
+        if (acts) acts.style.display = 'none';
+        if (status) status.textContent = target === 'minextra'
+          ? 'Enter the paragraphs in Rough notes first.'
+          : 'Enter at least the activity, or write your points into Rough notes.';
+        return;
+      }
+      APP.daDraft = out;
+      if (preview) {
+        preview.style.display = 'block';
+        preview.innerHTML = out.split(/\n\s*\n/).map(function (p) {
+          return '<p style="margin:0 0 8px">' + M.textutil.esc(p) + '</p>';
+        }).join('');
+      }
+      if (acts) acts.style.display = 'block';
+      if (status) status.textContent = 'First draft below. Read it, then Insert to place it in the field — or Discard and try again.';
+    },
+    'da-insert': function () {
+      if (!APP.daDraft) return;
+      var st = APP.caseFile.docState;
+      var target = st.da_target || 'need';
+      var field = target === 'methodjust' ? 'methodjust' : target === 'minextra' ? 'minextra' : 'need';
+      st[field] = (st[field] || '').trim() ? (st[field].trim() + '\n\n' + APP.daDraft) : APP.daDraft;
+      var input = document.querySelector('[data-path="docState.' + field + '"]');
+      if (input) input.value = st[field];
+      APP.daDraft = '';
+      var preview = el('daPreview'), acts = el('daActions'), status = el('daStatus');
+      if (preview) preview.style.display = 'none';
+      if (acts) acts.style.display = 'none';
+      if (status) status.textContent = 'Inserted into "' + (field === 'need' ? 'Background / operational need' : field === 'methodjust' ? 'Method justification' : 'Extra minute paragraphs') + '". Edit it there as any other field.';
+      touchAndAutosave();
+    },
+    'da-discard': function () {
+      APP.daDraft = '';
+      var preview = el('daPreview'), acts = el('daActions'), status = el('daStatus');
+      if (preview) preview.style.display = 'none';
+      if (acts) acts.style.display = 'none';
+      if (status) status.textContent = 'Discarded.';
+    },
     'doc-print': function () { window.print(); },
     'doc-download': function () { downloadDoc(APP.currentDoc); },
     'doc-download-all': function () { downloadAllDocs(); },
