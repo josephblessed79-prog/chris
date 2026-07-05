@@ -43,8 +43,8 @@ its checks, its documents. None borrows another's logic.
 
 Shared tools only — money in exact cents, amounts in words, folio
 numbering, the vote book (a routine instrument), save/load, the
-verification framework, the offline narrative composer — live in a
-common core. Each module owns its own workflow and check series
+verification framework, the offline narrative composer, and the
+document-upload/intake feature — live in a common core. Each module owns its own workflow and check series
 (routine C/E/V/H + G; formal F + G; disposal D + G); the framework
 merges only a module's own series, so tender-evaluation logic never
 reaches routine procurement, routine minute logic never reaches a formal
@@ -61,12 +61,14 @@ disposal, with the original pathway preserved on the case.
   where the signed sheets themselves contain arithmetic errors (they do)
   the tests assert the **correct** figures and show the system flagging
   the malformed ones on entry.
-- **Disposal** Forms A–E are held to the OPR Retention & Disposal
-  Handbook (HGRD02 v3.0) and the Sample Disposal Case Study #1; the case
-  study replays to its published total, **TT$70,650.00**, with every
-  Form C column computed to the cent
-  (`tests/dryruns/disposal-casestudy.test.js`). Forms F, G and H and
-  real-property disposals remain pending their format authority.
+- **Disposal** Forms A–H are held to the official **OPR Disposal
+  Templates**, with the Retention & Disposal Handbook (HGRD02 v3.0) and
+  the Sample Disposal Case Study #1 as supporting authority. Form C
+  follows the official blank (Item · Appraised Value · Total), with the
+  Case Study's NBV working preserved as an optional Appraisal Catalogue;
+  the case study replays to its published total, **TT$70,650.00**, to the
+  cent (`tests/dryruns/disposal-casestudy.test.js`). Only real-property
+  disposals (s. 57A) remain pending their own regulations.
 - **Formal evaluation** is held to the OPR Evaluation of Submissions
   guideline (Appendix I COI form, Appendix II report template); a worked
   example ranks two gate-passing proponents to the cent
@@ -84,14 +86,17 @@ node tests/run.js
 runs every suite: engine units, byte-parity against the original
 Approvals Composer, the four sample replays, the disposal case-study
 replay, the formal worked example, the module-separation guarantees
-(`tests/modulescope.test.js`), seventeen further full-system scenarios,
+(`tests/modulescope.test.js`), the document-intake engine
+(`tests/intake.test.js`), seventeen further full-system scenarios,
 storage, ingestion, vendored libraries, and an adversarial suite.
 Nothing in this repository claims a capability that is not demonstrated
-by a passing test. Four browser smoke tests (Playwright + Chromium)
+by a passing test. Five browser smoke tests (Playwright + Chromium)
 drive the real UI from `file://`: `browser-smoke.js` (a routine case end
 to end), `browser-smoke-guidance.js` (conditional questions),
-`browser-smoke-composer.js` (the offline composer), and
-`browser-smoke-modules.js` (the three-module separation).
+`browser-smoke-composer.js` (the offline composer),
+`browser-smoke-modules.js` (the three-module separation), and
+`browser-smoke-intake.js` (uploading a real document and choosing how it
+is used).
 
 ## Documentation
 

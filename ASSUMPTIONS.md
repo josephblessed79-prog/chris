@@ -141,34 +141,43 @@ unnamed companies. Hardening, not deviation.
 
 ## 9. Disposal — RESOLVED to OPR authority (was a scaffold)
 
-**Superseded (July 2026).** The earlier scaffold existed because no
-disposal format authority had been supplied. Two OPR documents were then
-provided and **are** that authority: the *Retention & Disposal of Public
-Property Handbook* (HGRD02 05-2023 v3.0) and *Sample Disposal Case Study
-#1* (Sept 2021 v1.0). The disposal module is now built to them:
+**Resolved to the official templates (July 2026).** The earlier scaffold
+existed because no disposal format authority had been supplied. The
+authority was then provided in three parts and the module is built to it:
+the **OPR Disposal Templates (Forms A–H)** — the official blank forms —
+governing the printed layout; the *Retention & Disposal of Public
+Property Handbook* (HGRD02 05-2023 v3.0); and the *Sample Disposal Case
+Study #1* (Sept 2021 v1.0) as a worked example.
 
-- Forms A–E to the case-study layouts (Request for Asset Disposal;
-  Inventory & Inspection Report with the VG/G/F/P/S disposition bands;
-  Committee Appraisal Report; Strategy Development Report; Strategy
-  Approval / Signature Form). The **SCAFFOLD — AWAITING FORMAT
-  AUTHORITY** banner is gone; each form cites its authority.
-- The appraisal arithmetic (unit NBV, 20% of NBV, appraised-value-less-
-  20%, expected returns) is computed and replays the case study to its
-  published total, **TT$70,650.00**, to the cent
-  (`tests/dryruns/disposal-casestudy.test.js`).
+- **Forms A–H** are all built to the official blanks: Form A (Request for
+  Asset Disposal, with the per-item NBV column and three signatures —
+  Assigned Officer, Finance/Accounting Officer, NPO); Form B (Inventory &
+  Inspection, Unit/Total Cost and the VG/G/F/P/S bands); Form C (Appraisal
+  Report); Form D (Strategy Development Report); Form E (Strategy
+  Approval); Form F (Summary Report of Approved Disposal Action); Form G
+  (Transfer/Donation of Excess Personal Property); Form H (Notice of
+  Rejection). The **SCAFFOLD — AWAITING FORMAT AUTHORITY** banner is gone;
+  each form cites its authority.
+- **Form C follows the official blank** (Item Description | Appraised
+  Value | Total Appraised Value), which is simpler than the Case Study's
+  worked columns. The Case Study's Unit-NBV / 20% / less-20% working is
+  preserved as an **optional Appraisal Catalogue annex** — the template
+  itself invites a separate catalogue for more than five items. The
+  appraisal arithmetic is still computed and replays the Case Study to
+  its published total, **TT$70,650.00**, to the cent (Form C total and
+  the catalogue agree — `tests/dryruns/disposal-casestudy.test.js`).
 - Governance from the Act and Regulations, each raised only when it
   arises: Disposal Committee of not less than three officers (ss. 55–56);
   reg 6(2) method list (open — a method off it needs recorded reasoning);
   reg 6(3) TT$100,000 newspaper-advertising threshold; s.57/reg 7 prior
   PDAC approval for a sale to employees; the AO's fourteen-day decision
   and rejection-reasons rule; the six-week OPR notification; net proceeds
-  to account.
+  to account; and a Form F deviation check (D12).
 
-➤ **Still pending format authority:** Form F (Summary Report of Approved
-Disposal Action), Form G (Transfer/Donation of Excess Personal
-Property), Form H (Notice of Rejection) — named in the Handbook workflow
-but not supplied as layouts — and **real-property** disposals (s. 57A;
-regulations pending). Each disposal form footer states this.
+➤ **Still pending format authority:** only **real-property** disposals
+(s. 57A of Act No. 5 of 2016; the regulations for real property are not
+yet made). The personal-property Forms A–H are complete. Each disposal
+form footer states what remains pending.
 
 ## 9a. Formal tender / RFP / ITB evaluation — built to OPR authority
 
@@ -226,6 +235,63 @@ implemented and tested (`tests/modulescope.test.js`):
 - Legacy case files (schema v2, pathways P1–P4) open losslessly: P1/P2/P3
   map to routine, P4 to disposal, and the original pathway is preserved
   on the case under `extra.legacyPathway`.
+
+## 9c. Professional Output Standard — CONFIRMED design rule
+
+**Confirmed (July 2026).** The system aims to produce not merely correct
+documents but the cleanest, most professional, most polished documents
+reasonably possible — good headings, spacing, alignment, table
+formatting, continuation headers, consistent numbering, proper signature
+blocks and a formal government appearance — **within the applicable
+authority, compliance first.** The standing rules:
+
+1. Compliance wins. Presentation is never improved in a way that changes
+   a mandated format, removes required content, weakens auditability, or
+   conflicts with an official template, the Act, the Regulations, the OPR
+   Guidelines or a controlling public-body requirement.
+2. **Approved layouts are preserved.** Any already-approved or
+   sample-verified printed output (the routine minute, formation letter,
+   worksheet body and certificate) is unchanged unless the user expressly
+   approves a change. This is enforced by the byte-parity and replay
+   tests, which still pass.
+3. Where an improved layout is possible it is offered as an **optional
+   Enhanced professional profile** (`outputProfile: 'enhanced'`), never a
+   silent replacement. The disposal Forms A–H — new output under new
+   template authority — are built to the professional standard already
+   (shared header/footer, aligned tables with repeating header rows,
+   consistent signature blocks); the Enhanced profile refines
+   presentation only and never alters a mandated structure.
+
+## 9d. Document Upload / Intake — CONFIRMED, implemented across all modules
+
+**Confirmed and built (July 2026).** The user can upload a document and
+choose, in plain language, how the system uses it: **A** information
+only, **B** preferred layout/structure, **C** both. Implemented for real
+(not a placeholder), with honest limits and compliance-first safeguards
+(`js/lib/intake.js`, engine-tested; `js/app/ingest-ui.js`, the screen;
+`tools/browser-smoke-intake.js`, the end-to-end proof).
+
+- **Honest file-type support**, stated on the screen: DOCX — facts and
+  layout/structure; text-PDF — facts and limited structure; scanned or
+  image-only PDF — not readable without OCR (and OCR only runs over
+  intranet HTTP, not `file://`); XLSX/CSV — tabular facts only.
+- **Compliance-bounded layout (the honest boundary).** Options B and C
+  genuinely work, but layout guidance is *not* a free clone of an
+  arbitrary uploaded layout — the official template governs. Guidance is
+  mapped to the choices the official form actually leaves open (the
+  Enhanced professional profile, letterhead/signature-block emphasis).
+  Where the upload would drop a mandated section or reorder a fixed form,
+  the system detects the conflict, keeps the official form, and explains
+  it plainly. This boundary is the compliance rule the user set, not a
+  shortfall.
+- **Safeguards, all active:** show what was found before applying;
+  require confirmation before inserting facts (one by one) or changing
+  any layout; official templates and the law rank above any uploaded
+  document; no silent replacement of an approved form; uncertain
+  extracted fields are held for review, never guessed; every intake is
+  recorded on the case (mode, file name, extraction summary, layout
+  decision, conflicts, confirmation) for audit; available in all three
+  modules.
 
 ## 10. Miscellaneous
 

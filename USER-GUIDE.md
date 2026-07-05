@@ -154,17 +154,36 @@ disagree.
    recommendation stated in words, VAT inclusive — and the declaration
    forms.
 
-## Importing documents (any module)
+## Uploading a document (any module)
 
-Import Documents reads a PDF, Word, Excel or CSV file and lists what it
-found — suppliers, dates, figures, item lines — each with the snippet it
-came from and a plain note about how confident to be. **Nothing enters
-your case until you accept it**, and figures must be accepted one by
-one, never in bulk. A figure the parser rejected cannot be accepted at
-all until you edit it to what the source really says. Scanned documents
-need OCR, which only works when IT serves the system over the intranet;
-the screen tells you plainly if it is unavailable — and OCR output is
-error-prone, so check every character.
+On the Import / Upload screen you upload a document and first choose, in
+plain words, **how the system should use it**:
+
+- **A — information only.** Read the facts inside and help fill the
+  fields. The official form does not change.
+- **B — preferred layout.** Let the document guide the look and order —
+  but only where the official form allows. If it would break the official
+  form, the official form wins and the system tells you.
+- **C — both.** Use the facts and the look, with the same safety rule.
+
+The system reads a Word (.docx), text-PDF, Excel or CSV file and lists
+what it found — suppliers, dates, figures, item lines — each with the
+snippet it came from and how confident to be. **Nothing enters your case
+until you accept it**, and figures are accepted one by one, never in
+bulk. Anything the system is unsure about is held for your review, not
+guessed. A figure the parser rejected cannot be accepted until you edit
+it to what the source really says. Scanned or image-only PDFs need OCR,
+which only works when IT serves the system over the intranet; the screen
+tells you plainly what each file type supports.
+
+If you chose a layout option, the system shows what structure it found,
+keeps the official form in full, and — where it is safe — offers the
+**Enhanced professional layout** (cleaner spacing and presentation). It
+never removes required content or changes a mandated form. Any clash is
+explained in plain language, and **you confirm before anything is
+applied.** Every upload is recorded on the case (which document, how it
+was used, what changed) so there is a clear trail. You can also set the
+Approved or Enhanced layout directly on Case Details.
 
 Whatever route a figure took into the case, the verification
 certificate still requires a person to compare it against the folio
@@ -224,6 +243,9 @@ this manual check is deliberate and mandatory.
    has fourteen days to decide; the OPR must be notified within six weeks
    of completion.
 4. Fill the strategy (Form D) and the approvals and dates (Form E) as the
-   disposal progresses. The Documents tab produces Forms A to E, each
-   citing its authority. (Forms F, G and H and real-property disposals
-   are not yet built — the forms say so.)
+   disposal progresses. After the disposal is carried out, complete the
+   summary (Form F); use Form G for a transfer or donation, and Form H if
+   the Accounting Officer rejects the strategy. The Documents tab produces
+   all of Forms A to H, each citing its authority, plus an optional
+   Appraisal Catalogue that shows how each appraised value was worked out.
+   (Only real-property disposals are not yet built — the forms say so.)

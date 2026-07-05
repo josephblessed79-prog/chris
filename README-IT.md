@@ -36,7 +36,9 @@ js/lib/               THE ENGINE. Pure logic, no screen code. Every file
   styleprofile.js     The style-profile registry.
   storage.js          File naming and the shared-folder register index.
   ingest.js           Candidate extraction from imported documents.
-  ingestfiles.js      Browser file readers over the vendored parsers.
+  ingestfiles.js      Browser file readers + document-structure extraction.
+  intake.js           Document Upload / Intake: mode A/B/C, layout-conflict
+                      detection, compliance-bounded layout plan, audit record.
   documents.js        Dispatcher: case + profile -> document builder.
   docs/               One file per document type.
 js/app/               THE SCREENS. Browser-only wiring; no arithmetic here.
@@ -123,15 +125,39 @@ not add a cross-module document or check. It is locked by
 `tests/modulescope.test.js`, which fails if, say, a disposal case is ever
 offered the procurement certificate or a formal case runs a vote check.
 
-The disposal module is built to the OPR Retention & Disposal Handbook and
-Sample Case Study (Forms A–E; the case study replays to TT$70,650.00).
-Still pending format authority, and marked so in each form's footer:
-Forms F, G, H and real-property disposals. The formal module is built to
-the OPR Evaluation of Submissions guideline (Appendix I COI form,
-Appendix II report). The one place a solicitation-specific change might be
-needed is the ranking normalisation in `formal.js` (`ranking`) — it uses
-the standard QCBS weighting on integer maths; if a public body prescribes
-a different formula, adjust it there and add a test.
+The disposal module is built to the official **OPR Disposal Templates
+(Forms A–H)**, with the Handbook and Sample Case Study as supporting
+authority (the case study replays to TT$70,650.00; Form C follows the
+official blank, with the NBV working in an optional Appraisal Catalogue).
+Only real-property disposals remain pending, marked so in each form's
+footer. The formal module is built to the OPR Evaluation of Submissions
+guideline (Appendix I COI form, Appendix II report). The one place a
+solicitation-specific change might be needed is the ranking normalisation
+in `formal.js` (`ranking`) — it uses the standard QCBS weighting on
+integer maths; if a public body prescribes a different formula, adjust it
+there and add a test.
+
+## Professional output and the document-upload feature
+
+Two cross-cutting rules, both compliance-first:
+
+- **Professional Output Standard.** Documents aim for a polished,
+  official appearance — but never at the cost of a mandated format. Any
+  approved/sample-verified layout (routine minute, letter, worksheet,
+  certificate) is byte-frozen and guarded by the parity tests. An
+  optional `outputProfile: 'enhanced'` refines presentation only; it is
+  honoured by the disposal and formal builders and never alters a
+  mandated structure. Do not "improve" a frozen builder.
+- **Document Upload / Intake** (`intake.js` + `ingest-ui.js`). The user
+  uploads a document and picks mode A (information), B (layout) or C
+  (both). Facts are extracted and confirmed one by one; layout guidance
+  is compliance-bounded (it maps to the enhanced profile and safe
+  signals, and the official template wins on any conflict). Every intake
+  is recorded on `caseFile.intake` for audit. File-type support is
+  honest and stated on screen; OCR still needs HTTP (not `file://`). The
+  official-template structures used for conflict detection live in
+  `intake.js` (`OFFICIAL`) — extend them there if a module's mandated
+  structure changes.
 
 ## Continuation formatting
 

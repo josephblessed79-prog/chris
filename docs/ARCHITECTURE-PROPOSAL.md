@@ -189,3 +189,23 @@ WHAT ARE YOU DOING TODAY?
    asked only when a threshold rule is actually engaged.
 4. The COI/Confidentiality forms will follow Appendix I of the
    evaluation guideline as supplied.
+
+## 7. Cross-cutting additions (confirmed July 2026)
+
+Two rules apply across all three modules without disturbing the
+separation or the approved layouts. Both are compliance-first.
+
+- **Professional Output Standard.** Documents aim for a polished,
+  official appearance within the applicable authority. Approved/
+  sample-verified layouts stay byte-frozen (parity tests enforce it); an
+  optional `outputProfile: 'enhanced'` refines presentation only and
+  never alters a mandated structure. Full statement in ASSUMPTIONS §9c.
+- **Document Upload / Intake** (`js/lib/intake.js`). Upload a document
+  and choose mode A (information), B (layout) or C (both). Facts are
+  confirmed one by one; layout guidance is compliance-bounded (maps to
+  the enhanced profile and safe signals; the official template wins on
+  conflict); uncertain fields stay for review; every intake is recorded
+  on the case for audit. Honest file-type limits are shown on screen.
+  Full statement in ASSUMPTIONS §9d. The disposal format authority is now
+  the official OPR Disposal Templates (Forms A–H); only real-property
+  disposals remain pending (ASSUMPTIONS §9).
