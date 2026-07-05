@@ -50,6 +50,26 @@ const { chromium } = require('playwright-core');
   await page.waitForTimeout(300);
   check('minute preview carries the composed paragraph', (await page.textContent('#preview')).includes('The items listed in this approval are required to facilitate'));
 
+  // the composer also serves the disposal module — writing into the
+  // disposal strategy, not a routine field
+  await page.click('nav.tabs button[data-t="start"]');
+  await page.waitForTimeout(150);
+  await page.click('.pathcard[data-activity="disposal"]');
+  await page.waitForTimeout(250);
+  const dispTargets = await page.$$eval('[data-path="docState.da_target"] option', os => os.map(o => o.textContent));
+  check('disposal composer targets the disposal strategy', dispTargets.some(t => t.includes('Disposal strategy — Background')));
+  check('disposal composer offers no routine method field', !dispTargets.some(t => t.includes('Method justification')));
+  await page.fill('[data-path="docState.da_activity"]', 'clearing the basement store of obsolete furniture');
+  await page.dispatchEvent('[data-path="docState.da_activity"]', 'change');
+  await page.click('[data-action="da-compose"]');
+  await page.waitForTimeout(200);
+  await page.click('[data-action="da-insert"]');
+  await page.waitForTimeout(200);
+  check('disposal insert reports the strategy field', (await page.textContent('#daStatus')).includes('Disposal strategy — Background'));
+  const backVal = await page.evaluate(() => window.APP.caseFile.disposal.strategy.background);
+  check('composed draft landed in disposal.strategy.background', backVal.includes('obsolete furniture'));
+  check('nothing was written to the routine need field', (await page.evaluate(() => window.APP.caseFile.docState.need)) === '');
+
   check('no page errors', errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));
   await browser.close();

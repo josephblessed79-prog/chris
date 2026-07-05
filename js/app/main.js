@@ -338,6 +338,21 @@
       cf.disposal.items[+pdi[0]][pdi[1]] = pdi[1] === 'qty' ? (num(v) || '') : v;
       return true;
     }
+    if ((attr = target.getAttribute('data-dpdac'))) {
+      var pdp = attr.split(':');
+      cf.disposal.pdac[+pdp[0]][pdp[1]] = v;
+      return true;
+    }
+    if ((attr = target.getAttribute('data-dspend'))) {
+      var pds = attr.split(':');
+      cf.disposal.strategy.expenditure[+pds[0]][pds[1]] = v;
+      return true;
+    }
+    if ((attr = target.getAttribute('data-dstake'))) {
+      var pdt = attr.split(':');
+      cf.disposal.strategy.stakeholders[+pdt[0]][pdt[1]] = v;
+      return true;
+    }
     if ((attr = target.getAttribute('data-folio'))) {
       var pf = attr.split(':');
       st.folios[+pf[0]][pf[1]] = v;
@@ -382,8 +397,8 @@
      would silently drop typed data, which this system must never do. */
   var SYNC_SELECTOR = ['[data-path]', '[data-item]', '[data-quote]', '[data-vcontact]',
     '[data-vsched]', '[data-esup]', '[data-eitem]', '[data-ecell]', '[data-esel]',
-    '[data-dcomm]', '[data-ditem]', '[data-folio]', '[data-att]', '[data-vblock]',
-    '[data-vstatus]'].join(',');
+    '[data-dcomm]', '[data-ditem]', '[data-dpdac]', '[data-dspend]', '[data-dstake]',
+    '[data-folio]', '[data-att]', '[data-vblock]', '[data-vstatus]'].join(',');
 
   function syncPanelFromDOM() {
     var panel = el('tab-' + APP.currentTab);
@@ -430,6 +445,27 @@
       }
     }
   });
+
+  /* The composer writes into a field chosen by path; the wording style and
+     the human label are derived from the path's last segment. */
+  var COMPOSER_FIELDS = {
+    need: 'Background / operational need', methodjust: 'Method justification',
+    minextra: 'Extra minute paragraphs', background: 'Disposal strategy — Background',
+    objectives: 'Disposal strategy — Objectives', recommendation: 'Disposal strategy — Recommendation'
+  };
+  /* Legacy composer targets were bare field names (need/methodjust/minextra);
+     v3 targets are full paths. Normalise a bare code to its docState path. */
+  function composerPath(target) {
+    var t = target || 'docState.need';
+    return t.indexOf('.') >= 0 ? t : 'docState.' + t;
+  }
+  function composerLeaf(path) { var p = String(path || '').split('.'); return p[p.length - 1]; }
+  function composerStyle(path) {
+    var leaf = composerLeaf(path);
+    /* the disposal narrative fields all use the background wording style */
+    return leaf === 'methodjust' ? 'methodjust' : leaf === 'minextra' ? 'minextra' : 'need';
+  }
+  function composerLabel(path) { return COMPOSER_FIELDS[composerLeaf(path)] || composerLeaf(path); }
 
   /* ---------- click actions ---------- */
   var actions = {
@@ -504,8 +540,14 @@
     },
     'dcomm-add': function () { APP.caseFile.disposal.committee.push({ name: '', post: '' }); render('work'); },
     'dcomm-del': function (t) { APP.caseFile.disposal.committee.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'ditem-add': function () { APP.caseFile.disposal.items.push({ desc: '', identification: '', qty: 1, condition: '', location: '', acquisitionCost: '', valuation: '', valuationBasis: '', valuationDate: '', method: '', methodReason: '' }); render('work'); },
+    'dpdac-add': function () { APP.caseFile.disposal.pdac.push({ name: '', post: '' }); render('work'); },
+    'dpdac-del': function (t) { APP.caseFile.disposal.pdac.splice(+t.getAttribute('data-i'), 1); render('work'); },
+    'ditem-add': function () { APP.caseFile.disposal.items.push(M.disposal.blankItem()); render('work'); },
     'ditem-del': function (t) { APP.caseFile.disposal.items.splice(+t.getAttribute('data-i'), 1); render('work'); },
+    'dspend-add': function () { APP.caseFile.disposal.strategy.expenditure.push({ detail: '', amount: '' }); render('work'); },
+    'dspend-del': function (t) { APP.caseFile.disposal.strategy.expenditure.splice(+t.getAttribute('data-i'), 1); render('work'); },
+    'dstake-add': function () { APP.caseFile.disposal.strategy.stakeholders.push({ name: '', interest: '' }); render('work'); },
+    'dstake-del': function (t) { APP.caseFile.disposal.strategy.stakeholders.splice(+t.getAttribute('data-i'), 1); render('work'); },
     'folio-add': function () { APP.caseFile.docState.folios.push({ desc: '', date: '', tag: '' }); render('fol'); },
     'folio-del': function (t) { APP.caseFile.docState.folios.splice(+t.getAttribute('data-i'), 1); render('fol'); },
     'att-add': function () { APP.caseFile.docState.attachments.push(''); render('fol'); },
@@ -523,9 +565,10 @@
     /* ---- offline narrative composer (engine: js/lib/narrative.js) ---- */
     'da-compose': function () {
       var st = APP.caseFile.docState;
-      var target = st.da_target || 'need';
+      var path = composerPath(st.da_target);
+      var style = composerStyle(path);
       var itemsLine = (st.items || []).map(function (it) { return it.desc; }).filter(function (d) { return d && d.trim(); }).join('; ');
-      var out = M.narrative.composeOffline(target,
+      var out = M.narrative.composeOffline(style,
         { activity: st.da_activity, who: st.da_who, when: st.da_when, cons: st.da_cons, notes: st.da_notes },
         { subject: st.subject, method: st.method, itemsLine: itemsLine });
       var status = el('daStatus'), preview = el('daPreview'), acts = el('daActions');
@@ -533,7 +576,7 @@
         APP.daDraft = '';
         if (preview) preview.style.display = 'none';
         if (acts) acts.style.display = 'none';
-        if (status) status.textContent = target === 'minextra'
+        if (status) status.textContent = style === 'minextra'
           ? 'Enter the paragraphs in Rough notes first.'
           : 'Enter at least the activity, or write your points into Rough notes.';
         return;
@@ -550,17 +593,18 @@
     },
     'da-insert': function () {
       if (!APP.daDraft) return;
-      var st = APP.caseFile.docState;
-      var target = st.da_target || 'need';
-      var field = target === 'methodjust' ? 'methodjust' : target === 'minextra' ? 'minextra' : 'need';
-      st[field] = (st[field] || '').trim() ? (st[field].trim() + '\n\n' + APP.daDraft) : APP.daDraft;
-      var input = document.querySelector('[data-path="docState.' + field + '"]');
-      if (input) input.value = st[field];
+      var cf = APP.caseFile;
+      var path = composerPath(cf.docState.da_target);
+      var existing = (PANELS.getPath(cf, path) || '');
+      var merged = String(existing).trim() ? (String(existing).trim() + '\n\n' + APP.daDraft) : APP.daDraft;
+      PANELS.setPath(cf, path, merged);
+      var input = document.querySelector('[data-path="' + path + '"]');
+      if (input) input.value = merged;
       APP.daDraft = '';
       var preview = el('daPreview'), acts = el('daActions'), status = el('daStatus');
       if (preview) preview.style.display = 'none';
       if (acts) acts.style.display = 'none';
-      if (status) status.textContent = 'Inserted into "' + (field === 'need' ? 'Background / operational need' : field === 'methodjust' ? 'Method justification' : 'Extra minute paragraphs') + '". Edit it there as any other field.';
+      if (status) status.textContent = 'Inserted into "' + composerLabel(path) + '"' + (input ? '. Edit it there as any other field.' : ' — see the Working Papers tab, where that field is shown.');
       touchAndAutosave();
     },
     'da-discard': function () {

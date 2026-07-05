@@ -32,13 +32,38 @@ const { chromium } = require('playwright-core');
   await page.click('nav.tabs button[data-t="work"]');
   await page.waitForTimeout(200);
   check('disposal working papers', (await page.textContent('#tab-work h2')).includes('Disposal of Public Property'));
+  // drive one property item and confirm the appraisal computes live
+  await page.click('[data-action="ditem-add"]');
+  await page.waitForTimeout(200);
+  await page.fill('[data-ditem="0:desc"]', 'Office Work Station / Cubicles');
+  await page.fill('[data-ditem="0:qty"]', '5');
+  await page.fill('[data-ditem="0:totalNBV"]', '24,291.67');
+  await page.dispatchEvent('[data-ditem="0:totalNBV"]', 'change');
+  await page.waitForTimeout(150);
+  await page.selectOption('[data-ditem="0:saleable"]', 'yes');
+  await page.waitForTimeout(200);
+  await page.fill('[data-ditem="0:salePrice"]', '3,800.00');
+  await page.dispatchEvent('[data-ditem="0:salePrice"]', 'change');
+  await page.waitForTimeout(200);
+  const dispWork = await page.textContent('#tab-work');
+  check('unit NBV computed live ($4,858.33)', dispWork.includes('$4,858.33'));
+  check('appraised less 20% computed live ($3,886.67)', dispWork.includes('$3,886.67'));
+  check('expected returns computed live ($19,000.00)', dispWork.includes('$19,000.00'));
+
   await page.click('nav.tabs button[data-t="docs"]');
   await page.waitForTimeout(250);
   const dispDocs = await page.textContent('#docBar');
-  check('disposal documents offered', dispDocs.includes('Disposal Committee minute'));
+  check('Forms A–E offered to disposal', dispDocs.includes('Form C — Committee Appraisal Report'));
   check('no procurement checklist offered to disposal', !dispDocs.includes('Approvals checklist'));
   check('no procurement certificate offered to disposal', !dispDocs.includes('Verification certificate'));
   check('no minute sheet offered to disposal', !dispDocs.includes('Ministry minute sheet'));
+  // Form C prints the computed columns and cites the authority, no scaffold banner
+  await page.selectOption('#docSel', 'disposal-form-c');
+  await page.waitForTimeout(250);
+  const formC = await page.textContent('#preview');
+  check('Form C prints computed unit NBV', formC.includes('$4,858.33'));
+  check('Form C carries no scaffold banner', !formC.includes('AWAITING FORMAT AUTHORITY'));
+  check('Form C cites the OPR authority', formC.includes('OPR Retention'));
 
   // ---- formal: placeholder working papers, no borrowed documents
   await page.click('nav.tabs button[data-t="start"]');

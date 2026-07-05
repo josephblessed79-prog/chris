@@ -45,9 +45,11 @@
     var out = [];
     if (caseFile.module === 'disposal') {
       if (caseFile.disposal) {
-        out.push({ id: 'disposal-inventory', label: 'Disposal inventory and valuation record' });
-        out.push({ id: 'disposal-minute', label: 'Disposal Committee minute' });
-        out.push({ id: 'disposal-instrument', label: 'Approval instrument (disposal)' });
+        out.push({ id: 'disposal-form-a', label: 'Form A — Request for Asset Disposal' });
+        out.push({ id: 'disposal-form-b', label: 'Form B — Inventory & Inspection Report' });
+        out.push({ id: 'disposal-form-c', label: 'Form C — Committee Appraisal Report' });
+        out.push({ id: 'disposal-form-d', label: 'Form D — Disposal Strategy Development Report' });
+        out.push({ id: 'disposal-form-e', label: 'Form E — Strategy Approval / Signature Form' });
       }
       return out;
     }

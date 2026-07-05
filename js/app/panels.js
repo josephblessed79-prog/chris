@@ -294,16 +294,36 @@
      draft and clicks Insert. Engine: js/lib/narrative.js (parity-tested
      against the legacy tool). */
   function composerHTML(cf) {
-    var targets = [['need', 'Background / operational need']];
-    if (cf.module === 'routine') {
-      targets.push(['methodjust', 'Method justification']);
-      targets.push(['minextra', 'Extra minute paragraphs']);
+    /* Each target is [destination path, label]. The compose wording style
+       is derived from the last path segment (see da-compose). Only the
+       fields the current module actually uses are offered. */
+    var targets;
+    if (cf.module === 'disposal') {
+      targets = [
+        ['disposal.strategy.background', 'Disposal strategy — Background'],
+        ['disposal.strategy.objectives', 'Disposal strategy — Objectives'],
+        ['disposal.strategy.recommendation', 'Disposal strategy — Recommendation']
+      ];
+    } else {
+      targets = [['docState.need', 'Background / operational need']];
+      if (cf.module === 'routine') {
+        targets.push(['docState.methodjust', 'Method justification']);
+        targets.push(['docState.minextra', 'Extra minute paragraphs']);
+      }
+    }
+    /* Keep the stored target valid for this module: if it belongs to another
+       module (e.g. a fresh case still holding the default), snap it to this
+       module's first field so Compose/Insert never misfire. */
+    var current = cf.docState.da_target;
+    if (!targets.some(function (t) { return t[0] === current; })) {
+      current = targets[0][0];
+      cf.docState.da_target = current;
     }
     var h = '<fieldset class="box"><legend>Narrative composer (offline, optional)</legend>';
     h += '<p class="hint">Write the narrative fields yourself, or enter the facts of the case below and click Compose: the composer stitches them into a starting draft in the house register. It runs entirely on this computer — nothing leaves the machine, no internet is used, and no figure is invented (every dollar amount in the documents remains computed). The draft appears in a preview; nothing goes into the field until you read it and click Insert. Treat it as a first draft, not the finished paragraph.</p>';
     h += '<div class="grid">';
     h += '<label class="f">Write into<select data-path="docState.da_target">' + targets.map(function (t) {
-      return '<option value="' + t[0] + '">' + esc(t[1]) + '</option>';
+      return '<option value="' + t[0] + '"' + (t[0] === current ? ' selected' : '') + '>' + esc(t[1]) + '</option>';
     }).join('') + '</select></label>';
     h += fieldHTML('Activity / purpose', 'docState.da_activity', { placeholder: 'e.g. Accounts Training for Finance Branch personnel' });
     h += fieldHTML('For whom / beneficiary', 'docState.da_who', { placeholder: 'e.g. thirty-five members of staff' });
@@ -502,41 +522,177 @@
     bindInputs(panel);
   }
 
-  /* ---- P4 disposal editor ---- */
+  /* ---- disposal editor: the OPR Forms A–E on one working screen ---- */
   function renderDisposal(panel) {
     var cf = APP.caseFile;
     if (!cf.disposal) cf.disposal = M.disposal.newDisposal();
+    M.disposal.upgrade(cf.disposal);
     var d = cf.disposal;
     var h = '<h2 class="p">Disposal of Public Property</h2>';
-    h += '<div class="notice"><b>Formats awaiting authority.</b> No sample disposal file has been provided; the disposal documents are scaffolded from the Act and carry a visible banner saying so. Supply a signed sample disposal file to confirm the formats.</div>';
-    h += '<fieldset class="box"><legend>Disposal Committee</legend><div class="scrollx"><table class="q"><thead><tr><th>Name</th><th>Post</th><th></th></tr></thead><tbody>';
+    h += '<div class="notice green">Built to the OPR Retention &amp; Disposal Handbook and Sample Case Study — Forms A to E. Every figure below (unit NBV, 20%, appraised value, expected returns, the total) is computed from the quantities and net book values you type; nothing is invented. Fill only what applies — leave the rest blank. Forms F, G and H and real-property disposals are not yet built.</div>';
+
+    /* Form A header — the request */
+    h += '<fieldset class="box"><legend>Request details (Form A)</legend><div class="grid">';
+    h += fieldHTML('Public body / entity', 'disposal.entity', { placeholder: 'e.g. Ministry of Defence' });
+    h += fieldHTML('Business unit / department', 'disposal.department', {});
+    h += fieldHTML('Location of the asset(s)', 'disposal.assetLocation', {});
+    h += fieldHTML('Request date', 'disposal.requestDate', { type: 'date' });
+    h += fieldHTML('Disposal request reference', 'disposal.requestRef', { placeholder: 'e.g. 0001' });
+    h += fieldHTML('Submitted by (Inventory / Requesting Officer)', 'disposal.submittedBy', {});
+    h += fieldHTML('Verified by (Assigned Officer)', 'disposal.verifiedBy', {});
+    h += fieldHTML('Other information', 'disposal.otherInformation', { wide: true });
+    h += '</div></fieldset>';
+
+    /* Officers */
+    h += '<fieldset class="box"><legend>Officers</legend><div class="grid">';
+    h += fieldHTML('Named Procurement Officer', 'disposal.npoName', {});
+    h += fieldHTML('NPO designation', 'disposal.npoDesignation', {});
+    h += fieldHTML('Accounting Officer', 'disposal.aoName', {});
+    h += fieldHTML('Accounting Officer post', 'disposal.aoPost', {});
+    h += '</div></fieldset>';
+
+    /* Disposal Committee — not less than three officers */
+    h += '<fieldset class="box"><legend>Disposal Committee — not less than three officers (Act ss. 55–56)</legend><div class="scrollx"><table class="q"><thead><tr><th>Name</th><th>Post</th><th></th></tr></thead><tbody>';
     for (var m = 0; m < d.committee.length; m++) {
       h += '<tr><td><input type="text" data-dcomm="' + m + ':name" value="' + esc(d.committee[m].name || '') + '"></td>' +
         '<td><input type="text" data-dcomm="' + m + ':post" value="' + esc(d.committee[m].post || '') + '"></td>' +
         '<td class="rowbtns"><button class="btn danger small" data-action="dcomm-del" data-i="' + m + '">✕</button></td></tr>';
     }
     h += '</tbody></table></div><button class="btn sec small" data-action="dcomm-add">＋ Add member</button></fieldset>';
-    h += '<fieldset class="box"><legend>Narrative</legend>' + fieldHTML('Background to the disposal (surveys, condition, why now)', 'disposal.narrative', { type: 'textarea', wide: true }) + '</fieldset>';
-    h += '<fieldset class="box"><legend>Inventory and valuation</legend><div class="scrollx"><table class="q"><thead><tr><th>Description</th><th>Identification</th><th>Qty</th><th>Condition</th><th>Location</th><th>Valuation $</th><th>Valuation basis</th><th>Method</th><th>Reason (mandatory for destruction / donation)</th><th></th></tr></thead><tbody>';
-    for (var i = 0; i < d.items.length; i++) {
-      var it = d.items[i];
-      var vBad = it.valuation && !M.money.parseStrict(it.valuation).ok;
-      h += '<tr><td><input type="text" data-ditem="' + i + ':desc" value="' + esc(it.desc || '') + '"></td>' +
-        '<td><input type="text" data-ditem="' + i + ':identification" value="' + esc(it.identification || '') + '"></td>' +
-        '<td style="width:64px"><input type="number" min="1" step="1" data-ditem="' + i + ':qty" value="' + esc(String(it.qty || '')) + '"></td>' +
-        '<td><input type="text" data-ditem="' + i + ':condition" value="' + esc(it.condition || '') + '"></td>' +
-        '<td><input type="text" data-ditem="' + i + ':location" value="' + esc(it.location || '') + '"></td>' +
-        '<td style="width:100px"' + (vBad ? ' class="bad"' : '') + '><input type="text" data-ditem="' + i + ':valuation" value="' + esc(it.valuation || '') + '"></td>' +
-        '<td><input type="text" data-ditem="' + i + ':valuationBasis" value="' + esc(it.valuationBasis || '') + '"></td>' +
-        '<td><select data-ditem="' + i + ':method"><option value="">— select —</option>' + M.disposal.METHODS.map(function (mm) { return '<option' + (it.method === mm ? ' selected' : '') + '>' + mm + '</option>'; }).join('') + '</select></td>' +
-        '<td><input type="text" data-ditem="' + i + ':methodReason" value="' + esc(it.methodReason || '') + '"></td>' +
-        '<td class="rowbtns"><button class="btn danger small" data-action="ditem-del" data-i="' + i + '">✕</button></td></tr>';
+
+    /* PDAC — Reg 21 */
+    h += '<fieldset class="box"><legend>Procurement &amp; Disposal Advisory Committee (PDAC) — reviews the disposal file (Reg 21)</legend><div class="scrollx"><table class="q"><thead><tr><th>Name</th><th>Role</th><th></th></tr></thead><tbody>';
+    for (var p = 0; p < d.pdac.length; p++) {
+      h += '<tr><td><input type="text" data-dpdac="' + p + ':name" value="' + esc(d.pdac[p].name || '') + '"></td>' +
+        '<td><input type="text" data-dpdac="' + p + ':post" value="' + esc(d.pdac[p].post || '') + '" placeholder="e.g. Head of Finance"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="dpdac-del" data-i="' + p + '">✕</button></td></tr>';
     }
-    h += '</tbody></table></div><button class="btn sec small" data-action="ditem-add">＋ Add item</button></fieldset>';
-    var t = M.disposal.totalValuationCents(d);
-    h += '<div class="notice"><b>Total valuation (computed):</b> <span data-compute="disposal-total">' + (isNaN(t) ? '— fix the flagged valuations' : fmtMoney(t)) + '</span></div>';
+    h += '</tbody></table></div><button class="btn sec small" data-action="dpdac-add">＋ Add PDAC member</button></fieldset>';
+
+    /* Property — one card per item, Forms A/B/C fields grouped */
+    h += '<fieldset class="box"><legend>Property for disposal — inventory, inspection and appraisal (Forms A, B, C)</legend>';
+    h += '<p class="hint">The appraisal columns are computed: enter the <b>Total NBV</b> (net book value across the whole quantity) and the system works out the unit NBV, 20% of NBV, and the appraised value less 20% — exactly as the OPR worked example does. The <b>sale price</b> is the committee’s decision; expected returns = quantity × sale price. Mark an item “not saleable (N/A)” for items to be recycled, destroyed or donated.</p>';
+    for (var i = 0; i < d.items.length; i++) {
+      h += disposalItemHTML(d.items[i], i);
+    }
+    h += '<button class="btn" data-action="ditem-add">＋ Add item</button>';
+    var tr = M.disposal.totalExpectedReturnsCents(d);
+    h += '<div class="notice" style="margin-top:12px"><b>Total expected returns (computed):</b> <span data-compute="disposal-returns">' + (isNaN(tr) ? '— fix the flagged items' : fmtMoney(tr) + ' — ' + esc(M.words.amountInWords(tr))) + '</span></div>';
+    h += '</fieldset>';
+
+    /* Form C narrative */
+    h += '<fieldset class="box"><legend>Committee appraisal narrative (Form C)</legend><div class="grid">';
+    h += fieldHTML('Findings / observations', 'disposal.appraisalFindings', { type: 'textarea', wide: true });
+    h += fieldHTML('Valuation procedures / considerations', 'disposal.appraisalProcedures', { type: 'textarea', wide: true });
+    h += '</div></fieldset>';
+
+    /* Form D strategy */
+    h += '<fieldset class="box"><legend>Disposal strategy (Form D)</legend>';
+    h += '<p class="hint">Optional narrative — write only what applies. The composer on Case Details can help draft the background.</p><div class="grid">';
+    h += fieldHTML('Background', 'disposal.strategy.background', { type: 'textarea', wide: true });
+    h += fieldHTML('Scope', 'disposal.strategy.scope', { type: 'textarea', wide: true });
+    h += fieldHTML('How this supports business objectives', 'disposal.strategy.businessSupport', { type: 'textarea', wide: true });
+    h += fieldHTML('Disposal objectives', 'disposal.strategy.objectives', { type: 'textarea', wide: true });
+    h += fieldHTML('Findings from research and analysis', 'disposal.strategy.findings', { type: 'textarea', wide: true });
+    h += fieldHTML('Strategy options considered', 'disposal.strategy.optionsConsidered', { type: 'textarea', wide: true });
+    h += fieldHTML('Specification / requirement issues', 'disposal.strategy.requirementIssues', { type: 'textarea', wide: true });
+    h += fieldHTML('Needs assessment / feasibility', 'disposal.strategy.needsAssessment', { type: 'textarea', wide: true });
+    h += fieldHTML('Current demand / contractual issues', 'disposal.strategy.contractualIssues', { type: 'textarea', wide: true });
+    h += fieldHTML('Applicable issues for the disposal', 'disposal.strategy.applicableIssues', { type: 'textarea', wide: true });
+    h += fieldHTML('Market research & analysis', 'disposal.strategy.marketResearch', { type: 'textarea', wide: true });
+    h += fieldHTML('Strategy options analysis (pros / cons)', 'disposal.strategy.optionsAnalysis', { type: 'textarea', wide: true });
+    h += fieldHTML('Preferred strategy recommendation', 'disposal.strategy.recommendation', { type: 'textarea', wide: true });
+    h += fieldHTML('Stakeholder impact analysis', 'disposal.strategy.stakeholderImpact', { type: 'textarea', wide: true });
+    h += fieldHTML('Advertising arrangement (needed for public sale/auction above TT$100,000)', 'disposal.strategy.advertisingNote', { type: 'textarea', wide: true });
+    h += '</div>';
+    /* spend analysis rows */
+    h += '<p style="margin-top:8px"><b>Estimated disposal expenditure (Table 3)</b></p><div class="scrollx"><table class="q"><thead><tr><th>Details</th><th style="width:140px">Amount $</th><th></th></tr></thead><tbody>';
+    for (var e = 0; e < d.strategy.expenditure.length; e++) {
+      var sp = d.strategy.expenditure[e];
+      var spBad = sp.amount && !M.money.parseStrict(sp.amount).ok;
+      h += '<tr><td><input type="text" data-dspend="' + e + ':detail" value="' + esc(sp.detail || '') + '"></td>' +
+        '<td' + (spBad ? ' class="bad"' : '') + '><input type="text" data-dspend="' + e + ':amount" value="' + esc(sp.amount || '') + '"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="dspend-del" data-i="' + e + '">✕</button></td></tr>';
+    }
+    h += '</tbody></table></div><button class="btn sec small" data-action="dspend-add">＋ Add expenditure line</button>';
+    var spT = M.disposal.spendTotalCents(d);
+    if (d.strategy.expenditure.length) h += '<div class="notice"><b>Expenditure total (computed):</b> <span data-compute="disposal-spend">' + (isNaN(spT) ? '— fix the flagged amounts' : fmtMoney(spT)) + '</span></div>';
+    /* stakeholders */
+    h += '<p style="margin-top:8px"><b>Stakeholder analysis (Table 4)</b></p><div class="scrollx"><table class="q"><thead><tr><th style="width:30%">Stakeholder</th><th>Level of interest</th><th></th></tr></thead><tbody>';
+    for (var k = 0; k < d.strategy.stakeholders.length; k++) {
+      var stk = d.strategy.stakeholders[k];
+      h += '<tr><td><input type="text" data-dstake="' + k + ':name" value="' + esc(stk.name || '') + '"></td>' +
+        '<td><input type="text" data-dstake="' + k + ':interest" value="' + esc(stk.interest || '') + '"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="dstake-del" data-i="' + k + '">✕</button></td></tr>';
+    }
+    h += '</tbody></table></div><button class="btn sec small" data-action="dstake-add">＋ Add stakeholder</button>';
+    h += '</fieldset>';
+
+    /* Form E + statutory dates */
+    h += '<fieldset class="box"><legend>Approvals and statutory steps (Form E and the Act)</legend>';
+    h += '<p class="hint">Fill these in as the disposal moves through approval. The checks read the dates and tell you, in plain words, if a statutory time limit is missed — the fourteen days the Accounting Officer has to decide, and the six weeks to notify the OPR after completion.</p><div class="grid">';
+    h += fieldHTML('Strategy submitted for approval — date', 'disposal.approvals.strategyRequestDate', { type: 'date' });
+    h += fieldHTML('Reviewed by NPO — date', 'disposal.approvals.npoReviewDate', { type: 'date' });
+    h += fieldHTML('Reviewed by PDAC — date', 'disposal.approvals.pdacReviewDate', { type: 'date' });
+    h += fieldHTML('Recommendation received by Accounting Officer — date', 'disposal.approvals.recommendationReceivedDate', { type: 'date' });
+    h += fieldHTML('Accounting Officer decision', 'disposal.approvals.aoDecision', { type: 'select', options: [['', '— not yet —'], ['approved', 'Approved'], ['rejected', 'Not approved (rejected)']] });
+    h += fieldHTML('Decision date', 'disposal.approvals.aoDecisionDate', { type: 'date' });
+    h += fieldHTML('Reasons for rejection (required if rejected)', 'disposal.approvals.rejectionReasons', { type: 'textarea', wide: true });
+    h += fieldHTML('Sale to employees: PDAC prior-approval notice sent (s. 57, Reg 7)', 'disposal.approvals.employeeSaleApproval', { type: 'checkbox', wide: true });
+    h += fieldHTML('Employee-sale approval reference / details', 'disposal.approvals.employeeSaleDetails', { type: 'textarea', wide: true });
+    h += fieldHTML('Disposal completed — date', 'disposal.approvals.completionDate', { type: 'date' });
+    h += fieldHTML('OPR notified (through the Procurement Depository) — date', 'disposal.approvals.oprNotifiedDate', { type: 'date' });
+    h += fieldHTML('Net proceeds brought to account', 'disposal.approvals.proceedsAccounted', { type: 'checkbox', wide: true });
+    h += '</div></fieldset>';
+
     panel.innerHTML = h;
     bindInputs(panel);
+  }
+
+  /* One property item as a card, with the Form C appraisal computed live. */
+  function disposalItemHTML(it, i) {
+    var a = M.disposal.appraisal(it);
+    var nbvBad = it.totalNBV && !M.money.parseStrict(it.totalNBV).ok;
+    var spBad = it.saleable === 'yes' && it.salePrice && !M.money.parseStrict(it.salePrice).ok;
+    var h = '<fieldset class="box" style="border-style:solid">';
+    h += '<legend>Item ' + (i + 1) + (it.desc ? ' — ' + esc(it.desc) : '') + ' <button class="btn danger small" data-action="ditem-del" data-i="' + i + '" style="margin-left:8px">✕ Remove</button></legend>';
+    h += '<div class="grid">';
+    h += '<label class="f wide">Description <input type="text" data-ditem="' + i + ':desc" value="' + esc(it.desc || '') + '"></label>';
+    h += '<label class="f">Make / model <input type="text" data-ditem="' + i + ':makeModel" value="' + esc(it.makeModel || '') + '"></label>';
+    h += '<label class="f">Reason for disposal <input type="text" data-ditem="' + i + ':reason" value="' + esc(it.reason || '') + '"></label>';
+    h += '<label class="f">Quantity <input type="number" min="1" step="1" data-ditem="' + i + ':qty" value="' + esc(String(it.qty == null ? '' : it.qty)) + '"></label>';
+    h += '<label class="f">Condition <input type="text" data-ditem="' + i + ':condition" value="' + esc(it.condition || '') + '"></label>';
+    h += '<label class="f">Location <input type="text" data-ditem="' + i + ':location" value="' + esc(it.location || '') + '"></label>';
+    h += '<label class="f">Original unit purchase price $ <input type="text" data-ditem="' + i + ':originalUnitPrice" value="' + esc(it.originalUnitPrice || '') + '"></label>';
+    h += '<label class="f">Purchase date <input type="date" data-ditem="' + i + ':purchaseDate" value="' + esc(it.purchaseDate || '') + '"></label>';
+    h += '<label class="f">Property no. <input type="text" data-ditem="' + i + ':propertyNo" value="' + esc(it.propertyNo || '') + '"></label>';
+    h += '<label class="f">Date acquired <input type="date" data-ditem="' + i + ':dateAcquired" value="' + esc(it.dateAcquired || '') + '"></label>';
+    h += '<label class="f">Service years <input type="text" data-ditem="' + i + ':serviceYears" value="' + esc(it.serviceYears || '') + '"></label>';
+    h += '<label class="f' + (nbvBad ? ' bad' : '') + '">Total NBV (whole quantity) $ <input type="text" data-ditem="' + i + ':totalNBV" value="' + esc(it.totalNBV || '') + '" placeholder="leave blank if no NBV"></label>';
+    h += '<label class="f">Disposition (Form B) <select data-ditem="' + i + ':disposition"><option value="">— select —</option>' + M.disposal.DISPOSITIONS.map(function (x) { return '<option value="' + x.code + '"' + (it.disposition === x.code ? ' selected' : '') + '>' + esc(x.label) + '</option>'; }).join('') + '</select></label>';
+    h += '<label class="f">Saleable? <select data-ditem="' + i + ':saleable"><option value="">— choose —</option><option value="yes"' + (it.saleable === 'yes' ? ' selected' : '') + '>Yes — offered for a price</option><option value="no"' + (it.saleable === 'no' ? ' selected' : '') + '>No — not saleable (N/A)</option></select></label>';
+    if (it.saleable === 'yes') {
+      h += '<label class="f' + (spBad ? ' bad' : '') + '">Unit sale price $ (committee decision) <input type="text" data-ditem="' + i + ':salePrice" value="' + esc(it.salePrice || '') + '"></label>';
+    }
+    h += '<label class="f">Method of disposal (reg 6(2)) <select data-ditem="' + i + ':method"><option value="">— select —</option>' + M.disposal.METHODS.map(function (mm) { return '<option' + (it.method === mm ? ' selected' : '') + '>' + esc(mm) + '</option>'; }).join('') + '</select></label>';
+    h += '<label class="f wide">Reason for the method (required for gift / donation / destruction, or any method off the list) <input type="text" data-ditem="' + i + ':methodReason" value="' + esc(it.methodReason || '') + '"></label>';
+    h += '<label class="f wide">Value / price determination comment (Form C) <input type="text" data-ditem="' + i + ':valueComment" value="' + esc(it.valueComment || '') + '"></label>';
+    h += '</div>';
+    /* live appraisal readout */
+    h += '<div data-compute="disposal-appraise:' + i + '" style="font-size:10.5pt;color:#444;margin-top:4px">' + disposalAppraiseHTML(a) + '</div>';
+    h += '</fieldset>';
+    return h;
+  }
+
+  function disposalAppraiseHTML(a) {
+    if (a.errors.length) return '<b style="color:var(--red)">Appraisal: ' + esc(a.errors.join(' ')) + '</b>';
+    if (a.saleable === false) return 'Not saleable — contributes nothing to the expected returns.';
+    if (a.saleable == null) return 'Mark the item saleable or not to complete the appraisal.';
+    var parts = [];
+    if (a.hasNBV) parts.push('Unit NBV ' + fmtMoney(a.unitNBVCents), '20% ' + fmtMoney(a.pct20Cents), 'less 20% ' + fmtMoney(a.less20Cents));
+    if (a.salePriceCents != null) parts.push('sale price ' + fmtMoney(a.salePriceCents));
+    if (a.returnsCents != null) parts.push('<b>expected returns ' + fmtMoney(a.returnsCents) + '</b>');
+    return 'Appraisal (computed): ' + parts.join(' · ');
   }
 
   /* ================= VOTE & FUNDING ================= */
@@ -724,9 +880,15 @@
           var bk = M.evaluation.breakdown(cf.evaluation);
           out = bk.schedules.map(function (sch) { return sch.name + ' — ' + fmtMoney(sch.totalCents); }).join(' · ') +
             (bk.schedules.length ? ' · Grand total ' + (bk.bad ? 'CHECK' : fmtMoney(bk.grandTotalCents)) : 'none yet');
-        } else if (key[0] === 'disposal-total') {
-          var dt = M.disposal.totalValuationCents(cf.disposal);
-          out = isNaN(dt) ? '— fix the flagged valuations' : fmtMoney(dt);
+        } else if (key[0] === 'disposal-returns') {
+          var dr = M.disposal.totalExpectedReturnsCents(cf.disposal);
+          out = isNaN(dr) ? '— fix the flagged items' : fmtMoney(dr) + ' — ' + M.words.amountInWords(dr);
+        } else if (key[0] === 'disposal-spend') {
+          var dsp = M.disposal.spendTotalCents(cf.disposal);
+          out = isNaN(dsp) ? '— fix the flagged amounts' : fmtMoney(dsp);
+        } else if (key[0] === 'disposal-appraise') {
+          try { nodes[i].innerHTML = disposalAppraiseHTML(M.disposal.appraisal(cf.disposal.items[+key[1]])); } catch (e7) { }
+          continue;
         } else if (key[0] === 'eval-situations') {
           /* guidance containers hold no text inputs, so replacing their
              innerHTML never disturbs anything being typed */

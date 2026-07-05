@@ -174,22 +174,30 @@ t.test('S10: vote balances are computed and impossible figures are challenged', 
   t.eq(bad.ok, false, 'malformed vote figure refused');
 });
 
-/* Scenario 11 — P4 disposal case end to end (see disposal.test.js for depth). */
-t.test('S11: P4 case produces the three instruments, all bannered, totals computed', () => {
-  const cf = cm.newCase('P4', 'ministry-dotted', NOW);
+/* Scenario 11 — disposal case end to end, built to OPR Forms A–E (see
+   disposal.test.js and disposal-casestudy.test.js for depth). A legacy
+   scaffold disposal section upgrades in place, losing nothing. */
+t.test('S11: disposal case produces Forms A–E, computed, citing the authority not a scaffold banner', () => {
+  const cf = cm.newCase('disposal', 'ministry-dotted', NOW);
   cf.docState.minfile = 'MOD/DISP: 1'; cf.docState.date = '2026-07-01';
   cf.docState.subject = 'Disposal'; cf.docState.minsigname = 'N';
   cf.docState.folios = [{ desc: 'Survey', date: '' }];
-  cf.disposal = {
-    committee: [{ name: 'A', post: 'Chair' }, { name: 'B', post: 'M' }, { name: 'C', post: 'M' }],
-    narrative: '',
-    items: [{ desc: 'Old desk', identification: '', qty: 4, condition: 'Worn', location: 'HQ', acquisitionCost: '', valuation: '400.00', valuationBasis: 'Survey', valuationDate: '', method: 'Sale by tender', methodReason: '' }]
-  };
+  const disposal = require('../../js/lib/disposal.js');
+  const d = disposal.newDisposal();
+  d.entity = 'Ministry of Defence'; d.npoName = 'Named Officer'; d.aoName = 'Accounting Officer';
+  d.committee = [{ name: 'A', post: 'Chair' }, { name: 'B', post: 'M' }, { name: 'C', post: 'M' }];
+  const it = disposal.blankItem();
+  it.desc = 'Old desk'; it.qty = 4; it.condition = 'Worn'; it.location = 'HQ';
+  it.totalNBV = '1,600.00'; it.disposition = 'F'; it.saleable = 'yes'; it.salePrice = '100.00';
+  it.valueComment = 'Prorated from NBV.'; it.method = 'Public sale or tendering';
+  d.items = [it];
+  cf.disposal = d;
   t.eq(verifycase.runAllChecks(cf).filter(c => c.result === 'FAIL'), []);
-  for (const d of ['disposal-inventory', 'disposal-minute', 'disposal-instrument']) {
-    const html = documents.build(cf, d);
-    t.ok(html.indexOf('AWAITING FORMAT AUTHORITY') > 0, d);
-    t.ok(html.indexOf('$400.00') > 0, d + ' total');
+  // 4 × $100 = $400.00 expected returns; Form C prints it, no scaffold banner
+  const formC = documents.build(cf, 'disposal-form-c');
+  t.ok(formC.indexOf('$400.00') > 0, 'expected returns computed');
+  for (const form of ['disposal-form-a', 'disposal-form-b', 'disposal-form-c', 'disposal-form-d', 'disposal-form-e']) {
+    t.ok(documents.build(cf, form).indexOf('AWAITING FORMAT AUTHORITY') < 0, form + ' has authority, no scaffold banner');
   }
 });
 

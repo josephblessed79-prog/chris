@@ -29,7 +29,7 @@ function ids(cf) { return documents.availableDocs(cf).map(d => d.id); }
 t.test('a disposal case is never offered a procurement document', () => {
   const cf = cm.newCase('disposal', 'ministry-dotted', NOW);
   cf.disposal = disposal.newDisposal();
-  t.eq(ids(cf), ['disposal-inventory', 'disposal-minute', 'disposal-instrument']);
+  t.eq(ids(cf), ['disposal-form-a', 'disposal-form-b', 'disposal-form-c', 'disposal-form-d', 'disposal-form-e']);
   t.ok(ids(cf).indexOf('checklist') < 0, 'no procurement checklist');
   t.ok(ids(cf).indexOf('certificate') < 0, 'no procurement-worded certificate');
   t.ok(ids(cf).indexOf('minute') < 0, 'no procurement minute');
