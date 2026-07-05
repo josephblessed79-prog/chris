@@ -61,9 +61,13 @@ t.test('the routine comparison papers are labelled Supplier comparison, not Eval
   t.ok(!labels.some(l => /Evaluation report/i.test(l)));
 });
 
-t.test('a formal-evaluation case has no routine or disposal documents', () => {
+t.test('a formal-evaluation case offers only its own documents', () => {
   const cf = cm.newCase('formal-evaluation', 'agency-neutral', NOW);
-  t.eq(ids(cf), [], 'the formal module registers its own documents when its engine loads');
+  t.eq(ids(cf), [], 'nothing before the formal section exists');
+  cf.formal = require('../js/lib/formal.js').newFormal();
+  t.eq(ids(cf), ['formal-report', 'coi-forms']);
+  t.ok(ids(cf).indexOf('minute') < 0 && ids(cf).indexOf('checklist') < 0, 'no routine documents');
+  t.ok(ids(cf).every(id => id.indexOf('disposal') < 0), 'no disposal documents');
 });
 
 t.test('check series stay inside their module', () => {
@@ -73,10 +77,12 @@ t.test('check series stay inside their module', () => {
   dp.voteStatus = { originalProvision: '100.00' }; // even if typed in, disposal never runs vote checks
   const dpIds = verifycase.runAllChecks(dp).map(c => c.id);
   t.ok(dpIds.every(id => /^[DG]/.test(id)), 'disposal runs only D/G series: ' + dpIds.join(','));
-  // formal: G-series only until the formal engine brings the F-series
+  // formal: F-series and G-series only — never routine C/E/V/H or disposal D
   const fe = cm.newCase('formal-evaluation', 'agency-neutral', NOW);
   const feIds = verifycase.runAllChecks(fe).map(c => c.id);
-  t.ok(feIds.every(id => /^G/.test(id)), 'formal runs only G series for now: ' + feIds.join(','));
+  t.ok(feIds.every(id => /^[FG]/.test(id)), 'formal runs only F/G series: ' + feIds.join(','));
+  t.ok(feIds.some(id => /^F/.test(id)), 'the formal F-series is present');
+  t.ok(feIds.every(id => !/^[DHEV]/.test(id) && !/^C/.test(id)), 'no disposal, vote, or routine checks on a formal case');
   // routine item case: C-series plus vote H-series — and no D-series
   const rt = cm.newCase('routine', 'ministry-dotted', NOW);
   const rtIds = verifycase.runAllChecks(rt).map(c => c.id);

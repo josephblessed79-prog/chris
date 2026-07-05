@@ -15,19 +15,25 @@
   if (typeof module === 'object' && module.exports) {
     module.exports = factory(require('./verify.js'), require('./evaluation.js'),
       require('./verbal.js'), require('./votestatus.js'), require('./compute.js'),
-      require('./folio.js'), require('./disposal.js'));
+      require('./folio.js'), require('./disposal.js'), require('./formal.js'));
   } else {
     root.MODPA = root.MODPA || {};
     root.MODPA.verifycase = factory(root.MODPA.verify, root.MODPA.evaluation,
       root.MODPA.verbal, root.MODPA.votestatus, root.MODPA.compute,
-      root.MODPA.folio, root.MODPA.disposal);
+      root.MODPA.folio, root.MODPA.disposal, root.MODPA.formal);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function (verify, evaluation, verbal, votestatus, compute, folio, disposal) {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (verify, evaluation, verbal, votestatus, compute, folio, disposal, formal) {
   'use strict';
 
   /* The case total in cents: evaluation grand total, verbal schedule total,
      or the legacy items grand total. NaN when not computable. */
   function caseTotalCents(caseFile) {
+    if (caseFile.module === 'formal-evaluation' && caseFile.formal) {
+      var top = caseFile.formal.recommendedProponent;
+      if (top != null) { var c = formal.verifiedPriceCents(caseFile.formal, top); return isNaN(c) ? NaN : c; }
+      var t = formal.topRanked(caseFile.formal);
+      return t ? t.priceCents : NaN;
+    }
     if (caseFile.evaluation && caseFile.evaluation.items && caseFile.evaluation.items.length) {
       var bk = evaluation.breakdown(caseFile.evaluation);
       return bk.bad ? NaN : bk.grandTotalCents;
@@ -68,11 +74,12 @@
       return R; /* a disposal case has no procurement award or vote status */
     }
     if (caseFile.module === 'formal-evaluation') {
-      /* The formal engine brings its own F-series (committee, declarations,
-         preliminary examination, scoring, ranking). Until it is loaded the
-         general controls still apply; vote-book checks never do — the vote
-         book is a routine instrument. */
+      /* The formal module owns the F-series (committee, declarations,
+         preliminary examination, scoring, ranking, recommendation); the
+         general controls apply; vote-book checks never do — the vote book
+         is a routine instrument. */
       R = R.concat(runGeneralChecks(caseFile));
+      R = R.concat(formal.runFormalChecks(caseFile.formal));
       R = R.concat(sheetNumberingCheck(caseFile));
       return R;
     }

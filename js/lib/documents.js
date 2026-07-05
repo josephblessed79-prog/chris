@@ -54,9 +54,10 @@
       return out;
     }
     if (caseFile.module === 'formal-evaluation') {
-      /* The formal module registers its own documents (OPR evaluation
-         report, conflict-of-interest and confidentiality declarations)
-         when its engine is loaded. */
+      if (caseFile.formal) {
+        out.push({ id: 'formal-report', label: 'Evaluation report (OPR template)' });
+        out.push({ id: 'coi-forms', label: 'Conflict of interest & confidentiality forms' });
+      }
       return out;
     }
     /* routine / daily procurement */

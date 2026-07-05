@@ -149,11 +149,7 @@
   function renderWork(panel) {
     var cf = APP.caseFile;
     if (cf.module === 'disposal') return renderDisposal(panel);
-    if (cf.module === 'formal-evaluation') {
-      panel.innerHTML = '<h2 class="p">Working Papers — Formal tender / RFP / ITB evaluation</h2>' +
-        '<div class="notice"><b>The formal evaluation module is being fitted.</b> This activity produces the Evaluation Committee report per the OPR template — committee, conflict-of-interest and confidentiality declarations, preliminary examination, technical and financial evaluation, ranking and recommendation. Its working papers arrive with that module; nothing routine belongs here.</div>';
-      return;
-    }
+    if (cf.module === 'formal-evaluation') return renderFormal(panel);
     /* routine / daily procurement: the case decides its own working paper —
        written quotations on items, a verbal/telephone record, or the fuller
        supplier-comparison worksheet. The choice is offered, never forced. */
@@ -303,6 +299,12 @@
         ['disposal.strategy.background', 'Disposal strategy — Background'],
         ['disposal.strategy.objectives', 'Disposal strategy — Objectives'],
         ['disposal.strategy.recommendation', 'Disposal strategy — Recommendation']
+      ];
+    } else if (cf.module === 'formal-evaluation') {
+      targets = [
+        ['formal.introduction', 'Report — Introduction'],
+        ['formal.background', 'Report — Background'],
+        ['formal.recommendationNote', 'Report — Recommendation note']
       ];
     } else {
       targets = [['docState.need', 'Background / operational need']];
@@ -695,6 +697,163 @@
     return 'Appraisal (computed): ' + parts.join(' · ');
   }
 
+  /* ---- formal tender / RFP / ITB evaluation editor (OPR template) ---- */
+  function renderFormal(panel) {
+    var cf = APP.caseFile;
+    if (!cf.formal) cf.formal = M.formal.newFormal();
+    var f = cf.formal;
+    /* keep the parallel price array aligned with the proponents */
+    while (f.prices.length < f.proponents.length) f.prices.push(M.formal.blankPrice());
+    var h = '<h2 class="p">Formal Evaluation — Tender / RFP / ITB</h2>';
+    h += '<div class="notice green">Built to the OPR Evaluation of Submissions guideline and the Tender Evaluation Report Template. This is the formal Evaluation Committee report — committee declarations, preliminary examination, technical then commercial evaluation, ranking and a recommendation VAT inclusive. Scores and weights are the committee’s and the solicitation’s; the ranking is computed from them, nothing is invented.</div>';
+
+    /* Solicitation */
+    h += '<fieldset class="box"><legend>Solicitation</legend><div class="grid">';
+    h += fieldHTML('Type', 'formal.solicitationType', { type: 'select', options: [['RFP', 'Request for Proposals (RFP)'], ['ITB', 'Invitation to Bid (ITB)']] });
+    h += fieldHTML('Title', 'formal.rfpTitle', { wide: true, req: true });
+    h += fieldHTML('RFP / ITB number', 'formal.rfpNumber', {});
+    h += fieldHTML('Report date', 'formal.reportDate', { type: 'date' });
+    h += fieldHTML('Submission deadline', 'formal.submissionDeadline', {});
+    h += fieldHTML('Tender opening (procedure / date)', 'formal.tenderOpening', {});
+    h += fieldHTML('Introduction (reason for the project)', 'formal.introduction', { type: 'textarea', wide: true });
+    h += fieldHTML('Background (initiation, prior approval, invitation, deadline, firms, opening)', 'formal.background', { type: 'textarea', wide: true });
+    h += '</div></fieldset>';
+
+    /* Committee + declarations */
+    h += '<fieldset class="box"><legend>Evaluation Committee — each member signs the Appendix I declaration (typically three to six)</legend><div class="scrollx"><table class="q"><thead><tr><th>Name</th><th>Job title</th><th>Role</th><th>COI + confidentiality signed</th><th>Conflict? ("none" or details)</th><th></th></tr></thead><tbody>';
+    for (var m = 0; m < f.committee.length; m++) {
+      var mm = f.committee[m];
+      h += '<tr><td><input type="text" data-fmember="' + m + ':name" value="' + esc(mm.name || '') + '"></td>' +
+        '<td><input type="text" data-fmember="' + m + ':jobTitle" value="' + esc(mm.jobTitle || '') + '"></td>' +
+        '<td><input type="text" data-fmember="' + m + ':role" value="' + esc(mm.role || '') + '"></td>' +
+        '<td class="ctr"><input type="checkbox" data-fmember="' + m + ':coiSigned"' + (mm.coiSigned ? ' checked' : '') + '></td>' +
+        '<td><input type="text" data-fmember="' + m + ':coiConflict" value="' + esc(mm.coiConflict || '') + '" placeholder="none"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="fmember-del" data-i="' + m + '">✕</button></td></tr>';
+    }
+    h += '</tbody></table></div><button class="btn sec small" data-action="fmember-add">＋ Add member</button></fieldset>';
+
+    /* Mandatory + weighted criteria */
+    h += '<fieldset class="box"><legend>Mandatory (pass/fail) criteria — from the solicitation</legend><div class="scrollx"><table class="q"><thead><tr><th>Requirement</th><th></th></tr></thead><tbody>';
+    for (var mc = 0; mc < f.mandatoryCriteria.length; mc++) {
+      h += '<tr><td><input type="text" data-fmand="' + mc + '" value="' + esc(f.mandatoryCriteria[mc].name || '') + '"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="fmand-del" data-i="' + mc + '">✕</button></td></tr>';
+    }
+    h += '</tbody></table></div><button class="btn sec small" data-action="fmand-add">＋ Add mandatory criterion</button></fieldset>';
+
+    h += '<fieldset class="box"><legend>Weighted criteria and scoring — from the solicitation</legend><div class="scrollx"><table class="q"><thead><tr><th style="width:24%">Criterion</th><th>Description</th><th style="width:90px">Max points</th><th></th></tr></thead><tbody>';
+    for (var c = 0; c < f.criteria.length; c++) {
+      var cr = f.criteria[c];
+      var cBad = cr.maxPoints !== '' && !(Number.isInteger(Number(cr.maxPoints)) && Number(cr.maxPoints) > 0);
+      h += '<tr><td><input type="text" data-fcrit="' + c + ':name" value="' + esc(cr.name || '') + '"></td>' +
+        '<td><input type="text" data-fcrit="' + c + ':description" value="' + esc(cr.description || '') + '"></td>' +
+        '<td' + (cBad ? ' class="bad"' : '') + '><input type="number" min="1" step="1" data-fcrit="' + c + ':maxPoints" value="' + esc(String(cr.maxPoints || '')) + '"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="fcrit-del" data-i="' + c + '">✕</button></td></tr>';
+    }
+    var maxT = M.formal.maxTechnicalPoints(f);
+    h += '</tbody></table></div><button class="btn sec small" data-action="fcrit-add">＋ Add criterion</button>';
+    h += '<div class="notice"><b>Maximum technical score (computed):</b> <span data-compute="formal-maxtech">' + (isNaN(maxT) ? '— enter whole positive maxima' : maxT + ' points') + '</span></div>';
+    h += '<div class="grid">';
+    h += fieldHTML('Minimum technical score (the gate)', 'formal.minTechnicalScore', { type: 'number' });
+    h += fieldHTML('Technical weight (%)', 'formal.technicalWeight', { type: 'number' });
+    h += fieldHTML('Financial weight (%)', 'formal.financialWeight', { type: 'number' });
+    h += fieldHTML('Ranking formula (as pre-determined, for the record)', 'formal.rankingFormula', { wide: true });
+    h += fieldHTML('Methodology note (optional)', 'formal.methodologyNote', { type: 'textarea', wide: true });
+    h += '</div></fieldset>';
+
+    /* Proponents + preliminary examination */
+    h += '<fieldset class="box"><legend>Proponents and preliminary examination</legend><div class="scrollx"><table class="q"><thead><tr><th>Firm</th><th style="width:130px">Compliant?</th><th>Reason if non-compliant</th><th></th></tr></thead><tbody>';
+    for (var p = 0; p < f.proponents.length; p++) {
+      var pr = f.proponents[p];
+      h += '<tr><td><input type="text" data-fprop="' + p + ':name" value="' + esc(pr.name || '') + '"></td>' +
+        '<td><select data-fprop="' + p + ':compliant"><option value="">— examine —</option><option value="yes"' + (pr.compliant === 'yes' ? ' selected' : '') + '>Compliant</option><option value="no"' + (pr.compliant === 'no' ? ' selected' : '') + '>Non-compliant</option></select></td>' +
+        '<td><input type="text" data-fprop="' + p + ':complianceNote" value="' + esc(pr.complianceNote || '') + '"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="fprop-del" data-i="' + p + '">✕</button></td></tr>';
+    }
+    h += '</tbody></table></div><button class="btn sec small" data-action="fprop-add">＋ Add proponent</button></fieldset>';
+
+    /* Technical scoring grid — compliant proponents × criteria */
+    var compliant = [];
+    for (var p2 = 0; p2 < f.proponents.length; p2++) if (f.proponents[p2].compliant === 'yes') compliant.push(p2);
+    if (compliant.length && f.criteria.length) {
+      h += '<fieldset class="box"><legend>Technical evaluation — score each compliant proponent on each criterion</legend><div class="scrollx"><table class="q"><thead><tr><th>Proponent</th>';
+      for (var c2 = 0; c2 < f.criteria.length; c2++) h += '<th>' + esc(f.criteria[c2].name || ('Criterion ' + (c2 + 1))) + ' /' + esc(String(f.criteria[c2].maxPoints || '?')) + '</th>';
+      h += '<th>Total</th><th>Gate</th></tr></thead><tbody>';
+      compliant.forEach(function (pi) {
+        h += '<tr><td>' + esc(f.proponents[pi].name || ('Proponent ' + (pi + 1))) + '</td>';
+        for (var c3 = 0; c3 < f.criteria.length; c3++) {
+          var val = M.formal.techScore(f, pi, c3);
+          h += '<td style="width:76px"><input type="number" min="0" step="1" data-fscore="' + pi + ':' + c3 + '" value="' + esc(val == null ? '' : String(val)) + '"></td>';
+        }
+        h += '<td class="ctr" data-compute="formal-tt:' + pi + '">' + formalTTHTML(f, pi) + '</td><td class="ctr" data-compute="formal-gate:' + pi + '">' + (M.formal.passesGate(f, pi) ? 'Pass' : '—') + '</td></tr>';
+      });
+      h += '</tbody></table></div></fieldset>';
+
+      /* Commercial evaluation — a price row for every compliant proponent;
+         only the gate-passers' prices count (and reach the report), but the
+         field stays put as scores change so nothing typed is lost. */
+      h += '<fieldset class="box"><legend>Commercial evaluation — verified price (VAT inclusive); only the gate-passers are carried</legend><div class="scrollx"><table class="q"><thead><tr><th>Proponent</th><th style="width:70px">Gate</th><th style="width:150px">Quoted price $</th><th style="width:150px">Verified price $ (VAT incl.)</th><th>Arithmetic check note</th></tr></thead><tbody>';
+      compliant.forEach(function (pi) {
+        var passes = M.formal.passesGate(f, pi);
+        var price = f.prices[pi] || M.formal.blankPrice();
+        var vBad = price.verifiedPrice && !M.money.parseStrict(price.verifiedPrice).ok;
+        h += '<tr' + (passes ? '' : ' style="opacity:.6"') + '><td>' + esc(f.proponents[pi].name) + '</td>' +
+          '<td class="ctr" data-compute="formal-gatecell:' + pi + '">' + (passes ? 'Pass' : 'below') + '</td>' +
+          '<td><input type="text" data-fprice="' + pi + ':quotedPrice" value="' + esc(price.quotedPrice || '') + '"></td>' +
+          '<td' + (vBad ? ' class="bad"' : '') + '><input type="text" data-fprice="' + pi + ':verifiedPrice" value="' + esc(price.verifiedPrice || '') + '"></td>' +
+          '<td><input type="text" data-fprice="' + pi + ':arithmeticNote" value="' + esc(price.arithmeticNote || '') + '"></td></tr>';
+      });
+      h += '</tbody></table></div><p class="hint">A price below the technical gate is shown greyed and is not carried into the ranking or the report.</p></fieldset>';
+    }
+
+    /* Clarifications */
+    h += '<fieldset class="box"><legend>Clarifications (arithmetic corrections only)</legend><div class="scrollx"><table class="q"><thead><tr><th style="width:22%">Proponent</th><th style="width:110px">Issued</th><th style="width:110px">Received</th><th>Summary</th><th></th></tr></thead><tbody>';
+    for (var cl = 0; cl < f.clarifications.length; cl++) {
+      var cla = f.clarifications[cl];
+      h += '<tr><td><select data-fclar="' + cl + ':proponent"><option value="">—</option>' + f.proponents.map(function (pp, idx) { return '<option value="' + idx + '"' + (cla.proponent === idx ? ' selected' : '') + '>' + esc(pp.name || ('Proponent ' + (idx + 1))) + '</option>'; }).join('') + '</select></td>' +
+        '<td><input type="text" data-fclar="' + cl + ':issued" value="' + esc(cla.issued || '') + '"></td>' +
+        '<td><input type="text" data-fclar="' + cl + ':received" value="' + esc(cla.received || '') + '"></td>' +
+        '<td><input type="text" data-fclar="' + cl + ':summary" value="' + esc(cla.summary || '') + '"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="fclar-del" data-i="' + cl + '">✕</button></td></tr>';
+    }
+    h += '</tbody></table></div><button class="btn sec small" data-action="fclar-add">＋ Add clarification</button></fieldset>';
+
+    /* Ranking (computed) + recommendation */
+    h += '<fieldset class="box"><legend>Ranking and recommendation</legend>';
+    h += '<div data-compute="formal-ranking">' + formalRankingHTML(f) + '</div>';
+    h += '<div class="grid">';
+    h += '<label class="f">Recommended for award<select data-frec><option value="">— top-ranked, or choose —</option>' +
+      f.proponents.map(function (pp, idx) { return '<option value="' + idx + '"' + (f.recommendedProponent === idx ? ' selected' : '') + '>' + esc(pp.name || ('Proponent ' + (idx + 1))) + '</option>'; }).join('') + '</select></label>';
+    h += fieldHTML('Recommendation note (required if not the top-ranked)', 'formal.recommendationNote', { type: 'textarea', wide: true });
+    h += fieldHTML('Negotiations (if applicable)', 'formal.negotiationNote', { type: 'textarea', wide: true });
+    h += fieldHTML('PDAC review', 'formal.pdacReview', { wide: true });
+    h += fieldHTML('Accounting Officer review', 'formal.aoReview', { wide: true });
+    h += '</div></fieldset>';
+
+    panel.innerHTML = h;
+    bindInputs(panel);
+  }
+
+  function formalTTHTML(f, p) {
+    var tt = M.formal.technicalTotal(f, p);
+    if (tt.bad.length) return '<b style="color:var(--red)">range?</b>';
+    return '<b>' + tt.total + '</b>' + (tt.missing ? ' <span style="color:#888">(' + tt.missing + ' left)</span>' : '');
+  }
+
+  function formalRankingHTML(f) {
+    var r = M.formal.ranking(f);
+    if (!r.ok || !r.rows.length) {
+      return '<p class="hint">The ranking is computed once every gate-passing proponent has complete technical scores and a valid verified price, and the technical + financial weights (whole percentages) total 100.</p>';
+    }
+    var h = '<div class="scrollx"><table class="q"><thead><tr><th>Rank</th><th>Proponent</th><th>Technical</th><th>Financial</th><th>Combined</th><th>Verified price</th></tr></thead><tbody>';
+    r.rows.forEach(function (row) {
+      h += '<tr><td class="ctr">' + row.rank + '</td><td>' + esc(row.name) + '</td><td class="ctr">' + row.techPct + '</td><td class="ctr">' + row.finPct + '</td><td class="ctr"><b>' + row.combinedPct + '</b></td><td class="tot">' + fmtMoney(row.priceCents) + '</td></tr>';
+    });
+    h += '</tbody></table></div>';
+    var top = r.rows[0];
+    h += '<p class="hint">Top-ranked: <b>' + esc(top.name) + '</b> at ' + fmtMoney(top.priceCents) + ' VAT inclusive.</p>';
+    return h;
+  }
+
   /* ================= VOTE & FUNDING ================= */
   function renderVote(panel) {
     var cf = APP.caseFile;
@@ -888,6 +1047,19 @@
           out = isNaN(dsp) ? '— fix the flagged amounts' : fmtMoney(dsp);
         } else if (key[0] === 'disposal-appraise') {
           try { nodes[i].innerHTML = disposalAppraiseHTML(M.disposal.appraisal(cf.disposal.items[+key[1]])); } catch (e7) { }
+          continue;
+        } else if (key[0] === 'formal-maxtech') {
+          var mt = M.formal.maxTechnicalPoints(cf.formal);
+          out = isNaN(mt) ? '— enter whole positive maxima' : mt + ' points';
+        } else if (key[0] === 'formal-tt') {
+          try { nodes[i].innerHTML = formalTTHTML(cf.formal, +key[1]); } catch (e8) { }
+          continue;
+        } else if (key[0] === 'formal-gate') {
+          out = M.formal.passesGate(cf.formal, +key[1]) ? 'Pass' : '—';
+        } else if (key[0] === 'formal-gatecell') {
+          out = M.formal.passesGate(cf.formal, +key[1]) ? 'Pass' : 'below';
+        } else if (key[0] === 'formal-ranking') {
+          try { nodes[i].innerHTML = formalRankingHTML(cf.formal); } catch (e9) { }
           continue;
         } else if (key[0] === 'eval-situations') {
           /* guidance containers hold no text inputs, so replacing their

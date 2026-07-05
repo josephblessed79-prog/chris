@@ -75,6 +75,7 @@
     if (activity === 'P1') APP.caseFile.verbal = M.verbal.newVerbal();
     if (activity === 'P3') APP.caseFile.evaluation = M.evaluation.newEvaluation();
     if (APP.caseFile.module === 'disposal' && !APP.caseFile.disposal) APP.caseFile.disposal = M.disposal.newDisposal();
+    if (APP.caseFile.module === 'formal-evaluation' && !APP.caseFile.formal) APP.caseFile.formal = M.formal.newFormal();
     APP.ingestCandidates = [];
     APP.ingestWarning = '';
     enableTabs(true);
@@ -353,6 +354,44 @@
       cf.disposal.strategy.stakeholders[+pdt[0]][pdt[1]] = v;
       return true;
     }
+    if ((attr = target.getAttribute('data-fmember'))) {
+      var pfm = attr.split(':');
+      cf.formal.committee[+pfm[0]][pfm[1]] = target.type === 'checkbox' ? target.checked : v;
+      return true;
+    }
+    if ((attr = target.getAttribute('data-fmand'))) {
+      cf.formal.mandatoryCriteria[+attr].name = v;
+      return true;
+    }
+    if ((attr = target.getAttribute('data-fcrit'))) {
+      var pfc = attr.split(':');
+      cf.formal.criteria[+pfc[0]][pfc[1]] = v;
+      return true;
+    }
+    if ((attr = target.getAttribute('data-fprop'))) {
+      var pfp = attr.split(':');
+      cf.formal.proponents[+pfp[0]][pfp[1]] = v;
+      return true;
+    }
+    if ((attr = target.getAttribute('data-fscore'))) {
+      cf.formal.techScores[attr] = v;
+      return true;
+    }
+    if ((attr = target.getAttribute('data-fprice'))) {
+      var pfr = attr.split(':');
+      if (!cf.formal.prices[+pfr[0]]) cf.formal.prices[+pfr[0]] = M.formal.blankPrice();
+      cf.formal.prices[+pfr[0]][pfr[1]] = v;
+      return true;
+    }
+    if ((attr = target.getAttribute('data-fclar'))) {
+      var pfl = attr.split(':');
+      cf.formal.clarifications[+pfl[0]][pfl[1]] = pfl[1] === 'proponent' ? (v === '' ? null : +v) : v;
+      return true;
+    }
+    if (target.hasAttribute('data-frec')) {
+      cf.formal.recommendedProponent = target.value === '' ? null : +target.value;
+      return true;
+    }
     if ((attr = target.getAttribute('data-folio'))) {
       var pf = attr.split(':');
       st.folios[+pf[0]][pf[1]] = v;
@@ -398,6 +437,8 @@
   var SYNC_SELECTOR = ['[data-path]', '[data-item]', '[data-quote]', '[data-vcontact]',
     '[data-vsched]', '[data-esup]', '[data-eitem]', '[data-ecell]', '[data-esel]',
     '[data-dcomm]', '[data-ditem]', '[data-dpdac]', '[data-dspend]', '[data-dstake]',
+    '[data-fmember]', '[data-fmand]', '[data-fcrit]', '[data-fprop]', '[data-fscore]',
+    '[data-fprice]', '[data-fclar]', '[data-frec]',
     '[data-folio]', '[data-att]', '[data-vblock]', '[data-vstatus]'].join(',');
 
   function syncPanelFromDOM() {
@@ -448,10 +489,18 @@
 
   /* The composer writes into a field chosen by path; the wording style and
      the human label are derived from the path's last segment. */
+  /* Human labels keyed by the full destination path (leaf names collide —
+     both disposal and formal have a "background" field). */
   var COMPOSER_FIELDS = {
-    need: 'Background / operational need', methodjust: 'Method justification',
-    minextra: 'Extra minute paragraphs', background: 'Disposal strategy — Background',
-    objectives: 'Disposal strategy — Objectives', recommendation: 'Disposal strategy — Recommendation'
+    'docState.need': 'Background / operational need',
+    'docState.methodjust': 'Method justification',
+    'docState.minextra': 'Extra minute paragraphs',
+    'disposal.strategy.background': 'Disposal strategy — Background',
+    'disposal.strategy.objectives': 'Disposal strategy — Objectives',
+    'disposal.strategy.recommendation': 'Disposal strategy — Recommendation',
+    'formal.introduction': 'Report — Introduction',
+    'formal.background': 'Report — Background',
+    'formal.recommendationNote': 'Report — Recommendation note'
   };
   /* Legacy composer targets were bare field names (need/methodjust/minextra);
      v3 targets are full paths. Normalise a bare code to its docState path. */
@@ -462,10 +511,11 @@
   function composerLeaf(path) { var p = String(path || '').split('.'); return p[p.length - 1]; }
   function composerStyle(path) {
     var leaf = composerLeaf(path);
-    /* the disposal narrative fields all use the background wording style */
+    /* only the routine method/extra fields use a non-background wording
+       style; every other narrative field uses the background style */
     return leaf === 'methodjust' ? 'methodjust' : leaf === 'minextra' ? 'minextra' : 'need';
   }
-  function composerLabel(path) { return COMPOSER_FIELDS[composerLeaf(path)] || composerLeaf(path); }
+  function composerLabel(path) { return COMPOSER_FIELDS[composerPath(path)] || composerLeaf(path); }
 
   /* ---------- click actions ---------- */
   var actions = {
@@ -548,6 +598,53 @@
     'dspend-del': function (t) { APP.caseFile.disposal.strategy.expenditure.splice(+t.getAttribute('data-i'), 1); render('work'); },
     'dstake-add': function () { APP.caseFile.disposal.strategy.stakeholders.push({ name: '', interest: '' }); render('work'); },
     'dstake-del': function (t) { APP.caseFile.disposal.strategy.stakeholders.splice(+t.getAttribute('data-i'), 1); render('work'); },
+    'fmember-add': function () { APP.caseFile.formal.committee.push(M.formal.blankMember()); render('work'); },
+    'fmember-del': function (t) { APP.caseFile.formal.committee.splice(+t.getAttribute('data-i'), 1); render('work'); },
+    'fmand-add': function () { APP.caseFile.formal.mandatoryCriteria.push({ name: '' }); render('work'); },
+    'fmand-del': function (t) { APP.caseFile.formal.mandatoryCriteria.splice(+t.getAttribute('data-i'), 1); render('work'); },
+    'fcrit-add': function () { APP.caseFile.formal.criteria.push(M.formal.blankCriterion()); render('work'); },
+    'fcrit-del': function (t) {
+      var i = +t.getAttribute('data-i');
+      var f = APP.caseFile.formal;
+      f.criteria.splice(i, 1);
+      /* renumber the technical-score map: drop column i, shift the rest down */
+      var next = {};
+      Object.keys(f.techScores).forEach(function (k) {
+        var pc = k.split(':'), pp = +pc[0], cc = +pc[1];
+        if (cc === i) return;
+        next[pp + ':' + (cc > i ? cc - 1 : cc)] = f.techScores[k];
+      });
+      f.techScores = next;
+      render('work');
+    },
+    'fprop-add': function () {
+      var f = APP.caseFile.formal;
+      f.proponents.push(M.formal.blankProponent());
+      f.prices.push(M.formal.blankPrice());
+      render('work');
+    },
+    'fprop-del': function (t) {
+      var i = +t.getAttribute('data-i');
+      var f = APP.caseFile.formal;
+      if (!confirm('Delete this proponent and its scores and price?')) return;
+      f.proponents.splice(i, 1);
+      f.prices.splice(i, 1);
+      if (f.recommendedProponent === i) f.recommendedProponent = null;
+      else if (f.recommendedProponent > i) f.recommendedProponent--;
+      /* renumber the technical-score map: drop row i, shift the rest up */
+      var next = {};
+      Object.keys(f.techScores).forEach(function (k) {
+        var pc = k.split(':'), pp = +pc[0], cc = +pc[1];
+        if (pp === i) return;
+        next[(pp > i ? pp - 1 : pp) + ':' + cc] = f.techScores[k];
+      });
+      f.techScores = next;
+      f.clarifications = f.clarifications.filter(function (c) { return c.proponent !== i; });
+      f.clarifications.forEach(function (c) { if (c.proponent > i) c.proponent--; });
+      render('work');
+    },
+    'fclar-add': function () { APP.caseFile.formal.clarifications.push({ proponent: null, issued: '', received: '', summary: '' }); render('work'); },
+    'fclar-del': function (t) { APP.caseFile.formal.clarifications.splice(+t.getAttribute('data-i'), 1); render('work'); },
     'folio-add': function () { APP.caseFile.docState.folios.push({ desc: '', date: '', tag: '' }); render('fol'); },
     'folio-del': function (t) { APP.caseFile.docState.folios.splice(+t.getAttribute('data-i'), 1); render('fol'); },
     'att-add': function () { APP.caseFile.docState.attachments.push(''); render('fol'); },
