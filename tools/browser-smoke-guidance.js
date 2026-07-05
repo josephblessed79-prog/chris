@@ -12,7 +12,12 @@ const { chromium } = require('playwright-core');
   function check(name, cond) { if (cond) console.log('ok  ' + name); else { console.log('FAIL ' + name); fails.push(name); } }
 
   await page.goto('file:///home/user/chris/index.html');
-  await page.click('.pathcard[data-pathway="P3"]');
+  await page.click('.pathcard[data-activity="routine"]');
+  await page.waitForTimeout(200);
+  // choose the comparison worksheet as the routine working paper
+  await page.click('nav.tabs button[data-t="work"]');
+  await page.waitForTimeout(150);
+  await page.click('input[data-special="routine-papers"][value="worksheet"]');
   await page.waitForTimeout(200);
 
   // ---- vote base: equal figures -> no question

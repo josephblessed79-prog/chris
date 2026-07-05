@@ -1,6 +1,6 @@
-/* Browser smoke test: open index.html from file://, exercise a P1 verbal
-   case end to end, check computed figures, documents, and the honest OCR
-   capability message. */
+/* Browser smoke test: open index.html from file://, exercise a routine
+   verbal-quotation case end to end, check computed figures, documents,
+   and the honest OCR capability message. */
 'use strict';
 const { chromium } = require('playwright-core');
 
@@ -21,8 +21,8 @@ const { chromium } = require('playwright-core');
 
   check('status pill says NO CASE OPEN', (await page.textContent('#statusPill')).includes('NO CASE OPEN'));
 
-  // start a P1 case
-  await page.click('.pathcard[data-pathway="P1"]');
+  // start a routine case from the activity selector
+  await page.click('.pathcard[data-activity="routine"]');
   await page.waitForTimeout(200);
   check('case tab opens', (await page.textContent('#tab-case h2')).includes('Routine / daily procurement'));
   check('status pill shows failing checks for an empty case', (await page.textContent('#statusPill')).includes('FAILING'));
@@ -35,8 +35,10 @@ const { chromium } = require('playwright-core');
   await page.check('[data-path="oprRegistered"]');
   await page.dispatchEvent('[data-path="docState.minsigname"]', 'change');
 
-  // verbal working papers
+  // verbal working papers (a routine sub-choice, made where it arises)
   await page.click('nav.tabs button[data-t="work"]');
+  await page.waitForTimeout(200);
+  await page.click('input[data-special="routine-papers"][value="verbal"]');
   await page.waitForTimeout(200);
   await page.fill('[data-path="verbal.purpose"]', 'the provision of Boxed Meals for the Human Resource Training Workshop');
   await page.dispatchEvent('[data-path="verbal.purpose"]', 'change');

@@ -64,16 +64,15 @@
 
   /* ================= START ================= */
   function renderStart(panel) {
-    var h = '<h2 class="p">Start</h2>';
-    h += '<p class="hint">Choose the pathway for the work in front of you. Everything downstream — the forms, the checks, the documents — follows from this choice, and a case can move between pathways later without retyping.</p>';
+    var h = '<h2 class="p">What are you doing today?</h2>';
+    h += '<p class="hint">Choose the activity before entering any data. The three activities are separate workflows — each has its own forms, questions, checks and documents, and none borrows from the others. Choices inside an activity (who the papers are for, how suppliers were contacted, which working paper to use) are asked where they arise, not here.</p>';
     var cards = [
-      ['P1', 'Ministry internal procurement', 'Units and departments within the Ministry of Defence. Includes micro-procurement by verbal quotation (telephone contacts, per-date schedule, hybrid minute).'],
-      ['P2', 'Procurement for an external formation', 'Defence Force, Coast Guard, Air Guard, Regiment, Police, Fire, Prison Services and other agencies: the formation approval letter plus the Ministry minute.'],
-      ['P3', 'Evaluation Committee', 'Multi-item, multi-supplier evaluation worksheet with V/NV per cell, computed pack conversions, lowest-compliant recommendation and justified overrides; feeds P1/P2 without retyping.'],
-      ['P4', 'Disposal Committee', 'Disposal of public property under the 2015 Act: inventory, valuation record, method recommendation, committee minute and approval instrument. Formats are scaffolded and marked AWAITING FORMAT AUTHORITY until a sample disposal file is provided.']
+      ['routine', 'Routine / daily procurement', 'The everyday travelling file: purchase requisition, vote and funds check, written or telephone quotations, supplier comparison, minute sheet ("Approval is hereby sought…"), formation letter where an outside formation asked, checklist and verification certificate.'],
+      ['formal-evaluation', 'Formal tender / RFP / ITB evaluation', 'An Evaluation Committee reporting on a formal solicitation: conflict-of-interest and confidentiality declarations, preliminary examination, technical and financial evaluation against the published criteria, ranking, and the OPR-format Evaluation Report. (Module being fitted.)'],
+      ['disposal', 'Disposal of public property', 'Disposal under the 2015 Act: inventory and condition, valuation with its recorded basis, Disposal Committee recommendation of a method, committee minute and approval instrument.']
     ];
     for (var i = 0; i < cards.length; i++) {
-      h += '<div class="pathcard" data-action="new-case" data-pathway="' + cards[i][0] + '"><h3>' + cards[i][0] + ' — ' + esc(cards[i][1]) + '</h3><p>' + esc(cards[i][2]) + '</p></div>';
+      h += '<div class="pathcard" data-action="new-case" data-activity="' + cards[i][0] + '"><h3>' + esc(cards[i][1]) + '</h3><p>' + esc(cards[i][2]) + '</p></div>';
     }
     var saved = APP.autosavePeek();
     if (saved) {
@@ -644,6 +643,10 @@
   function renderDocs(panel) {
     var cf = APP.caseFile;
     var docs = M.documents.availableDocs(cf);
+    if (!docs.length) {
+      panel.innerHTML = '<h2 class="p">Documents</h2><div class="notice"><b>No documents are available for this activity yet.</b> The formal tender / RFP / ITB evaluation module registers its own documents (the OPR-format Evaluation Report and the conflict-of-interest and confidentiality declarations) when that module is fitted. Nothing from routine procurement or disposal is offered here — the activities are kept separate by design.</div>';
+      return;
+    }
     var current = APP.currentDoc && docs.some(function (d) { return d.id === APP.currentDoc; }) ? APP.currentDoc : docs[0].id;
     APP.currentDoc = current;
     var h = '<h2 class="p">Documents</h2>';

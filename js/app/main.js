@@ -45,7 +45,14 @@
   function enableTabs(enabled) {
     var btns = document.querySelectorAll('nav.tabs button');
     for (var i = 0; i < btns.length; i++) {
-      if (btns[i].getAttribute('data-t') !== 'start') btns[i].disabled = !enabled;
+      var tab = btns[i].getAttribute('data-t');
+      if (tab === 'start') continue;
+      btns[i].disabled = !enabled;
+      /* Module-scoped tabs: the vote book is a routine instrument; formal
+         evaluation and disposal never see it. */
+      if (tab === 'vote') {
+        btns[i].style.display = (enabled && APP.caseFile && APP.caseFile.module !== 'routine') ? 'none' : '';
+      }
     }
     el('btnSave').disabled = !enabled;
   }
@@ -426,7 +433,7 @@
 
   /* ---------- click actions ---------- */
   var actions = {
-    'new-case': function (t) { newCase(t.getAttribute('data-pathway')); },
+    'new-case': function (t) { newCase(t.getAttribute('data-activity') || t.getAttribute('data-pathway')); },
     'autosave-restore': function () {
       var saved = APP.autosavePeek();
       if (saved) openCaseObject(saved.obj, 'the autosave');

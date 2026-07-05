@@ -12,7 +12,7 @@ const { chromium } = require('playwright-core');
   function check(name, cond) { if (cond) console.log('ok  ' + name); else { console.log('FAIL ' + name); fails.push(name); } }
 
   await page.goto('file:///home/user/chris/index.html');
-  await page.click('.pathcard[data-pathway="P1"]');
+  await page.click('.pathcard[data-activity="routine"]');
   await page.waitForTimeout(200);
 
   check('composer fieldset present on Case Details', (await page.textContent('#tab-case')).includes('Narrative composer (offline, optional)'));
