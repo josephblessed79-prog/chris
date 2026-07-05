@@ -22,12 +22,12 @@
 (function (root, factory) {
   'use strict';
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
+    module.exports = factory(require('./money.js'));
   } else {
     root.MODPA = root.MODPA || {};
-    root.MODPA.intake = factory();
+    root.MODPA.intake = factory(root.MODPA.money);
   }
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (money) {
   'use strict';
 
   var MODES = {
@@ -217,6 +217,226 @@
     };
   }
 
+  /* ---------- OCR / protocol handling (Phase 3) ---------- */
+
+  /* Whether OCR can run, given the page protocol and the file kind, and
+     the exact plain-language message when it cannot. Browsers refuse to
+     start the Web Worker OCR needs from a file:// script. */
+  function ocrDecision(protocol, fileKind) {
+    var scanned = fileKind === 'pdf-scanned' || fileKind === 'image';
+    if (scanned && protocol === 'file:') {
+      return {
+        abort: true,
+        message: 'This appears to be a scanned document. The browser’s security blocks text-recognition (OCR) when opening from a local folder. Please type these figures manually, or ask IT to host this system on the intranet to enable scanning.'
+      };
+    }
+    return { abort: false, message: '' };
+  }
+
+  /* ---------- field mapping and cross-tab accounting (Phase 5) ---------- */
+
+  /* Which tab a field path lives on, and the tab order for "earliest
+     modified tab". Kept in step with the app's tab order. */
+  var TAB_ORDER = ['case', 'work', 'vote', 'fol'];
+  var TAB_LABEL = { case: 'Case Details', work: 'Working Papers', vote: 'Vote & Funding', fol: 'Folios' };
+
+  function pathTab(path) {
+    if (/^voteStatus\.|^docState\.funds|^docState\.vote$|^docState\.vat/.test(path)) return 'vote';
+    if (/^docState\.folios|^docState\.attachments/.test(path)) return 'fol';
+    if (/^disposal\.|^formal\.|^evaluation\.|^verbal\.|^docState\.items/.test(path)) return 'work';
+    return 'case';
+  }
+
+  function tabOrderIndex(tab) { var i = TAB_ORDER.indexOf(tab); return i < 0 ? 99 : i; }
+
+  /* The default field a candidate maps to, as a concrete case path, given
+     the module. Returns { path, tab, label } for a simple field, or null
+     for candidates that append to a list (suppliers, item lines) rather
+     than filling a single field. */
+  function defaultTarget(kind, module) {
+    if (kind === 'date') return field('docState.date', 'Document date');
+    if (kind === 'reference') {
+      if (module === 'formal-evaluation') return field('formal.rfpNumber', 'RFP / ITB number');
+      if (module === 'disposal') return field('disposal.requestRef', 'Disposal request reference');
+      return field('docState.minfile', 'File number');
+    }
+    if (kind === 'figure') {
+      if (module === 'routine') return field('docState.funds', 'Available funds');
+      return null;
+    }
+    return null; /* suppliers / item-lines append to lists; handled separately */
+  }
+  function field(path, label) { return { path: path, tab: pathTab(path), label: label }; }
+
+  /* Small path helpers, so the engine can update a case object purely. */
+  function getPath(obj, path) {
+    var p = String(path).split('.'), c = obj;
+    for (var i = 0; i < p.length; i++) { if (c == null) return undefined; c = c[p[i]]; }
+    return c;
+  }
+  function setPath(obj, path, value) {
+    var p = String(path).split('.'), c = obj;
+    for (var i = 0; i < p.length - 1; i++) { if (c[p[i]] == null) c[p[i]] = {}; c = c[p[i]]; }
+    c[p[p.length - 1]] = value;
+  }
+
+  /* Whether a figure string is acceptable to the deterministic core.
+     A malformed figure (e.g. "$11,3900.00") is never applied. */
+  function figureValid(value) {
+    return money ? money.parseStrict(String(value)).ok : /^\$?\d{1,3}(,\d{3})*(\.\d{2})?$|^\$?\d+(\.\d{2})?$/.test(String(value));
+  }
+
+  /* Apply accepted field-facts to a case object (Phase 5). Each fact is
+     { path, value, source?, kind? }. Rules:
+       - empty target, or same value  -> set + mark 'imported';
+       - different existing value      -> DO NOT overwrite; mark 'conflict'
+                                          (keeping both the manual and the
+                                          imported value for the user);
+       - a malformed figure            -> skipped (recorded as 'rejected').
+     Returns a summary for the toast and the cross-tab feedback. */
+  function applyAcceptedFacts(caseData, facts, nowIso) {
+    var now = nowIso || new Date().toISOString();
+    if (!caseData.intakeFields || typeof caseData.intakeFields !== 'object') caseData.intakeFields = {};
+    var updated = [], conflicts = [], rejected = [], byTab = {};
+    (facts || []).forEach(function (f) {
+      if (!f || !f.path) return;
+      if (f.kind === 'figure' && !figureValid(f.value)) { rejected.push({ path: f.path, value: f.value }); return; }
+      var cur = getPath(caseData, f.path);
+      var curStr = cur == null ? '' : String(cur);
+      var valStr = f.value == null ? '' : String(f.value);
+      var tab = pathTab(f.path);
+      if (curStr.trim() === '' || curStr === valStr) {
+        setPath(caseData, f.path, f.value);
+        caseData.intakeFields[f.path] = { value: f.value, source: f.source || '', at: now, status: 'imported' };
+        updated.push(f.path);
+        byTab[tab] = (byTab[tab] || 0) + 1;
+      } else {
+        caseData.intakeFields[f.path] = { value: f.value, manualValue: cur, source: f.source || '', at: now, status: 'conflict' };
+        conflicts.push(f.path);
+        byTab[tab] = (byTab[tab] || 0) + 1;
+      }
+    });
+    var tabs = Object.keys(byTab);
+    var earliestTab = tabs.length ? tabs.sort(function (a, b) { return tabOrderIndex(a) - tabOrderIndex(b); })[0] : null;
+    return { updated: updated, conflicts: conflicts, rejected: rejected, byTab: byTab, earliestTab: earliestTab };
+  }
+
+  /* Toast wording (Phase 5): X updated on the current tab, Y on other
+     (previous) tabs, with the earliest tab to jump back to. */
+  function summarizeUpdate(byTab, currentTab) {
+    var current = byTab[currentTab] || 0, others = 0, earliest = null, earliestIdx = 99;
+    Object.keys(byTab).forEach(function (t) {
+      if (t !== currentTab) others += byTab[t];
+      if (tabOrderIndex(t) < earliestIdx) { earliestIdx = tabOrderIndex(t); earliest = t; }
+    });
+    return {
+      current: current, others: others, earliestTab: earliest,
+      earliestTabLabel: earliest ? (TAB_LABEL[earliest] || earliest) : '',
+      text: current + ' field' + (current === 1 ? '' : 's') + ' were updated on this tab. ' +
+        others + ' field' + (others === 1 ? '' : 's') + ' were updated in previous tabs.'
+    };
+  }
+
+  /* Resolve a field conflict (Phase 5). choice: 'imported' | 'manual'. */
+  function resolveConflict(caseData, path, choice) {
+    var f = caseData.intakeFields && caseData.intakeFields[path];
+    if (!f) return false;
+    if (choice === 'imported') {
+      setPath(caseData, path, f.value);
+      f.status = 'imported';
+      delete f.manualValue;
+    } else {
+      if (f.manualValue !== undefined) setPath(caseData, path, f.manualValue);
+      f.status = 'manual-kept';
+    }
+    return true;
+  }
+
+  /* ---------- table-layout extraction and compliance (Phase 6) ---------- */
+
+  /* The mandatory, distinct columns an official table must keep separate.
+     These are the compliance backbone — merging any two, or dropping one,
+     is rejected. */
+  var OFFICIAL_TABLE = {
+    'routine': ['Item', 'Description', 'Qty', 'Unit Price', 'VAT', 'Total'],
+    'disposal': ['Asset Description', 'Quantity', 'Condition', 'Net Book Value', 'Appraised Value'],
+    'formal-evaluation': ['Proponent', 'Technical', 'Financial', 'Combined']
+  };
+  function officialTableFor(module) { return OFFICIAL_TABLE[module] || null; }
+
+  /* Extract a usable layout guide from a document structure (Phase 6).
+     Honest about what each source yields: DOCX/HTML gives the columns,
+     the table count and whether the table is bordered; XLSX (when the
+     browser side provides them) gives real column widths. Cell padding is
+     not recoverable from mammoth's DOCX output and is left null. */
+  function extractTableLayout(structure) {
+    var s = structure || {};
+    var tables = (s.tables || []).map(function (t) {
+      return {
+        columns: (t.columns || []).map(function (c) { return String(c).trim(); }).filter(Boolean),
+        rowCount: t.rowCount || 0,
+        columnWidths: t.columnWidths || null,   /* only from XLSX */
+        bordered: t.bordered !== false,
+        cellPadding: t.cellPadding != null ? t.cellPadding : null
+      };
+    });
+    return {
+      tables: tables,
+      hasSignatureBlocks: !!s.hasSignatureBlocks,
+      hasLetterhead: !!s.hasLetterhead,
+      signatureOrder: s.signatureOrder || []
+    };
+  }
+
+  /* Compliance of an uploaded table against the official mandatory columns
+     (Phase 6). Detects a missing mandatory column and a merged column
+     (one uploaded column standing for two official ones). The official
+     layout is preserved whenever this is not compliant. */
+  function checkTableCompliance(uploadedColumns, officialColumns) {
+    var up = (uploadedColumns || []).map(norm);
+    var missing = [], merged = [];
+    (officialColumns || []).forEach(function (oc) {
+      var n = norm(oc);
+      var present = up.some(function (u) { return u === n || u.indexOf(n) >= 0 || n.indexOf(u) >= 0; });
+      if (!present) missing.push(oc);
+    });
+    for (var i = 0; i < up.length; i++) {
+      var hits = (officialColumns || []).filter(function (oc) { return up[i].indexOf(norm(oc)) >= 0; });
+      if (hits.length >= 2) merged.push(hits);
+    }
+    var compliant = missing.length === 0 && merged.length === 0;
+    var reason = '';
+    if (merged.length) {
+      reason = 'The uploaded layout merges ‘' + merged[0][0] + '’ and ‘' + merged[0][1] +
+        '’ into one column. This violates the verification check requirement. The official layout will be used.';
+    } else if (missing.length) {
+      reason = 'The uploaded layout is missing the required column' + (missing.length === 1 ? '' : 's') +
+        ' ‘' + missing.join('’, ‘') + '’. The official layout will be used.';
+    }
+    return { compliant: compliant, reason: reason, missing: missing, merged: merged };
+  }
+
+  /* Signature-block order compliance (Phase 6). Reordering preparers and
+     reviewers is permitted; the Accounting Officer's approval is the final,
+     controlling act under the Act, so no signatory may appear after it.
+     Returns { ok, reason } — the reason is logged when a change is
+     rejected. */
+  function signatureCompliance(uploadedOrder) {
+    var names = (uploadedOrder || []).map(function (s) { return String(s).toLowerCase(); });
+    var aoIdx = -1;
+    for (var i = 0; i < names.length; i++) {
+      if (/accounting officer|permanent secretary|\bceo\b|equivalent|line minister/.test(names[i])) { aoIdx = i; }
+    }
+    /* the last authority match must be the final entry */
+    if (aoIdx >= 0 && aoIdx !== names.length - 1) {
+      return {
+        ok: false,
+        reason: 'The uploaded signature order places a signatory after the Accounting Officer. Under the Act, the Accounting Officer’s approval is the final, controlling act, so it must appear last. The official signature order will be used.'
+      };
+    }
+    return { ok: true, reason: '' };
+  }
+
   /* Build the audit record to attach to the case file. Everything the
      user needs to see why a document was used and what it changed. */
   function buildRecord(opts) {
@@ -250,6 +470,21 @@
     detectConflicts: detectConflicts,
     planLayout: planLayout,
     summarizeExtraction: summarizeExtraction,
-    buildRecord: buildRecord
+    buildRecord: buildRecord,
+    ocrDecision: ocrDecision,
+    TAB_ORDER: TAB_ORDER,
+    TAB_LABEL: TAB_LABEL,
+    pathTab: pathTab,
+    defaultTarget: defaultTarget,
+    figureValid: figureValid,
+    applyAcceptedFacts: applyAcceptedFacts,
+    summarizeUpdate: summarizeUpdate,
+    resolveConflict: resolveConflict,
+    officialTableFor: officialTableFor,
+    extractTableLayout: extractTableLayout,
+    checkTableCompliance: checkTableCompliance,
+    signatureCompliance: signatureCompliance,
+    getPath: getPath,
+    setPath: setPath
   };
 });

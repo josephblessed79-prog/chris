@@ -293,6 +293,46 @@ only, **B** preferred layout/structure, **C** both. Implemented for real
   decision, conflicts, confirmation) for audit; available in all three
   modules.
 
+**Global action, staging, backward feeding (July 2026 refinement).** The
+feature is a persistent header action ("Upload & Extract Document") that
+opens a modal at any time, not a linear tab — so a document can be
+brought in from wherever the officer is working. The modal presents the
+staging review (value, source snippet, confidence, target), Accept / Edit
+/ Reject per row, and a two-step commit: facts are staged, then applied
+by **Apply Accepted Data to Case**. Figures are accepted one at a time; a
+figure the deterministic parser rejects (e.g. `$11,3900.00`) is
+highlighted and its Accept is disabled until the officer edits it to a
+valid amount — the integer-cents core is never bypassed by an imported
+figure. On apply, fields updated across *other* tabs are counted and a
+toast offers a link back to the earliest changed tab. Each updated field
+carries a blue **Imported** badge; where an import would land on a field
+that already holds manual data, it is **not** overwritten — a yellow
+conflict triangle appears with **Keep Manual / Accept Imported**, and the
+officer's choice is honoured and recorded.
+
+**Table-column and signature-order compliance (Phase 6 audit rule).**
+When a layout mode (B/C) is chosen and the document carries a table, the
+uploaded column set is checked against the official form's mandatory
+columns: a missing column (e.g. VAT), or a single column merging two
+official ones (e.g. Unit Price and Total), is **rejected** with a
+plain-language reason and the official layout is kept. A signature order
+that places any signatory after the Accounting Officer is rejected under
+the Act's delegation of authority (the Accounting Officer's approval is
+the final, controlling act). Rejections are recorded on the case's intake
+audit trail (`caseFile.intake[].tableRejectedReason` /
+`signatureRejectedReason`) and reflected in the case history.
+
+**Honest layout-extraction limit.** Column widths and cell padding are
+reliably recoverable only from XLSX (SheetJS `!cols`); mammoth's DOCX
+output does not preserve them, so from a DOCX the system uses the column
+set, table structure and section order — not pixel widths. Layout
+guidance therefore maps to the compliance-safe Enhanced profile plus the
+recorded column/section mapping, never a pixel-for-pixel clone of a form
+whose official layout is mandated. This is by design (compliance first),
+and the four Phase-7 suites (`tests/intake-global-state`,
+`intake-ocr-protocol`, `intake-layout-compliance`, `intake-conflict`)
+lock the behaviour.
+
 ## 10. Miscellaneous
 
 - The folio register's wide gaps ("Folios  1   to   6    refers,") are

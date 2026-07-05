@@ -108,21 +108,22 @@ const { chromium } = require('playwright-core');
   check('minute preview computed words and figure', docText.includes('Four Hundred Dollars ($400.00)'));
   check('minute preview cites the verbal form folio', docText.includes('A verbal quotation form was used'));
 
-  // ingest capabilities honest on file://
-  await page.click('nav.tabs button[data-t="ingest"]');
+  // ingest capabilities honest on file:// — via the global Upload modal
+  await page.click('#btnIntake');
   await page.waitForTimeout(200);
-  const ingText = await page.textContent('#tab-ingest');
+  const ingText = await page.textContent('#intakeBody');
   check('OCR honestly unavailable on file://', ingText.includes('OCR cannot run when the app is opened straight from a folder'));
-  check('xlsx/docx/pdf available', ingText.includes('.docx:') === false || true);
 
-  // csv ingestion through the real staging screen
+  // csv ingestion through the real staging screen (in the modal)
   const csv = 'Items Requested,Quantity Requested,Unit,Total\nBleach,24,32.50,780.00\nWheel Barrow,8,495.00,3970.00\n';
   await page.setInputFiles('#ingestFile', { name: 'quote.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
   await page.waitForTimeout(400);
-  const stagText = await page.textContent('#tab-ingest');
-  check('staging screen shows candidates', stagText.includes('candidate(s) found'));
+  const stagText = await page.textContent('#intakeBody');
+  check('staging screen shows candidates', stagText.includes('Review what was found'));
   check('arithmetic disagreement flagged in staging', stagText.includes('ARITHMETIC DISAGREES'));
   check('bulk accept excludes figures', stagText.includes('never bulk-accepted'));
+  await page.click('#btnIntakeClose');
+  await page.waitForTimeout(150);
 
   // comparison-worksheet editor sanity via the routine working-paper choice
   await page.click('nav.tabs button[data-t="work"]');

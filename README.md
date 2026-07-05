@@ -87,7 +87,9 @@ runs every suite: engine units, byte-parity against the original
 Approvals Composer, the four sample replays, the disposal case-study
 replay, the formal worked example, the module-separation guarantees
 (`tests/modulescope.test.js`), the document-intake engine
-(`tests/intake.test.js`), seventeen further full-system scenarios,
+(`tests/intake.test.js`) and its four Phase-7 suites (global-state
+injection, OCR-protocol handling, layout compliance, conflict
+resolution), seventeen further full-system scenarios,
 storage, ingestion, vendored libraries, and an adversarial suite.
 Nothing in this repository claims a capability that is not demonstrated
 by a passing test. Five browser smoke tests (Playwright + Chromium)

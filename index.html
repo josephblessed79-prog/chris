@@ -12,7 +12,10 @@
     <h1>Ministry of Defence — Procurement Administration</h1>
     <div class="sub">Public Procurement and Disposal of Public Property Act, Act No. 1 of 2015 · Every figure computed, nothing invented · Works entirely on this computer</div>
   </div>
-  <div id="statusPill">NO CASE OPEN</div>
+  <div class="headright">
+    <button class="btn" id="btnIntake" disabled title="Upload a document and extract facts or layout — available at any time">⬆ Upload &amp; Extract Document</button>
+    <div id="statusPill">NO CASE OPEN</div>
+  </div>
 </header>
 
 <nav class="tabs" id="tabs">
@@ -21,7 +24,6 @@
   <button data-t="work" disabled>Working Papers</button>
   <button data-t="vote" disabled>Vote &amp; Funding</button>
   <button data-t="fol" disabled>Folios</button>
-  <button data-t="ingest" disabled>Import Documents</button>
   <button data-t="ver" disabled>Verification</button>
   <button data-t="docs" disabled>Documents</button>
   <button data-t="settings" disabled>Case File &amp; Register</button>
@@ -33,11 +35,22 @@
   <section class="panel" id="tab-work"></section>
   <section class="panel" id="tab-vote"></section>
   <section class="panel" id="tab-fol"></section>
-  <section class="panel" id="tab-ingest"></section>
   <section class="panel" id="tab-ver"></section>
   <section class="panel" id="tab-docs"></section>
   <section class="panel" id="tab-settings"></section>
 </main>
+
+<!-- ============ GLOBAL INTAKE MODAL (available at any time) ============ -->
+<div id="intakeModal" class="modal-overlay" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Upload and extract document">
+    <div class="modal-head">
+      <h2>Upload &amp; Extract Document</h2>
+      <button class="btn sec small" id="btnIntakeClose">Close</button>
+    </div>
+    <div id="intakeBody" class="modal-body"></div>
+  </div>
+</div>
+<div id="toastHost" class="toast-host" aria-live="polite"></div>
 
 <div class="footerbar">
   <span id="autosaveNote" class="hint" style="margin-right:auto;align-self:center"></span>

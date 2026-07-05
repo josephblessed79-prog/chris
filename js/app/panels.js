@@ -47,19 +47,38 @@
     var type = opts.type || 'text';
     var wide = opts.wide ? ' wide' : '';
     var req = opts.req ? ' <span class="req">*</span>' : '';
+    var mark = intakeMark(path);   /* Imported badge / conflict triangle */
     if (type === 'textarea') {
-      return '<label class="f' + wide + '">' + esc(label) + req + '<textarea data-path="' + esc(path) + '" placeholder="' + esc(opts.placeholder || '') + '"></textarea></label>';
+      return '<label class="f' + wide + '">' + esc(label) + req + mark + '<textarea data-path="' + esc(path) + '" placeholder="' + esc(opts.placeholder || '') + '"></textarea></label>';
     }
     if (type === 'checkbox') {
-      return '<label class="f' + wide + '"><input type="checkbox" data-path="' + esc(path) + '"> ' + esc(label) + '</label>';
+      return '<label class="f' + wide + '"><input type="checkbox" data-path="' + esc(path) + '"> ' + esc(label) + mark + '</label>';
     }
     if (type === 'select') {
       var oh = (opts.options || []).map(function (o) {
         return '<option value="' + esc(o[0]) + '">' + esc(o[1]) + '</option>';
       }).join('');
-      return '<label class="f' + wide + '">' + esc(label) + req + '<select data-path="' + esc(path) + '">' + oh + '</select></label>';
+      return '<label class="f' + wide + '">' + esc(label) + req + mark + '<select data-path="' + esc(path) + '">' + oh + '</select></label>';
     }
-    return '<label class="f' + wide + '">' + esc(label) + req + '<input type="' + type + '" data-path="' + esc(path) + '" placeholder="' + esc(opts.placeholder || '') + '"></label>';
+    return '<label class="f' + wide + '">' + esc(label) + req + mark + '<input type="' + type + '" data-path="' + esc(path) + '" placeholder="' + esc(opts.placeholder || '') + '"></label>';
+  }
+
+  /* The blue "Imported" badge or the yellow conflict triangle beside a
+     field whose value came from (or clashes with) a document upload. */
+  function intakeMark(path) {
+    var cf = APP.caseFile;
+    if (!cf || !cf.intakeFields) return '';
+    var f = cf.intakeFields[path];
+    if (!f) return '';
+    if (f.status === 'imported') return ' <span class="imported-badge" title="This value was imported from an uploaded document.">Imported</span>';
+    if (f.status === 'conflict') {
+      return ' <span class="conflict-tri" title="Imported value differs from manual entry.">&#9888;' +
+        '<span class="cf-pop">Imported value differs from manual entry.' +
+        '<div class="hint" style="margin-top:4px">Manual: “' + esc(String(f.manualValue == null ? '' : f.manualValue)) + '” · Imported: “' + esc(String(f.value == null ? '' : f.value)) + '”</div>' +
+        '<div class="row"><button class="btn sec small" data-action="conflict-keep" data-path="' + esc(path) + '">Keep Manual</button>' +
+        '<button class="btn small" data-action="conflict-accept" data-path="' + esc(path) + '">Accept Imported</button></div></span></span>';
+    }
+    return '';
   }
 
   /* ================= START ================= */

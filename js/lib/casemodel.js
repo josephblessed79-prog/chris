@@ -133,6 +133,13 @@
       outputProfile: 'approved',
       /* audit trail of Document Upload / Intake actions on this case. */
       intake: [],
+      /* per-field intake state: path -> { value, manualValue?, source, at,
+         status: 'imported' | 'conflict' | 'manual-kept' }. Drives the
+         "Imported" badge and the conflict triangle beside each field. */
+      intakeFields: {},
+      /* an applied layout guide extracted from an uploaded document
+         (bounded by the compliance check), or null. */
+      intakeLayout: null,
       meta: {
         app: APP, appVersion: APP_VERSION,
         createdAt: now, modifiedAt: now,
@@ -255,6 +262,8 @@
   function ensureFields(cf) {
     if (cf.outputProfile !== 'enhanced') cf.outputProfile = 'approved';
     if (!Array.isArray(cf.intake)) cf.intake = [];
+    if (!cf.intakeFields || typeof cf.intakeFields !== 'object') cf.intakeFields = {};
+    if (cf.intakeLayout === undefined) cf.intakeLayout = null;
     return cf;
   }
 

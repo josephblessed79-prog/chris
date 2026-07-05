@@ -38,39 +38,59 @@
     h += '</ul></fieldset>';
 
     h += '<input type="file" id="ingestFile" style="display:none" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,.png,.jpg,.jpeg,.bmp,.tif,.tiff">';
-    h += '<button class="btn" data-action="ingest-pick">Upload a document…</button> <span id="ingestStatus" class="hint"></span>';
+    h += '<button class="btn" data-action="ingest-pick">Choose a file…</button> <span id="ingestStatus" class="hint"></span>';
     if (APP.ingestWarning) h += '<div class="notice" style="margin-top:10px">' + esc(APP.ingestWarning) + '</div>';
 
     /* Step 3 — the intake analysis (what was found + the layout decision). */
     h += intakeAnalysisHTML();
+
+    /* Step 4 — the staging review table (human-in-the-loop). */
     var cands = APP.ingestCandidates || [];
     if (cands.length) {
       var pending = cands.filter(function (c) { return !c.accepted && !c.rejected; }).length;
-      h += '<div class="notice" style="margin-top:12px"><b>' + cands.length + '</b> candidate(s) found; <b>' + pending + '</b> awaiting a decision. ' +
-        '<button class="btn sec small" data-action="ingest-accept-safe">Accept all suppliers / dates / references</button> ' +
-        '<span class="hint">Figures and item lines are never bulk-accepted — each must be confirmed on its own.</span></div>';
+      var acceptedCount = cands.filter(function (c) { return c.accepted && !c.applied; }).length;
+      h += '<fieldset class="box" style="margin-top:12px"><legend>4. Review what was found — accept, edit or reject each item</legend>';
+      h += '<p class="hint">Nothing enters the case until you accept it and then click <b>Apply Accepted Data to Case</b>. Figures are accepted one at a time. A figure the parser rejected (highlighted red) cannot be accepted until you Edit it to a valid amount.</p>';
+      h += '<div style="margin-bottom:8px"><button class="btn sec small" data-action="ingest-accept-safe">Accept all suppliers / dates / references</button> <span class="hint">Figures and item lines are never bulk-accepted.</span></div>';
+      h += '<div style="overflow-x:auto"><table class="stagetbl"><thead><tr><th style="width:20%">Value</th><th>Source (from the document)</th><th style="width:9%">Confidence</th><th style="width:22%">Goes to</th><th style="width:16%">Action</th></tr></thead><tbody>';
       for (var i = 0; i < cands.length; i++) {
         var c = cands[i];
-        var stateCls = c.accepted ? ' accepted' : c.rejected ? ' rejected' : '';
+        var malformed = c.kind === 'figure' && !M.ingest.canAccept(c);
+        var rowCls = c.accepted ? 'accepted' : c.rejected ? 'rejected' : malformed ? 'bad' : '';
         var valueText = c.kind === 'item-line'
           ? esc(c.value.desc) + ' — qty ' + esc(String(c.value.qty == null ? c.value.qtyRaw : c.value.qty)) + ' × ' + esc(c.value.unit || '?') + (c.value.total ? ' = ' + esc(c.value.total) : '')
           : esc(typeof c.value === 'string' ? c.value : JSON.stringify(c.value));
-        h += '<div class="cand' + stateCls + '">' +
-          '<div class="kind">' + esc(c.kind) + '</div>' +
-          '<div class="body"><div class="v">' + valueText + (c.canonical && c.canonical !== c.value ? ' <span class="hint">→ ' + esc(c.canonical) + '</span>' : '') + '</div>' +
-          '<div class="snip">' + esc(c.snippet) + '</div>' +
-          (c.note ? '<div class="note">' + esc(c.note) + '</div>' : '') + '</div>' +
-          '<span class="conf ' + c.confidence + '">' + c.confidence + '</span>' +
-          '<div class="rowbtns">' +
-          (c.accepted ? '<b style="color:var(--green)">ACCEPTED → ' + esc(c.appliedTo || '') + '</b>'
-            : c.rejected ? '<b>rejected</b> <button class="btn sec small" data-action="cand-unreject" data-i="' + i + '">undo</button>'
-              : targetSelect(c, i) + ' <button class="btn small" data-action="cand-accept" data-i="' + i + '"' + (M.ingest.canAccept(c) ? '' : ' disabled title="Edit the value first — it was rejected by the figure parser."') + '>Accept</button> ' +
-              '<button class="btn sec small" data-action="cand-edit" data-i="' + i + '">Edit</button> ' +
-              '<button class="btn danger small" data-action="cand-reject" data-i="' + i + '">Reject</button>') +
-          '</div></div>';
+        h += '<tr class="' + rowCls + '"><td><b>' + valueText + '</b>' +
+          (c.canonical && c.canonical !== c.value ? ' <span class="hint">→ ' + esc(c.canonical) + '</span>' : '') +
+          '<div class="hint">' + esc(c.kind) + '</div></td>' +
+          '<td><span class="snip">' + esc(c.snippet || '') + '</span>' + (c.note ? '<div class="hint">' + esc(c.note) + '</div>' : '') + '</td>' +
+          '<td><span class="conf ' + esc(c.confidence || 'review') + '">' + esc(c.confidence || 'review') + '</span></td>' +
+          '<td>' + (c.rejected ? '<span class="hint">—</span>' : targetSelect(c, i)) + '</td>' +
+          '<td>' + rowActions(c, i, malformed) + '</td></tr>';
       }
+      h += '</tbody></table></div>';
+      h += '<div style="margin-top:12px;display:flex;gap:10px;align-items:center">' +
+        '<button class="btn" data-action="intake-apply-facts"' + (acceptedCount ? '' : ' disabled') + '>Apply Accepted Data to Case</button>' +
+        '<span class="hint">' + acceptedCount + ' item(s) accepted and ready. ' + pending + ' still awaiting a decision.</span></div>';
+      h += '</fieldset>';
     }
     panel.innerHTML = h;
+  }
+
+  function rowActions(c, i, malformed) {
+    if (c.applied) return '<b style="color:var(--green)">applied ✓</b>';
+    if (c.accepted) return '<b style="color:var(--green)">accepted</b> <button class="btn sec small" data-action="cand-reject" data-i="' + i + '">undo</button>';
+    if (c.rejected) return '<b>rejected</b> <button class="btn sec small" data-action="cand-unreject" data-i="' + i + '">undo</button>';
+    var acceptBtn = '<button class="btn small" data-action="cand-accept" data-i="' + i + '"' +
+      (malformed ? ' disabled title="Edit the figure to a valid amount first"' : '') + '>Accept</button>';
+    return acceptBtn + ' <button class="btn sec small" data-action="cand-edit" data-i="' + i + '">Edit</button> ' +
+      '<button class="btn danger small" data-action="cand-reject" data-i="' + i + '">Reject</button>';
+  }
+
+  /* The default target string for a candidate (the first offered option). */
+  function defaultTargetFor(c) {
+    var m = targetOptions(c);
+    return m.length ? m[0][0] : 'fig-note';
   }
 
   /* The intake analysis for the last uploaded document: what facts were
@@ -118,6 +138,17 @@
           h += '<div class="notice" style="margin:6px 0"><b>Extra parts in your document (kept for information, not added to the form):</b><ul style="margin:4px 0">' +
             notes.map(function (c) { return '<li>' + esc(c.plain) + '</li>'; }).join('') + '</ul></div>';
         }
+        /* Phase 6 — table-column and signature-order compliance */
+        if (a.tableCompliance) {
+          if (a.tableCompliance.compliant) {
+            h += '<div class="notice green" style="margin:6px 0"><b>Table layout:</b> your table keeps the columns the official form requires, so its column arrangement may guide the output.</div>';
+          } else {
+            h += '<div class="notice red" style="margin:6px 0"><b>Table layout not used:</b> ' + esc(a.tableCompliance.reason) + '</div>';
+          }
+        }
+        if (a.sigCompliance && !a.sigCompliance.ok) {
+          h += '<div class="notice red" style="margin:6px 0"><b>Signature order not used:</b> ' + esc(a.sigCompliance.reason) + '</div>';
+        }
       }
     }
 
@@ -140,36 +171,42 @@
 
   /* Where can each kind of candidate go? Options depend on the module
      and the sections the case actually carries. */
-  function targetSelect(c, i) {
+  /* Where a candidate may go, by module and the sections the case carries. */
+  function targetOptions(c) {
     var cf = APP.caseFile;
     var opts = [];
     var routine = cf.module === 'routine', formal = cf.module === 'formal-evaluation', disposal = cf.module === 'disposal';
     if (c.kind === 'supplier') {
-      if (routine && cf.evaluation) opts.push(['eval-supplier', 'Add to comparison-worksheet suppliers']);
-      if (routine && cf.verbal) opts.push(['verbal-contact', 'Add to telephone contacts']);
-      if (routine) opts.push(['item-supplier-row', 'Add a supplier row to the last item']);
-      if (formal) opts.push(['formal-proponent', 'Add as a proponent (firm that submitted)']);
-      if (disposal) opts.push(['disp-transferee', 'Transfer / donation: requesting organisation (Form G)']);
+      if (routine && cf.evaluation) opts.push(['eval-supplier', 'Comparison-worksheet suppliers']);
+      if (routine && cf.verbal) opts.push(['verbal-contact', 'Telephone contacts']);
+      if (routine) opts.push(['item-supplier-row', 'Supplier row on the last item']);
+      if (formal) opts.push(['formal-proponent', 'Proponent (firm that submitted)']);
+      if (disposal) opts.push(['disp-transferee', 'Form G requesting organisation']);
     } else if (c.kind === 'date') {
       opts.push(['date-doc', 'Document date']);
       if (routine) opts.push(['date-rfq', 'RFQ issued date'], ['date-deadline', 'Closing date']);
     } else if (c.kind === 'reference') {
-      opts.push(['ref-minfile', 'File number']);
-      if (routine) opts.push(['ref-letter', 'Letter reference']);
       if (formal) opts.push(['formal-rfpnum', 'RFP / ITB number']);
       if (disposal) opts.push(['disp-ref', 'Disposal request reference']);
+      opts.push(['ref-minfile', 'File number']);
+      if (routine) opts.push(['ref-letter', 'Letter reference']);
     } else if (c.kind === 'figure') {
       if (routine) opts.push(['fig-funds', 'Available funds (cover check)']);
       opts.push(['fig-note', 'Keep on the staging list for reference']);
     } else if (c.kind === 'item-line') {
-      if (routine && cf.evaluation) opts.push(['eval-item', 'Add as comparison-worksheet item (price goes to the named supplier)']);
-      if (routine) opts.push(['case-item', 'Add as case item with a supplier row']);
-      if (disposal) opts.push(['disp-item', 'Add as a disposal property item (Form A/B)']);
-      if (!opts.length) opts.push(['fig-note', 'Keep on the staging list for reference']);
+      if (routine && cf.evaluation) opts.push(['eval-item', 'Comparison-worksheet item']);
+      if (routine) opts.push(['case-item', 'Case item with a supplier row']);
+      if (disposal) opts.push(['disp-item', 'Disposal property item (Form A/B)']);
     }
     if (!opts.length) opts.push(['fig-note', 'Keep on the staging list for reference']);
+    return opts;
+  }
+
+  function targetSelect(c, i) {
+    var opts = targetOptions(c);
+    var current = c.target || opts[0][0];
     return '<select data-cand-target="' + i + '">' + opts.map(function (o) {
-      return '<option value="' + o[0] + '">' + esc(o[1]) + '</option>';
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + esc(o[1]) + '</option>';
     }).join('') + '</select>';
   }
 
@@ -244,5 +281,5 @@
     return 'nowhere (unknown target)';
   }
 
-  window.INGEST_UI = { renderIngest: renderIngest, applyCandidate: applyCandidate };
+  window.INGEST_UI = { renderIngest: renderIngest, applyCandidate: applyCandidate, defaultTargetFor: defaultTargetFor };
 })();

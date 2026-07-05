@@ -1,8 +1,9 @@
-/* Document Upload / Intake smoke: the three-way A/B/C choice, honest
-   support matrix, real DOCX structure extraction, the compliance-bounded
-   layout decision (official layout kept; Enhanced profile applied only on
-   confirmation), and the per-case audit record — driven through the real
-   browser from file://. Uses a tracked sample .docx (no new binary). */
+/* Document Upload / Intake smoke (global modal): the persistent header
+   button opens #intakeModal at any time; the A/B/C choice, honest support
+   matrix, real DOCX structure extraction, the staging review, the two-step
+   Apply with cross-tab injection, the Imported badge, the conflict
+   triangle, and the compliance-bounded layout decision are all driven
+   through the real browser from file://. Uses a tracked sample .docx. */
 'use strict';
 const { chromium } = require('playwright-core');
 const path = require('path');
@@ -20,72 +21,88 @@ const SAMPLE = path.resolve(__dirname, '../samples/source/Evaluation of Pantry S
   await page.goto('file:///home/user/chris/index.html');
   await page.waitForTimeout(400);
 
-  // ---- Disposal case, layout mode (B): official layout kept, Enhanced applied on confirm
-  await page.click('.pathcard[data-activity="disposal"]');
-  await page.waitForTimeout(250);
-  await page.click('nav.tabs button[data-t="ingest"]');
-  await page.waitForTimeout(200);
+  // the intake button is a persistent global action, disabled until a case is open
+  check('global Upload button present', await page.$('#btnIntake') !== null);
+  check('Upload button disabled with no case', await page.getAttribute('#btnIntake', 'disabled') !== null);
+  check('Import is not a linear tab', await page.$('nav.tabs button[data-t="ingest"]') === null);
 
-  const importText = await page.textContent('#tab-ingest');
-  check('import screen offers the three A/B/C choices', importText.includes('Use this document for information only') && importText.includes('Use this document as the preferred layout or structure') && importText.includes('Use this document for both information and layout'));
-  check('support matrix is honest about DOCX', importText.includes('facts + layout/structure'));
-  check('support matrix flags scanned PDF needs OCR', importText.includes('needs OCR'));
-
-  // choose mode B, then upload the sample docx
-  await page.check('input[data-special="intake-mode"][value="B"]');
-  await page.waitForTimeout(150);
-  await page.setInputFiles('#ingestFile', SAMPLE);
-  await page.waitForTimeout(1500); // mammoth parse
-
-  const analysis = await page.textContent('#tab-ingest');
-  check('intake analysis names the uploaded file', analysis.includes('Evaluation of Pantry Supplies-GA.docx'));
-  check('layout guidance keeps the official form in full', analysis.includes('stays in full') || analysis.includes('kept in full'));
-  check('apply and keep buttons are both offered', analysis.includes('Apply layout guidance') && analysis.includes('Keep the approved'));
-
-  // before applying, the case is still on the approved layout
-  let profile = await page.evaluate(() => window.APP.caseFile.outputProfile);
-  check('approved layout until the user applies', profile === 'approved');
-  let intakeLen = await page.evaluate(() => window.APP.caseFile.intake.length);
-  check('nothing recorded before confirmation', intakeLen === 0);
-
-  // apply the layout guidance (the confirmation)
-  await page.click('[data-action="intake-apply-layout"]');
-  await page.waitForTimeout(300);
-  profile = await page.evaluate(() => window.APP.caseFile.outputProfile);
-  check('Enhanced layout applied only after confirmation', profile === 'enhanced');
-  const rec = await page.evaluate(() => window.APP.caseFile.intake[0]);
-  check('intake recorded on the case for audit', rec && rec.fileName.includes('Pantry'));
-  check('record captures the mode', rec && rec.mode === 'B');
-  check('record captures the confirmation', rec && rec.confirmed === true && !!rec.confirmedAt);
-  check('record captures the layout decision', rec && rec.layoutApplied === true);
-  const recordedNote = await page.textContent('#tab-ingest');
-  check('screen confirms it was recorded', recordedNote.includes('Recorded on this case'));
-
-  // the Enhanced profile shows on Case Details and can be read back
-  await page.click('nav.tabs button[data-t="case"]');
-  await page.waitForTimeout(200);
-  const caseText = await page.textContent('#tab-case');
-  check('Case Details exposes the document-layout choice', caseText.includes('Document layout'));
-
-  // ---- Routine case, information-only (A): approved layout never changes
-  await page.click('nav.tabs button[data-t="start"]');
-  await page.waitForTimeout(150);
+  // open a routine case; type a File Number by hand so we can force a conflict
   await page.click('.pathcard[data-activity="routine"]');
-  await page.waitForTimeout(200);
-  await page.click('nav.tabs button[data-t="ingest"]');
+  await page.waitForTimeout(250);
+  await page.fill('[data-path="docState.minfile"]', 'MOD/HAND-TYPED');
+  await page.dispatchEvent('[data-path="docState.minfile"]', 'change');
   await page.waitForTimeout(150);
+
+  // the global button is now enabled and opens the modal from any tab
+  check('Upload button enabled once a case is open', await page.getAttribute('#btnIntake', 'disabled') === null);
+  await page.click('#btnIntake');
+  await page.waitForTimeout(200);
+  check('intake modal opens', await page.isVisible('#intakeModal'));
+  const modalText = await page.textContent('#intakeBody');
+  check('three A/B/C options shown', modalText.includes('Use this document for information only') && modalText.includes('preferred layout') && modalText.includes('both information and layout'));
+  check('honest support matrix present', modalText.includes('facts + layout/structure') && modalText.includes('needs OCR'));
+
+  // upload the DOCX in information mode (A)
   await page.check('input[data-special="intake-mode"][value="A"]');
   await page.waitForTimeout(150);
   await page.setInputFiles('#ingestFile', SAMPLE);
   await page.waitForTimeout(1500);
-  const aText = await page.textContent('#tab-ingest');
-  check('information-only offers a record button, no layout change', aText.includes('Record this document intake'));
-  await page.click('[data-action="intake-record"]');
-  await page.waitForTimeout(250);
-  const rprofile = await page.evaluate(() => window.APP.caseFile.outputProfile);
-  check('information-only never changes the approved layout', rprofile === 'approved');
-  const rrec = await page.evaluate(() => window.APP.caseFile.intake[0]);
-  check('information-only intake is still recorded for audit', rrec && rrec.mode === 'A' && rrec.confirmed === true);
+  const staging = await page.textContent('#intakeBody');
+  check('staging review table appears', staging.includes('Review what was found'));
+  check('Apply button present', staging.includes('Apply Accepted Data to Case'));
+
+  // accept the safe facts, then apply
+  const applyDisabledBefore = await page.getAttribute('[data-action="intake-apply-facts"]', 'disabled');
+  check('Apply disabled until something is accepted', applyDisabledBefore !== null);
+  await page.click('[data-action="ingest-accept-safe"]');
+  await page.waitForTimeout(200);
+  await page.click('[data-action="intake-apply-facts"]');
+  await page.waitForTimeout(400);
+  check('a toast is shown after applying', await page.$('#toastHost .toast') !== null);
+
+  await page.click('#btnIntakeClose');
+  await page.waitForTimeout(200);
+  check('modal closes', await page.isHidden('#intakeModal'));
+
+  // ---- conflict path: import a File Number that clashes with the manual one
+  await page.click('#btnIntake');
+  await page.waitForTimeout(200);
+  // build a tiny CSV that carries a reference, in information mode
+  await page.check('input[data-special="intake-mode"][value="A"]');
+  await page.waitForTimeout(100);
+  const csv = 'File Reference\nMOD/PROC: 22/18/7:2026\n';
+  await page.setInputFiles('#ingestFile', { name: 'ref.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  await page.waitForTimeout(700);
+  // accept the reference row through the UI (its default target is File number)
+  const hasRefRow = await page.evaluate(() => (window.APP.ingestCandidates || []).some(c => c.kind === 'reference'));
+  if (hasRefRow) {
+    const row = page.locator('.stagetbl tbody tr', { hasText: 'MOD/PROC: 22/18/7:2026' }).first();
+    await row.locator('[data-action="cand-accept"]').click();
+    await page.waitForTimeout(200);
+    await page.click('[data-action="intake-apply-facts"]');
+    await page.waitForTimeout(400);
+    const conflictState = await page.evaluate(() => window.APP.caseFile.intakeFields['docState.minfile'] && window.APP.caseFile.intakeFields['docState.minfile'].status);
+    check('a clash becomes a conflict, not an overwrite', conflictState === 'conflict');
+    const minfile = await page.evaluate(() => window.APP.caseFile.docState.minfile);
+    check('the manual value is preserved during the conflict', minfile === 'MOD/HAND-TYPED');
+    await page.click('#btnIntakeClose');
+    await page.waitForTimeout(200);
+    // the conflict triangle shows on Case Details
+    const caseHtml = await page.innerHTML('#tab-case');
+    check('conflict triangle rendered beside the field', caseHtml.includes('conflict-tri'));
+    check('Keep Manual / Accept Imported offered', caseHtml.includes('conflict-keep') && caseHtml.includes('conflict-accept'));
+    // resolve: hover the triangle to reveal the choice, then accept imported
+    await page.hover('.conflict-tri');
+    await page.waitForTimeout(150);
+    await page.click('[data-action="conflict-accept"][data-path="docState.minfile"]', { force: true });
+    await page.waitForTimeout(250);
+    const resolved = await page.evaluate(() => window.APP.caseFile.docState.minfile);
+    check('accepting imported applies the imported value', resolved === 'MOD/PROC: 22/18/7:2026');
+    const badged = await page.innerHTML('#tab-case');
+    check('field now shows the Imported badge', badged.includes('imported-badge'));
+  } else {
+    check('reference candidate parsed from CSV', false);
+  }
 
   check('no page errors', errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));

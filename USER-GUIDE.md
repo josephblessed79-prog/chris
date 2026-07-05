@@ -156,8 +156,10 @@ disagree.
 
 ## Uploading a document (any module)
 
-On the Import / Upload screen you upload a document and first choose, in
-plain words, **how the system should use it**:
+Click **⬆ Upload & Extract Document** in the top bar — it is available at
+any time, from any tab. A window opens over your work; you upload a
+document and first choose, in plain words, **how the system should use
+it**:
 
 - **A — information only.** Read the facts inside and help fill the
   fields. The official form does not change.
@@ -167,23 +169,34 @@ plain words, **how the system should use it**:
 - **C — both.** Use the facts and the look, with the same safety rule.
 
 The system reads a Word (.docx), text-PDF, Excel or CSV file and lists
-what it found — suppliers, dates, figures, item lines — each with the
-snippet it came from and how confident to be. **Nothing enters your case
-until you accept it**, and figures are accepted one by one, never in
-bulk. Anything the system is unsure about is held for your review, not
-guessed. A figure the parser rejected cannot be accepted until you edit
-it to what the source really says. Scanned or image-only PDFs need OCR,
-which only works when IT serves the system over the intranet; the screen
-tells you plainly what each file type supports.
+what it found in a **review table** — each row shows the value, the
+snippet it came from, how confident to be, and where it will go. You
+**Accept**, **Edit** or **Reject** each row, then click **Apply Accepted
+Data to Case**. **Nothing enters your case until you do both.** Figures
+are accepted one by one, never in bulk; a figure the parser rejected is
+shown in red and cannot be accepted until you Edit it to a valid amount.
+Anything the system is unsure about is held for your review, not guessed.
+Scanned or image-only documents need OCR, which only works when IT serves
+the system over the intranet; the screen tells you plainly what each file
+type supports.
+
+When you apply, a small note tells you how many fields changed on this
+tab and how many changed on earlier tabs, with a link to jump back. Every
+field filled from a document shows a small blue **Imported** badge. If a
+document would change a field you had already typed, it is **not**
+overwritten: a yellow warning triangle appears — hover it and choose
+**Keep Manual** or **Accept Imported**.
 
 If you chose a layout option, the system shows what structure it found,
 keeps the official form in full, and — where it is safe — offers the
-**Enhanced professional layout** (cleaner spacing and presentation). It
-never removes required content or changes a mandated form. Any clash is
-explained in plain language, and **you confirm before anything is
-applied.** Every upload is recorded on the case (which document, how it
-was used, what changed) so there is a clear trail. You can also set the
-Approved or Enhanced layout directly on Case Details.
+**Enhanced professional layout** (cleaner spacing and presentation). If
+your document’s table drops a required column (say VAT) or merges Unit
+Price and Total, or puts a signature after the Accounting Officer, the
+system refuses that layout, tells you why in plain words, and keeps the
+official form. Any clash is explained, and **you confirm before anything
+is applied.** Every upload is recorded on the case (which document, how it
+was used, what changed, and anything refused) so there is a clear trail.
+You can also set the Approved or Enhanced layout directly on Case Details.
 
 Whatever route a figure took into the case, the verification
 certificate still requires a person to compare it against the folio

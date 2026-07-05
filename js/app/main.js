@@ -38,9 +38,25 @@
   function render(tab) {
     var panel = el('tab-' + (tab || APP.currentTab));
     if (!panel) return;
-    if ((tab || APP.currentTab) === 'ingest') { INGEST_UI.renderIngest(panel); return; }
     var fn = PANELS[tab || APP.currentTab];
     if (fn) fn(panel);
+    updatePill();
+  }
+
+  /* ---------- global intake modal (available at any time) ---------- */
+  function refreshIntake() {
+    var host = el('intakeBody');
+    if (host && INGEST_UI) INGEST_UI.renderIngest(host);
+  }
+  function openIntakeModal() {
+    if (!APP.caseFile) { alert('Start or open a case first, then upload a document into it.'); return; }
+    el('intakeModal').hidden = false;
+    refreshIntake();
+  }
+  function closeIntakeModal() {
+    el('intakeModal').hidden = true;
+    /* refresh the current tab so any Imported badges / conflicts show */
+    render(APP.currentTab);
     updatePill();
   }
 
@@ -57,6 +73,7 @@
       }
     }
     el('btnSave').disabled = !enabled;
+    el('btnIntake').disabled = !enabled;
   }
 
   function updatePill() {
@@ -146,6 +163,9 @@
   }
 
   el('btnSave').addEventListener('click', saveCase);
+  el('btnIntake').addEventListener('click', openIntakeModal);
+  el('btnIntakeClose').addEventListener('click', closeIntakeModal);
+  el('intakeModal').addEventListener('click', function (e) { if (e.target && e.target.id === 'intakeModal') closeIntakeModal(); });
   el('loadFile').addEventListener('change', function () {
     var f = this.files[0];
     this.value = '';
@@ -206,17 +226,35 @@
 
   function handleIngestFile(file) {
     var status = el('ingestStatus');
+    var ext = M.ingestfiles.extOf(file.name);
+    var protocol = (window.location && window.location.protocol) || 'file:';
+    /* OCR / file:// handling (Phase 3): for an image (known to need OCR)
+       abort gracefully with the exact message before any parsing. */
+    if (['png', 'jpg', 'jpeg', 'bmp', 'tif', 'tiff'].indexOf(ext) >= 0) {
+      var od = M.intake.ocrDecision(protocol, 'image');
+      if (od.abort) { APP.ingestCandidates = []; APP.ingestWarning = od.message; APP.intakeAnalysis = null; refreshIntake(); return; }
+    }
     if (status) status.textContent = 'Reading ' + file.name + '…';
     M.ingestfiles.ingestFile(file).then(function (res) {
+      /* a PDF with no text layer comes back as 'pdf-scanned'; on file://
+         OCR cannot run, so give the same exact plain-language warning. */
+      if (res.kind === 'pdf-scanned') {
+        var od2 = M.intake.ocrDecision(protocol, 'pdf-scanned');
+        if (od2.abort) { APP.ingestCandidates = []; APP.ingestWarning = od2.message; APP.intakeAnalysis = null; refreshIntake(); return; }
+      }
       APP.ingestCandidates = res.candidates;
       APP.ingestWarning = res.warning || '';
+      APP.lastIngestFile = file; APP.lastIngestRes = res;
+      /* seed each candidate's default target so the staging screen can show
+         where each fact will go, and Apply can act without re-deriving it */
+      (APP.ingestCandidates || []).forEach(function (c) { c.target = INGEST_UI.defaultTargetFor(c); });
       buildIntakeAnalysis(file, res);
-      render('ingest');
+      refreshIntake();
     }).catch(function (e) {
       APP.ingestCandidates = [];
       APP.ingestWarning = '';
       APP.intakeAnalysis = null;
-      render('ingest');
+      refreshIntake();
       var s2 = el('ingestStatus');
       if (s2) s2.textContent = 'Could not import: ' + e.message;
     });
@@ -236,10 +274,21 @@
     var layoutProfile = res.structure ? M.intake.analyzeStructure(res.structure) : null;
     var official = M.intake.officialStructureFor(cf.module);
     var layoutPlan = M.intake.planLayout(mode, kind, layoutProfile, official);
+    /* Phase 6 — table-column and signature-order compliance, only when a
+       layout mode is chosen and the document actually carries a table. */
+    var tableCompliance = null, sigCompliance = null;
+    if ((mode === 'B' || mode === 'C') && res.structure) {
+      var layout = M.intake.extractTableLayout(res.structure);
+      var officialCols = M.intake.officialTableFor(cf.module);
+      var firstTable = layout.tables.filter(function (t) { return t.columns.length >= 2; })[0];
+      if (firstTable && officialCols) tableCompliance = M.intake.checkTableCompliance(firstTable.columns, officialCols);
+      if (layout.signatureOrder && layout.signatureOrder.length) sigCompliance = M.intake.signatureCompliance(layout.signatureOrder);
+    }
     APP.intakeAnalysis = {
       fileName: file.name, kind: kind, support: M.intake.supportFor(kind),
       mode: mode, extractionSummary: extractionSummary,
       layoutProfile: layoutProfile, layoutPlan: layoutPlan, official: official,
+      tableCompliance: tableCompliance, sigCompliance: sigCompliance,
       recorded: false
     };
   }
@@ -261,12 +310,96 @@
       extractionSummary: a.extractionSummary, layoutDecision: plan, appliedFacts: accepted, confirmed: true
     });
     rec.layoutApplied = !!(applyLayout && plan && plan.applied);
+    /* Phase 6 — record the compliance outcomes. A rejected table layout or
+       signature order is logged here (the case audit trail); the official
+       form is always kept. */
+    rec.tableCompliance = a.tableCompliance || null;
+    rec.sigCompliance = a.sigCompliance || null;
+    if (a.tableCompliance && !a.tableCompliance.compliant) rec.tableRejectedReason = a.tableCompliance.reason;
+    if (a.sigCompliance && !a.sigCompliance.ok) rec.signatureRejectedReason = a.sigCompliance.reason;
     if (!Array.isArray(cf.intake)) cf.intake = [];
     cf.intake.push(rec);
-    cf.meta.history.push({ at: rec.at, event: 'intake', detail: 'Document "' + a.fileName + '" used (' + rec.modeLabel + ')' + (rec.layoutApplied ? '; Enhanced layout applied' : '') + (a.mode !== 'A' && !rec.layoutApplied ? '; approved layout kept' : '') });
+    var extra = (rec.tableRejectedReason ? '; table layout rejected (official kept)' : '') + (rec.signatureRejectedReason ? '; signature order rejected (official kept)' : '');
+    cf.meta.history.push({ at: rec.at, event: 'intake', detail: 'Document "' + a.fileName + '" used (' + rec.modeLabel + ')' + (rec.layoutApplied ? '; Enhanced layout applied' : '') + (a.mode !== 'A' && !rec.layoutApplied ? '; approved layout kept' : '') + extra });
     a.recorded = true;
     touchAndAutosave();
-    render('ingest');
+    refreshIntake();
+  }
+
+  /* Field-target strings that map to a single case field path (the rest
+     append to lists and are handled by INGEST_UI.applyCandidate). */
+  var FIELD_TARGET_PATH = {
+    'ref-minfile': 'docState.minfile', 'ref-letter': 'docState.ref',
+    'formal-rfpnum': 'formal.rfpNumber', 'disp-ref': 'disposal.requestRef',
+    'date-doc': 'docState.date', 'date-rfq': 'docState.rfqdate', 'date-deadline': 'docState.deadline',
+    'fig-funds': 'docState.funds', 'disp-transferee': 'disposal.transfer.toOrg'
+  };
+
+  /* Phase 5 — apply every staged (accepted) fact to the case. Simple-field
+     facts go through the conflict-aware engine; list facts append. Then
+     re-render everything, show Imported badges / conflict triangles, and
+     raise the cross-tab toast. */
+  function applyIntakeFacts() {
+    var cf = APP.caseFile;
+    var accepted = (APP.ingestCandidates || []).filter(function (c) { return c.accepted && !c.rejected && !c.applied; });
+    if (!accepted.length) { alert('Accept at least one item first (each figure individually).'); return; }
+    if (cf.module === 'disposal') M.disposal.upgrade(cf.disposal);
+    var fieldFacts = [], appendCount = 0;
+    accepted.forEach(function (c) {
+      var target = c.target || INGEST_UI.defaultTargetFor(c);
+      var path = FIELD_TARGET_PATH[target];
+      if (path) {
+        fieldFacts.push({ path: path, value: (c.canonical || c.value), kind: c.kind, source: c.snippet || '' });
+      } else if (target && target !== 'fig-note') {
+        INGEST_UI.applyCandidate(c, target); appendCount++;
+      }
+      c.applied = true;
+      c.appliedTo = c.target || '';
+    });
+    var result = M.intake.applyAcceptedFacts(cf, fieldFacts);
+    recordIntakeFromApply(result, accepted, appendCount);
+    var summary = M.intake.summarizeUpdate(result.byTab, APP.currentTab);
+    showApplyToast(result, summary, appendCount);
+    touchAndAutosave();
+    refreshIntake();
+    render(APP.currentTab);
+  }
+
+  function recordIntakeFromApply(result, accepted, appendCount) {
+    var cf = APP.caseFile, a = APP.intakeAnalysis || {};
+    var appliedFacts = accepted.map(function (c) { return { kind: c.kind, value: c.canonical || c.value, to: c.target || '' }; });
+    var rec = M.intake.buildRecord({
+      at: new Date().toISOString(), fileName: a.fileName || '', fileKind: a.kind || 'unknown', mode: a.mode || 'A',
+      extractionSummary: a.extractionSummary || null, layoutDecision: a.layoutPlan || null, appliedFacts: appliedFacts, confirmed: true
+    });
+    rec.fieldsUpdated = result.updated.length;
+    rec.fieldConflicts = result.conflicts.slice();
+    rec.rejectedFigures = result.rejected.length;
+    rec.listItemsAdded = appendCount;
+    if (!Array.isArray(cf.intake)) cf.intake = [];
+    cf.intake.push(rec);
+    cf.meta.history.push({ at: rec.at, event: 'intake-apply', detail: result.updated.length + ' field(s) updated, ' + result.conflicts.length + ' conflict(s), ' + appendCount + ' list item(s), from "' + (a.fileName || 'upload') + '"' });
+  }
+
+  /* ---------- toasts ---------- */
+  function showToast(html, autohide) {
+    var host = el('toastHost');
+    if (!host) return;
+    var n = document.createElement('div');
+    n.className = 'toast';
+    n.innerHTML = '<span class="x" data-action="toast-close">✕</span>' + html;
+    host.appendChild(n);
+    if (autohide !== false) setTimeout(function () { if (n.parentNode) n.remove(); }, 11000);
+  }
+  function closeToasts() { var h = el('toastHost'); if (h) h.innerHTML = ''; }
+  function showApplyToast(result, summary, appendCount) {
+    var esc = M.textutil.esc;
+    var parts = ['<b>' + esc(summary.text) + '</b>'];
+    if (appendCount) parts.push(appendCount + ' item(s) added to lists.');
+    if (result.conflicts.length) parts.push(result.conflicts.length + ' field(s) need a choice — see the yellow triangle beside the field.');
+    if (result.rejected.length) parts.push(result.rejected.length + ' malformed figure(s) were not applied.');
+    var link = (summary.others > 0 && summary.earliestTab) ? ' <a data-action="toast-goto" data-tab="' + summary.earliestTab + '">Go to ' + esc(summary.earliestTabLabel) + '</a>' : '';
+    showToast(parts.join(' ') + link);
   }
 
   /* ---------- edit synchronisation (event delegation) ---------- */
@@ -312,7 +445,12 @@
         render('work');
         return true;
       }
-      if (attr === 'intake-mode') { APP.intakeMode = v; render('ingest'); return true; }
+      if (attr === 'intake-mode') {
+        APP.intakeMode = v;
+        if (APP.lastIngestFile && APP.lastIngestRes) buildIntakeAnalysis(APP.lastIngestFile, APP.lastIngestRes);
+        refreshIntake();
+        return true;
+      }
       if (attr === 'outputProfile') {
         cf.outputProfile = (v === 'enhanced') ? 'enhanced' : 'approved';
         cf.meta.history.push({ at: new Date().toISOString(), event: 'output-profile', detail: 'Output profile set to ' + cf.outputProfile });
@@ -537,6 +675,13 @@
      capturing every bound field so nothing typed is lost. */
   document.body.addEventListener('change', function (e) {
     var t = e.target;
+    /* modal staging: the per-row target select just records the target;
+       do not touch the case or re-render the tab underneath. */
+    if (t.hasAttribute && t.hasAttribute('data-cand-target')) {
+      var ci = +t.getAttribute('data-cand-target');
+      if (APP.ingestCandidates[ci]) APP.ingestCandidates[ci].target = t.value;
+      return;
+    }
     var structural = t.tagName === 'SELECT' || t.type === 'checkbox' || t.type === 'radio' || t.type === 'file';
     if (handleEdit(t)) {
       syncPanelFromDOM();
@@ -792,28 +937,28 @@
     },
     'ingest-pick': pickIngestFile,
     'ingest-accept-safe': function () {
+      /* Bulk-accept the safe kinds only (suppliers / dates / references).
+         Figures and item lines are never bulk-accepted (Phase 4). */
       APP.ingestCandidates.forEach(function (c) {
-        if (!c.accepted && !c.rejected && M.ingest.canBulkAccept(c) && M.ingest.canAccept(c)) {
-          /* bulk accept keeps safe kinds on the list marked accepted for
-             reference — they are applied individually where a target matters */
-          c.accepted = true;
-          c.appliedTo = 'kept for reference (apply individually to place it)';
-        }
+        if (!c.accepted && !c.rejected && M.ingest.canBulkAccept(c) && M.ingest.canAccept(c)) c.accepted = true;
       });
-      render('ingest');
-      touchAndAutosave();
+      refreshIntake();
     },
     'cand-accept': function (t) {
       var i = +t.getAttribute('data-i');
       var c = APP.ingestCandidates[i];
-      if (!M.ingest.canAccept(c)) return;
+      if (!M.ingest.canAccept(c)) return;   /* malformed figure: blocked until edited */
       var sel = document.querySelector('[data-cand-target="' + i + '"]');
-      var target = sel ? sel.value : '';
-      c.accepted = true;
-      c.appliedTo = INGEST_UI.applyCandidate(c, target);
-      render('ingest');
-      touchAndAutosave();
+      if (sel) c.target = sel.value;
+      c.accepted = true;                     /* stage only; applied on "Apply Accepted Data" */
+      refreshIntake();
     },
+    'cand-target': function (t) {
+      APP.ingestCandidates[+t.getAttribute('data-i')].target = t.value;
+    },
+    /* Phase 5 — apply every staged fact to the case, with cross-tab
+       injection, conflict detection, badges and the toast. */
+    'intake-apply-facts': applyIntakeFacts,
     'cand-edit': function (t) {
       var c = APP.ingestCandidates[+t.getAttribute('data-i')];
       var cur = c.kind === 'item-line' ? JSON.stringify(c.value) : String(c.value);
@@ -830,13 +975,18 @@
       } else {
         c.value = next; c.canonical = next; c.edited = true;
       }
-      render('ingest');
+      refreshIntake();
     },
-    'cand-reject': function (t) { APP.ingestCandidates[+t.getAttribute('data-i')].rejected = true; render('ingest'); },
-    'cand-unreject': function (t) { APP.ingestCandidates[+t.getAttribute('data-i')].rejected = false; render('ingest'); },
+    'cand-reject': function (t) { APP.ingestCandidates[+t.getAttribute('data-i')].rejected = true; refreshIntake(); },
+    'cand-unreject': function (t) { APP.ingestCandidates[+t.getAttribute('data-i')].rejected = false; refreshIntake(); },
     'intake-apply-layout': function () { recordIntake(true); },
     'intake-keep-layout': function () { recordIntake(false); },
-    'intake-record': function () { recordIntake(false); }
+    'intake-record': function () { recordIntake(false); },
+    /* conflict resolution beside a field (Phase 5) */
+    'conflict-keep': function (t) { M.intake.resolveConflict(APP.caseFile, t.getAttribute('data-path'), 'manual'); render(APP.currentTab); touchAndAutosave(); },
+    'conflict-accept': function (t) { M.intake.resolveConflict(APP.caseFile, t.getAttribute('data-path'), 'imported'); render(APP.currentTab); touchAndAutosave(); },
+    'toast-goto': function (t) { closeToasts(); closeIntakeModal(); go(t.getAttribute('data-tab')); },
+    'toast-close': function (t) { var n = t.closest('.toast'); if (n) n.remove(); }
   };
 
   document.body.addEventListener('click', function (e) {
