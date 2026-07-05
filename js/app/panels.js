@@ -103,6 +103,11 @@
        asked ONLY while the starting folio is above 1 — with folio start 1
        the sheet number already aligns and there is nothing to decide. */
     h += '<div data-compute="sheet-number-box">' + sheetNumberBoxHTML(cf) + '</div>';
+    h += '<label class="f wide" style="margin-top:6px">Document layout<select data-special="outputProfile">' +
+      '<option value="approved"' + (cf.outputProfile !== 'enhanced' ? ' selected' : '') + '>Approved / official layout (default)</option>' +
+      '<option value="enhanced"' + (cf.outputProfile === 'enhanced' ? ' selected' : '') + '>Enhanced professional layout</option>' +
+      '</select></label>';
+    h += '<p class="hint">The <b>Approved</b> layout is the official, sample-verified look and never changes. The <b>Enhanced</b> layout refines spacing and presentation only — it never alters a mandated form’s structure or removes required content, and it is only offered where it is safe. You can also set this by uploading a document on the Import screen and choosing a layout option.</p>';
     h += '</fieldset>';
     h += '<fieldset class="box"><legend>Reference and subject</legend><div class="grid">';
     h += fieldHTML('Minute file number (File No)', 'docState.minfile', { req: true, placeholder: 'e.g. MOD/PROC: 22/18/7:2026' });

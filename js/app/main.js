@@ -13,6 +13,8 @@
     currentDoc: null,
     ingestCandidates: [],
     ingestWarning: '',
+    intakeMode: 'A',
+    intakeAnalysis: null,
     registerIndex: null,
     registerTexts: {},
     autosaveEnabled: true
@@ -208,14 +210,63 @@
     M.ingestfiles.ingestFile(file).then(function (res) {
       APP.ingestCandidates = res.candidates;
       APP.ingestWarning = res.warning || '';
+      buildIntakeAnalysis(file, res);
       render('ingest');
     }).catch(function (e) {
       APP.ingestCandidates = [];
       APP.ingestWarning = '';
+      APP.intakeAnalysis = null;
       render('ingest');
       var s2 = el('ingestStatus');
       if (s2) s2.textContent = 'Could not import: ' + e.message;
     });
+  }
+
+  /* Turn a parsed import into an intake analysis for the chosen mode: the
+     extraction summary and, for layout modes, the structure, the
+     compliance-bounded layout plan and any conflicts. Nothing is applied
+     here — the user reviews and confirms in the Import screen. */
+  function buildIntakeAnalysis(file, res) {
+    var cf = APP.caseFile;
+    var mode = APP.intakeMode || 'A';
+    var kind = res.kind || M.intake.fileKind(file.name, file.type);
+    var extractionSummary = M.intake.summarizeExtraction((res.candidates || []).map(function (c) {
+      return { kind: c.kind, label: c.kind, value: (c.canonical || (typeof c.value === 'string' ? c.value : JSON.stringify(c.value))), confidence: c.confidence };
+    }));
+    var layoutProfile = res.structure ? M.intake.analyzeStructure(res.structure) : null;
+    var official = M.intake.officialStructureFor(cf.module);
+    var layoutPlan = M.intake.planLayout(mode, kind, layoutProfile, official);
+    APP.intakeAnalysis = {
+      fileName: file.name, kind: kind, support: M.intake.supportFor(kind),
+      mode: mode, extractionSummary: extractionSummary,
+      layoutProfile: layoutProfile, layoutPlan: layoutPlan, official: official,
+      recorded: false
+    };
+  }
+
+  /* Record the intake decision on the case (audit) and, if the user chose
+     to apply layout guidance, switch the output profile to Enhanced. This
+     IS the user confirmation — nothing official changes before it. */
+  function recordIntake(applyLayout) {
+    var cf = APP.caseFile, a = APP.intakeAnalysis;
+    if (!cf || !a) return;
+    var accepted = (APP.ingestCandidates || []).filter(function (c) { return c.accepted; })
+      .map(function (c) { return { kind: c.kind, value: c.canonical || c.value, to: c.appliedTo || '' }; });
+    var plan = a.layoutPlan;
+    if (applyLayout && plan && plan.applied) {
+      cf.outputProfile = 'enhanced';
+    }
+    var rec = M.intake.buildRecord({
+      at: new Date().toISOString(), fileName: a.fileName, fileKind: a.kind, mode: a.mode,
+      extractionSummary: a.extractionSummary, layoutDecision: plan, appliedFacts: accepted, confirmed: true
+    });
+    rec.layoutApplied = !!(applyLayout && plan && plan.applied);
+    if (!Array.isArray(cf.intake)) cf.intake = [];
+    cf.intake.push(rec);
+    cf.meta.history.push({ at: rec.at, event: 'intake', detail: 'Document "' + a.fileName + '" used (' + rec.modeLabel + ')' + (rec.layoutApplied ? '; Enhanced layout applied' : '') + (a.mode !== 'A' && !rec.layoutApplied ? '; approved layout kept' : '') });
+    a.recorded = true;
+    touchAndAutosave();
+    render('ingest');
   }
 
   /* ---------- edit synchronisation (event delegation) ---------- */
@@ -259,6 +310,13 @@
         if (v === 'items') cf.verbal = null;
         if (v === 'worksheet' && !cf.evaluation) cf.evaluation = M.evaluation.newEvaluation();
         render('work');
+        return true;
+      }
+      if (attr === 'intake-mode') { APP.intakeMode = v; render('ingest'); return true; }
+      if (attr === 'outputProfile') {
+        cf.outputProfile = (v === 'enhanced') ? 'enhanced' : 'approved';
+        cf.meta.history.push({ at: new Date().toISOString(), event: 'output-profile', detail: 'Output profile set to ' + cf.outputProfile });
+        render('case');
         return true;
       }
       return true;
@@ -775,7 +833,10 @@
       render('ingest');
     },
     'cand-reject': function (t) { APP.ingestCandidates[+t.getAttribute('data-i')].rejected = true; render('ingest'); },
-    'cand-unreject': function (t) { APP.ingestCandidates[+t.getAttribute('data-i')].rejected = false; render('ingest'); }
+    'cand-unreject': function (t) { APP.ingestCandidates[+t.getAttribute('data-i')].rejected = false; render('ingest'); },
+    'intake-apply-layout': function () { recordIntake(true); },
+    'intake-keep-layout': function () { recordIntake(false); },
+    'intake-record': function () { recordIntake(false); }
   };
 
   document.body.addEventListener('click', function (e) {

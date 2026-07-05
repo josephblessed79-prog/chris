@@ -126,6 +126,13 @@
       /* null until decided; 'manual' | 'follow-folio'. The question is
          only put to the user when folioStart is above 1 (see verifycase). */
       sheetNumbering: null,
+      /* 'approved' (default; approved/sample-verified layouts unchanged) or
+         'enhanced' (professional presentation profile — never alters a
+         mandated form structure). Only leaves 'approved' when the user
+         deliberately chooses a layout option and confirms it. */
+      outputProfile: 'approved',
+      /* audit trail of Document Upload / Intake actions on this case. */
+      intake: [],
       meta: {
         app: APP, appVersion: APP_VERSION,
         createdAt: now, modifiedAt: now,
@@ -226,10 +233,12 @@
       var errs = validate(obj);
       if (errs.length) return { ok: false, caseFile: null, report: [], errors: errs };
       repairV1(obj.docState);
+      ensureFields(obj);
       return { ok: true, caseFile: obj, report: [], errors: [] };
     }
     if (v === 2) {
       var m2 = migrateV2(obj, nowIso);
+      ensureFields(m2.caseFile);
       var errs2 = validate(m2.caseFile);
       if (errs2.length) return { ok: false, caseFile: null, report: [], errors: errs2 };
       return { ok: true, caseFile: m2.caseFile, report: m2.report, errors: [] };
@@ -239,6 +248,14 @@
       return { ok: true, caseFile: m1.caseFile, report: m1.report, errors: [] };
     }
     return { ok: false, caseFile: null, report: [], errors: ['This file is not a case file saved by this system, nor a draft saved by the Approvals Composer.'] };
+  }
+
+  /* Backfill fields added after a case was first saved, so an older v3
+     (or freshly migrated) case gains the new defaults without loss. */
+  function ensureFields(cf) {
+    if (cf.outputProfile !== 'enhanced') cf.outputProfile = 'approved';
+    if (!Array.isArray(cf.intake)) cf.intake = [];
+    return cf;
   }
 
   /* Structural validation of a v3 case file. Returns a list of problems;
@@ -259,6 +276,10 @@
     if (cf.sheetNumbering != null && cf.sheetNumbering !== 'manual' && cf.sheetNumbering !== 'follow-folio') {
       errs.push('sheetNumbering must be "manual", "follow-folio", or unset.');
     }
+    if (cf.outputProfile != null && cf.outputProfile !== 'approved' && cf.outputProfile !== 'enhanced') {
+      errs.push('outputProfile must be "approved", "enhanced", or unset.');
+    }
+    if (cf.intake != null && !Array.isArray(cf.intake)) errs.push('intake must be a list.');
     if (!cf.meta || typeof cf.meta !== 'object' || !Array.isArray(cf.meta.history)) errs.push('meta.history missing.');
     return errs;
   }

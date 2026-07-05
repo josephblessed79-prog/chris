@@ -97,18 +97,77 @@
         });
       }, Promise.resolve('')).then(function (text) {
         if (!text.replace(/\s/g, '')) {
-          return { text: '', candidates: [], warning: 'This PDF has no readable text layer — it is probably a scan. Use OCR (if available) or type from the paper.' };
+          return { text: '', candidates: [], warning: 'This PDF has no readable text layer — it is probably a scan. Use OCR (if available) or type from the paper.', kind: 'pdf-scanned', structure: null };
         }
-        return { text: text, candidates: ingest.extractFromText(text, 'pdf'), warning: '' };
+        return { text: text, candidates: ingest.extractFromText(text, 'pdf'), warning: '', kind: 'pdf-text', structure: structureFromText(text) };
       });
     });
   }
 
+  /* Approximate structure from plain text: all-caps or title lines become
+     headings. Used for text PDFs (limited structure guidance). */
+  function structureFromText(text) {
+    var out = { headings: [], tables: [], paragraphs: [], hasSignatureBlocks: false, hasLetterhead: false };
+    var lines = String(text || '').split(/\n+/);
+    var seen = {};
+    for (var i = 0; i < lines.length; i++) {
+      var l = lines[i].trim();
+      if (!l) continue;
+      out.paragraphs.push(l);
+      if (l.length > 2 && l.length <= 60 && l === l.toUpperCase() && /[A-Z]/.test(l) && !/\d{3,}/.test(l) && !seen[l]) { seen[l] = 1; out.headings.push(l); }
+    }
+    out.hasSignatureBlocks = /signature|signed by|name in block letters|_{6,}/i.test(text);
+    out.hasLetterhead = /logo|letterhead/i.test(text);
+    return out;
+  }
+
+  /* Build a coarse structural view of a document from mammoth HTML, for
+     the intake layout-guidance feature. Headings come from heading styles
+     and from short bold / all-caps lines; table columns from each table's
+     first row. Deliberately approximate — the intake engine treats it as a
+     guide, never as authority (the official template always wins). */
+  function structureFromHtml(html) {
+    var out = { headings: [], tables: [], paragraphs: [], hasSignatureBlocks: false, hasLetterhead: false };
+    if (typeof DOMParser === 'undefined') return out;
+    var doc = new DOMParser().parseFromString(html || '', 'text/html');
+    var seen = {};
+    function addHeading(txt) {
+      var t = (txt || '').trim();
+      if (t && t.length <= 80 && !seen[t]) { seen[t] = 1; out.headings.push(t); }
+    }
+    var nodes = doc.body ? doc.body.childNodes : [];
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (el.nodeType !== 1) continue;
+      var tag = el.tagName.toLowerCase();
+      var txt = (el.textContent || '').trim();
+      if (/^h[1-6]$/.test(tag)) addHeading(txt);
+      else if (tag === 'p') {
+        out.paragraphs.push(txt);
+        var strongOnly = el.children.length === 1 && el.children[0].tagName === 'STRONG' && el.children[0].textContent.trim() === txt;
+        var allCaps = txt.length > 2 && txt.length <= 60 && txt === txt.toUpperCase() && /[A-Z]/.test(txt);
+        if ((strongOnly || allCaps) && txt) addHeading(txt);
+      } else if (tag === 'table') {
+        var firstRow = el.querySelector('tr');
+        var cols = firstRow ? Array.prototype.map.call(firstRow.querySelectorAll('td,th'), function (c) { return (c.textContent || '').trim(); }).filter(Boolean) : [];
+        out.tables.push({ columns: cols, rowCount: el.querySelectorAll('tr').length });
+      }
+    }
+    var all = (doc.body ? doc.body.textContent : '') || '';
+    out.hasSignatureBlocks = /signature|signed by|name in block letters|_{6,}/i.test(all);
+    out.hasLetterhead = /logo|letterhead|insert your logo/i.test(all + ' ' + (html || ''));
+    return out;
+  }
+
   function fromDocx(file) {
     return readAsArrayBuffer(file).then(function (buf) {
-      return window.mammoth.extractRawText({ arrayBuffer: buf });
-    }).then(function (res) {
-      return { text: res.value, candidates: ingest.extractFromText(res.value, 'docx'), warning: '' };
+      return Promise.all([
+        window.mammoth.extractRawText({ arrayBuffer: buf }),
+        window.mammoth.convertToHtml({ arrayBuffer: buf }).catch(function () { return { value: '' }; })
+      ]);
+    }).then(function (both) {
+      var text = both[0].value, html = both[1].value || '';
+      return { text: text, candidates: ingest.extractFromText(text, 'docx'), warning: '', kind: 'docx', structure: structureFromHtml(html) };
     });
   }
 
@@ -123,7 +182,7 @@
       });
       /* also scan the flattened text for suppliers / dates / references */
       candidates = candidates.concat(ingest.extractSuppliers(textAll, 'xlsx'), ingest.extractDates(textAll, 'xlsx'), ingest.extractReferences(textAll, 'xlsx'));
-      return { text: textAll, candidates: candidates, warning: '' };
+      return { text: textAll, candidates: candidates, warning: '', kind: 'xlsx', structure: null };
     });
   }
 
@@ -132,7 +191,7 @@
       var rows = ingest.parseCSV(text);
       var candidates = ingest.extractItemsFromRows(rows, 'csv')
         .concat(ingest.extractSuppliers(text, 'csv'), ingest.extractDates(text, 'csv'), ingest.extractReferences(text, 'csv'));
-      return { text: text, candidates: candidates, warning: '' };
+      return { text: text, candidates: candidates, warning: '', kind: 'csv', structure: null };
     });
   }
 
@@ -151,7 +210,9 @@
           return {
             text: text,
             candidates: ingest.extractFromText(text, 'ocr'),
-            warning: ingest.OCR_NOTE
+            warning: ingest.OCR_NOTE,
+            kind: 'pdf-text',
+            structure: structureFromText(text)
           };
         });
       });
@@ -177,7 +238,7 @@
     if (ext === 'csv') return fromCsv(file);
     if (ext === 'txt') {
       return readAsText(file).then(function (text) {
-        return { text: text, candidates: ingest.extractFromText(text, 'text'), warning: '' };
+        return { text: text, candidates: ingest.extractFromText(text, 'text'), warning: '', kind: 'pdf-text', structure: structureFromText(text) };
       });
     }
     if (['png', 'jpg', 'jpeg', 'bmp', 'tif', 'tiff'].indexOf(ext) >= 0) return fromImageOcr(file);
