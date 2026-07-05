@@ -47,9 +47,13 @@
       if (caseFile.disposal) {
         out.push({ id: 'disposal-form-a', label: 'Form A — Request for Asset Disposal' });
         out.push({ id: 'disposal-form-b', label: 'Form B — Inventory & Inspection Report' });
-        out.push({ id: 'disposal-form-c', label: 'Form C — Committee Appraisal Report' });
+        out.push({ id: 'disposal-form-c', label: 'Form C — Appraisal Report' });
+        out.push({ id: 'disposal-form-c-catalogue', label: 'Form C — Appraisal Catalogue (optional annex)' });
         out.push({ id: 'disposal-form-d', label: 'Form D — Disposal Strategy Development Report' });
-        out.push({ id: 'disposal-form-e', label: 'Form E — Strategy Approval / Signature Form' });
+        out.push({ id: 'disposal-form-e', label: 'Form E — Strategy Approval Form' });
+        out.push({ id: 'disposal-form-f', label: 'Form F — Summary Report of Approved Disposal Action' });
+        out.push({ id: 'disposal-form-g', label: 'Form G — Transfer / Donation of Excess Property' });
+        out.push({ id: 'disposal-form-h', label: 'Form H — Notice of Rejection' });
       }
       return out;
     }

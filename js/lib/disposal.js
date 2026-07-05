@@ -66,8 +66,8 @@
 
   var fmtMoney = money.fmtMoney;
 
-  var AUTHORITY = 'OPR Retention & Disposal of Public Property Handbook (HGRD02 05-2023 v3.0) and OPR Sample Disposal Case Study #1 (Sept 2021 v1.0), under the Act (Part VI) and the Retention and Disposal of Personal Property Regulations 2021.';
-  var PENDING = 'Forms F, G and H and real-property disposals remain pending their format authority.';
+  var AUTHORITY = 'OPR Disposal Templates (Forms A–H) and the OPR Retention & Disposal of Public Property Handbook (HGRD02 05-2023 v3.0), with the Sample Disposal Case Study #1 (Sept 2021 v1.0), under the Act (Part VI) and the Retention and Disposal of Personal Property Regulations 2021.';
+  var PENDING = 'Real-property disposals (s. 57A) remain pending their own regulations; the personal-property Forms A–H are complete.';
 
   /* Reg 6(2): the most appropriate means "including, but not limited to"
      this list. Sale to employees is not a reg 6(2) route of its own — it
@@ -139,14 +139,44 @@
     };
   }
 
+  /* Form F — Summary Report of Approved Disposal Action. */
+  function blankSummary() {
+    return {
+      executionDate: '', executedAsApproved: '', deviationReasons: '',
+      proceedingsSummary: '', challenges: '', totalProceeds: ''
+    };
+  }
+
+  /* Form G — Transfer / Donation of Excess Personal Property. */
+  function blankTransferItem() {
+    return { stockCode: '', itemNo: '', description: '', unit: '', quantity: '' };
+  }
+  function blankTransfer() {
+    return {
+      toOrg: '', fromEntity: '', shipTo: '', propertyLocation: '',
+      items: [], receivedBy: '', comments: ''
+    };
+  }
+
+  /* Form H — Notice of Rejection (Accounting Officer + Line Minister). */
+  function blankRejection() {
+    return {
+      lineMinisterConsultation: '', reasons: '', newDecision: '',
+      preparedByAO: '', lineMinisterName: ''
+    };
+  }
+
   function newDisposal() {
     return {
       entity: '', department: '', assetLocation: '', requestDate: '', requestRef: '',
-      otherInformation: '', submittedBy: '', verifiedBy: '',
+      otherInformation: '', submittedBy: '', financeOfficer: '', verifiedBy: '',
       npoName: '', npoDesignation: '', aoName: '', aoPost: '',
       committee: [], pdac: [],
+      /* Form C narrative */
+      appraisalAsOf: '', inventoryReportDated: '',
       appraisalFindings: '', appraisalProcedures: '',
-      items: [], strategy: blankStrategy(), approvals: blankApprovals()
+      items: [], strategy: blankStrategy(), approvals: blankApprovals(),
+      summary: blankSummary(), transfer: blankTransfer(), rejection: blankRejection()
     };
   }
 
@@ -163,10 +193,20 @@
     if (typeof d.narrative === 'string' && d.narrative && !d.strategy.background) {
       d.strategy.background = d.narrative;
     }
+    if (!d.strategy || typeof d.strategy !== 'object') d.strategy = blankStrategy();
     var fs = blankStrategy();
     for (var ks in fs) { if (!(ks in d.strategy)) d.strategy[ks] = fs[ks]; }
+    if (!Array.isArray(d.strategy.expenditure)) d.strategy.expenditure = [];
+    if (!Array.isArray(d.strategy.stakeholders)) d.strategy.stakeholders = [];
+    if (!d.approvals || typeof d.approvals !== 'object') d.approvals = blankApprovals();
     var fa = blankApprovals();
     for (var ka in fa) { if (!(ka in d.approvals)) d.approvals[ka] = fa[ka]; }
+    if (!d.summary || typeof d.summary !== 'object') d.summary = blankSummary();
+    else { var fsm = blankSummary(); for (var ksm in fsm) { if (!(ksm in d.summary)) d.summary[ksm] = fsm[ksm]; } }
+    if (!d.transfer || typeof d.transfer !== 'object') d.transfer = blankTransfer();
+    else { var ft = blankTransfer(); for (var kt in ft) { if (!(kt in d.transfer)) d.transfer[kt] = ft[kt]; } if (!Array.isArray(d.transfer.items)) d.transfer.items = []; }
+    if (!d.rejection || typeof d.rejection !== 'object') d.rejection = blankRejection();
+    else { var fr = blankRejection(); for (var kr in fr) { if (!(kr in d.rejection)) d.rejection[kr] = fr[kr]; } }
     for (var i = 0; i < d.items.length; i++) {
       var it = d.items[i];
       var bi = blankItem();
@@ -344,7 +384,7 @@
     upgrade(d);
 
     add('D0', 'Format authority', 'PASS',
-      'Forms A to E are built to the ' + AUTHORITY + ' ' + PENDING, '');
+      'Forms A to H are built to the ' + AUTHORITY + ' ' + PENDING, '');
 
     /* DC: ss. 55–56 — not less than three officers. */
     var named = d.committee.filter(function (m) { return m && (m.name || '').trim(); });
@@ -474,7 +514,29 @@
       }
     }
 
+    /* Form F — Summary Report of Approved Disposal Action. Only when an
+       execution date is recorded (the disposal has actually been carried
+       out). A deviation from the approved strategy needs its reasons. */
+    var sm = d.summary || {};
+    if ((sm.executionDate || '').trim()) {
+      if (sm.executedAsApproved === 'no' && !(sm.deviationReasons || '').trim()) {
+        add('D12', 'Form F: deviation from the approved strategy is explained', 'FAIL',
+          'The summary records that the disposal was NOT executed as approved, but gives no reason. A departure from the approved strategy must state why and what action was taken.',
+          'Record the reasons and the action taken on Form F.');
+      } else {
+        add('D12', 'Form F: summary of the completed disposal recorded', 'PASS',
+          'Executed ' + sm.executionDate + (sm.executedAsApproved === 'yes' ? ' as approved.' : '.') + ' Attach receipts, invoices and the record of expenses.', '');
+      }
+    }
+
     return R;
+  }
+
+  /* Per-item appraised value (Form C simple column) = expected returns for
+     a saleable item, null when not saleable or not computable. */
+  function appraisedValueCents(item) {
+    var a = appraisal(item);
+    return a.saleable === true ? a.returnsCents : null;
   }
 
   /* Legacy scaffold total (old valuation field, per-item totals) — kept so
@@ -502,9 +564,14 @@
     ADVERT_THRESHOLD_CENTS: ADVERT_THRESHOLD_CENTS,
     newDisposal: newDisposal,
     blankItem: blankItem,
+    blankSummary: blankSummary,
+    blankTransfer: blankTransfer,
+    blankTransferItem: blankTransferItem,
+    blankRejection: blankRejection,
     upgrade: upgrade,
     halfUpDiv: halfUpDiv,
     appraisal: appraisal,
+    appraisedValueCents: appraisedValueCents,
     totalExpectedReturnsCents: totalExpectedReturnsCents,
     spendTotalCents: spendTotalCents,
     byMethod: byMethod,

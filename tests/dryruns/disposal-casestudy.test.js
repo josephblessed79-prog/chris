@@ -120,14 +120,20 @@ t.test('case study: total appraised value is TT$70,650.00 to the cent', () => {
   t.eq(disposal.totalExpectedReturnsCents(d), 85000 + 1900000 + 130000 + 2000000 + 2800000 + 150000);
 });
 
-t.test('case study: Form C document prints the columns and the total in words', () => {
+t.test('case study: Form C prints the official simple appraisal, total to the cent', () => {
   const cf = caseStudy();
   const html = documents.build(cf, 'disposal-form-c');
-  t.ok(html.indexOf('$4,858.33') > 0, 'unit NBV printed');
-  t.ok(html.indexOf('$3,886.67') > 0, 'appraised less 20% printed');
-  t.ok(html.indexOf('$19,000.00') > 0, 'expected returns printed');
+  // the official blank Form C: Item Description | Appraised Value | Total
+  t.ok(html.indexOf('Appraised Value') > 0, 'official Form C column');
+  t.ok(html.indexOf('$19,000.00') > 0, 'per-item appraised value (workstations)');
+  t.ok(html.indexOf('$850.00') > 0, 'per-item appraised value (chairs)');
   t.ok(html.indexOf('Seventy Thousand, Six Hundred and Fifty Dollars ($70,650.00)') > 0, 'total in words and figure');
-  t.ok(html.indexOf('AWAITING FORMAT AUTHORITY') < 0, 'no scaffold banner — Forms A–E have authority now');
+  t.ok(html.indexOf('AWAITING FORMAT AUTHORITY') < 0, 'no scaffold banner');
+  // the detailed NBV working lives in the optional catalogue annex
+  const cat = documents.build(cf, 'disposal-form-c-catalogue');
+  t.ok(cat.indexOf('$4,858.33') > 0, 'unit NBV in the catalogue');
+  t.ok(cat.indexOf('$3,886.67') > 0, 'appraised less 20% in the catalogue');
+  t.ok(cat.indexOf('$70,650.00') > 0, 'catalogue totals to the same figure');
 });
 
 t.test('case study: Forms A, B, D, E render without crashing and cite the authority', () => {

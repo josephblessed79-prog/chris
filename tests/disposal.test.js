@@ -81,8 +81,8 @@ t.test('a complete disposal case clears, and D0 cites the authority (no scaffold
   t.eq(R.filter(c => c.result === 'FAIL'), []);
   const d0 = R.find(c => c.id === 'D0');
   t.eq(d0.result, 'PASS');
-  t.ok(/Handbook/.test(d0.detail) && /Case Study/.test(d0.detail));
-  t.ok(/Forms F, G and H/.test(d0.detail), 'still names what is pending');
+  t.ok(/Forms A.{1,4}H/.test(d0.detail) && /Handbook/.test(d0.detail));
+  t.ok(/[Rr]eal-property/.test(d0.detail), 'still names what is pending (real property)');
 });
 
 t.test('the Disposal Committee must be at least three officers (ss. 55–56)', () => {
@@ -248,7 +248,34 @@ t.test('Forms A–E render, compute, and cite the authority — no scaffold bann
   t.ok(documents.build(cf, 'disposal-form-b').indexOf('Very Good (VG) 75-100%') > 0);
 });
 
-t.test('availableDocs offers the Forms A–E set for a disposal case', () => {
+t.test('availableDocs offers the full Forms A–H set for a disposal case', () => {
   const docs = documents.availableDocs(disposalCase()).map(d => d.id);
-  t.eq(docs, ['disposal-form-a', 'disposal-form-b', 'disposal-form-c', 'disposal-form-d', 'disposal-form-e']);
+  t.eq(docs, ['disposal-form-a', 'disposal-form-b', 'disposal-form-c', 'disposal-form-c-catalogue',
+    'disposal-form-d', 'disposal-form-e', 'disposal-form-f', 'disposal-form-g', 'disposal-form-h']);
+});
+
+t.test('Forms F, G and H render to their official templates', () => {
+  const cf = disposalCase();
+  cf.disposal.summary = { executionDate: '2026-06-20', executedAsApproved: 'yes', deviationReasons: '', proceedingsSummary: 'Sold by transfer and recycling.', challenges: 'None.', totalProceeds: '1,800.00' };
+  const f = documents.build(cf, 'disposal-form-f');
+  t.ok(f.indexOf('Summary Report of Approved Disposal Action') > 0);
+  t.ok(f.indexOf('Total Proceeds') > 0 && f.indexOf('$1,800.00') > 0);
+  cf.disposal.transfer = { toOrg: 'A School', fromEntity: 'MOD', shipTo: 'The School', propertyLocation: 'HQ', items: [{ stockCode: 'SC1', itemNo: '1', description: 'Desk', unit: 'Ea', quantity: 3 }], receivedBy: 'Principal', comments: '' };
+  const g = documents.build(cf, 'disposal-form-g');
+  t.ok(g.indexOf('Transfer / Donation of Excess Personal Property') > 0);
+  t.ok(g.indexOf('A School') > 0 && g.indexOf('Desk') > 0);
+  cf.disposal.rejection = { lineMinisterConsultation: 'Consulted 01/06/2026.', reasons: 'Valuation disputed.', newDecision: 'Re-survey directed.', preparedByAO: 'PS', lineMinisterName: 'Minister' };
+  const hDoc = documents.build(cf, 'disposal-form-h');
+  t.ok(hDoc.indexOf('Notice of Rejection') > 0);
+  t.ok(hDoc.indexOf('Re-survey directed') > 0 && hDoc.indexOf('Office of Procurement Regulation') > 0);
+});
+
+t.test('Form F flags a deviation from the approved strategy without reasons', () => {
+  const cf = disposalCase();
+  cf.disposal.summary = { executionDate: '2026-06-20', executedAsApproved: 'no', deviationReasons: '', proceedingsSummary: '', challenges: '', totalProceeds: '' };
+  let R = verifycase.runAllChecks(cf);
+  t.eq(R.find(c => c.id === 'D12').result, 'FAIL');
+  cf.disposal.summary.deviationReasons = 'Auction postponed; items transferred instead, approved by the AO.';
+  R = verifycase.runAllChecks(cf);
+  t.eq(R.find(c => c.id === 'D12').result, 'PASS');
 });

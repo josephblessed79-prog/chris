@@ -53,17 +53,22 @@ const { chromium } = require('playwright-core');
   await page.click('nav.tabs button[data-t="docs"]');
   await page.waitForTimeout(250);
   const dispDocs = await page.textContent('#docBar');
-  check('Forms A–E offered to disposal', dispDocs.includes('Form C — Committee Appraisal Report'));
+  check('Forms A–H offered to disposal', dispDocs.includes('Form C — Appraisal Report') && dispDocs.includes('Form H — Notice of Rejection'));
+  check('optional appraisal catalogue offered', dispDocs.includes('Appraisal Catalogue'));
   check('no procurement checklist offered to disposal', !dispDocs.includes('Approvals checklist'));
   check('no procurement certificate offered to disposal', !dispDocs.includes('Verification certificate'));
   check('no minute sheet offered to disposal', !dispDocs.includes('Ministry minute sheet'));
-  // Form C prints the computed columns and cites the authority, no scaffold banner
+  // Form C prints the official simple appraisal; the NBV working is in the catalogue
   await page.selectOption('#docSel', 'disposal-form-c');
   await page.waitForTimeout(250);
   const formC = await page.textContent('#preview');
-  check('Form C prints computed unit NBV', formC.includes('$4,858.33'));
+  check('Form C prints the per-item appraised value ($19,000.00)', formC.includes('$19,000.00'));
   check('Form C carries no scaffold banner', !formC.includes('AWAITING FORMAT AUTHORITY'));
-  check('Form C cites the OPR authority', formC.includes('OPR Retention'));
+  check('Form C cites the OPR authority', formC.includes('OPR Disposal Templates') || formC.includes('OPR Retention'));
+  await page.selectOption('#docSel', 'disposal-form-c-catalogue');
+  await page.waitForTimeout(250);
+  const cat = await page.textContent('#preview');
+  check('Appraisal Catalogue prints the computed unit NBV ($4,858.33)', cat.includes('$4,858.33'));
 
   // ---- formal: placeholder working papers, no borrowed documents
   await page.click('nav.tabs button[data-t="start"]');

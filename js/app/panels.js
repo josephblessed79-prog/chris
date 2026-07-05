@@ -549,6 +549,7 @@
     h += '<fieldset class="box"><legend>Officers</legend><div class="grid">';
     h += fieldHTML('Named Procurement Officer', 'disposal.npoName', {});
     h += fieldHTML('NPO designation', 'disposal.npoDesignation', {});
+    h += fieldHTML('Finance / Accounting Officer (verifies Form A)', 'disposal.financeOfficer', {});
     h += fieldHTML('Accounting Officer', 'disposal.aoName', {});
     h += fieldHTML('Accounting Officer post', 'disposal.aoPost', {});
     h += '</div></fieldset>';
@@ -584,6 +585,8 @@
 
     /* Form C narrative */
     h += '<fieldset class="box"><legend>Committee appraisal narrative (Form C)</legend><div class="grid">';
+    h += fieldHTML('Appraisal report as of (date)', 'disposal.appraisalAsOf', { type: 'date' });
+    h += fieldHTML('Inventory & Inspection Report dated', 'disposal.inventoryReportDated', { type: 'date' });
     h += fieldHTML('Findings / observations', 'disposal.appraisalFindings', { type: 'textarea', wide: true });
     h += fieldHTML('Valuation procedures / considerations', 'disposal.appraisalProcedures', { type: 'textarea', wide: true });
     h += '</div></fieldset>';
@@ -645,6 +648,49 @@
     h += fieldHTML('Disposal completed — date', 'disposal.approvals.completionDate', { type: 'date' });
     h += fieldHTML('OPR notified (through the Procurement Depository) — date', 'disposal.approvals.oprNotifiedDate', { type: 'date' });
     h += fieldHTML('Net proceeds brought to account', 'disposal.approvals.proceedsAccounted', { type: 'checkbox', wide: true });
+    h += '</div></fieldset>';
+
+    /* Form F — Summary Report of Approved Disposal Action */
+    h += '<fieldset class="box"><legend>Summary of the completed disposal (Form F)</legend>';
+    h += '<p class="hint">Fill this after the disposal has been carried out. If it was not executed as approved, say why and what was done.</p><div class="grid">';
+    h += fieldHTML('Disposal execution date', 'disposal.summary.executionDate', { type: 'date' });
+    h += fieldHTML('Executed as approved?', 'disposal.summary.executedAsApproved', { type: 'select', options: [['', '— not yet —'], ['yes', 'Yes'], ['no', 'No']] });
+    h += fieldHTML('If no, reasons and action taken', 'disposal.summary.deviationReasons', { type: 'textarea', wide: true });
+    h += fieldHTML('Summary of disposal proceedings', 'disposal.summary.proceedingsSummary', { type: 'textarea', wide: true });
+    h += fieldHTML('Challenges encountered during disposal', 'disposal.summary.challenges', { type: 'textarea', wide: true });
+    h += fieldHTML('Total proceeds / revenue earned $ (from Cashier report)', 'disposal.summary.totalProceeds', {});
+    h += '</div></fieldset>';
+
+    /* Form G — Transfer / Donation of Excess Personal Property */
+    h += '<fieldset class="box"><legend>Transfer / donation of excess property (Form G) — only if applicable</legend><div class="grid">';
+    h += fieldHTML('To — requesting organisation (full name & address)', 'disposal.transfer.toOrg', { type: 'textarea', wide: true });
+    h += fieldHTML('From — holding entity (full name & address)', 'disposal.transfer.fromEntity', { type: 'textarea', wide: true });
+    h += fieldHTML('Ship to (consignee & destination)', 'disposal.transfer.shipTo', {});
+    h += fieldHTML('Location of property', 'disposal.transfer.propertyLocation', {});
+    h += fieldHTML('Items received by', 'disposal.transfer.receivedBy', {});
+    h += fieldHTML('Comments', 'disposal.transfer.comments', { wide: true });
+    h += '</div>';
+    h += '<p style="margin-top:6px"><b>Property to be transferred / donated</b></p><div class="scrollx"><table class="q"><thead><tr><th>Stock code</th><th>Item no.</th><th>Description</th><th>Unit</th><th style="width:90px">Quantity</th><th></th></tr></thead><tbody>';
+    var tr = d.transfer || { items: [] };
+    for (var ti = 0; ti < tr.items.length; ti++) {
+      var trit = tr.items[ti];
+      h += '<tr><td><input type="text" data-dtrans="' + ti + ':stockCode" value="' + esc(trit.stockCode || '') + '"></td>' +
+        '<td><input type="text" data-dtrans="' + ti + ':itemNo" value="' + esc(trit.itemNo || '') + '"></td>' +
+        '<td><input type="text" data-dtrans="' + ti + ':description" value="' + esc(trit.description || '') + '"></td>' +
+        '<td><input type="text" data-dtrans="' + ti + ':unit" value="' + esc(trit.unit || '') + '"></td>' +
+        '<td><input type="number" min="1" step="1" data-dtrans="' + ti + ':quantity" value="' + esc(String(trit.quantity == null ? '' : trit.quantity)) + '"></td>' +
+        '<td class="rowbtns"><button class="btn danger small" data-action="dtrans-del" data-i="' + ti + '">✕</button></td></tr>';
+    }
+    h += '</tbody></table></div><button class="btn sec small" data-action="dtrans-add">＋ Add transfer item</button></fieldset>';
+
+    /* Form H — Notice of Rejection */
+    h += '<fieldset class="box"><legend>Notice of rejection (Form H) — only if the Accounting Officer rejects the strategy</legend>';
+    h += '<p class="hint">Used when the Accounting Officer does not approve the committee’s strategy. The property is disposed of as the Accounting Officer directs, after consulting the responsible Minister; the notice goes to the OPR.</p><div class="grid">';
+    h += fieldHTML('Summary of consultation with Line Minister', 'disposal.rejection.lineMinisterConsultation', { type: 'textarea', wide: true });
+    h += fieldHTML('Reasons for rejection of the committee’s proposal', 'disposal.rejection.reasons', { type: 'textarea', wide: true });
+    h += fieldHTML('New decision on how the property should be disposed, and reasoning', 'disposal.rejection.newDecision', { type: 'textarea', wide: true });
+    h += fieldHTML('Prepared by (Accounting Officer)', 'disposal.rejection.preparedByAO', {});
+    h += fieldHTML('Confirmation of Line Minister (name)', 'disposal.rejection.lineMinisterName', {});
     h += '</div></fieldset>';
 
     panel.innerHTML = h;

@@ -354,6 +354,11 @@
       cf.disposal.strategy.stakeholders[+pdt[0]][pdt[1]] = v;
       return true;
     }
+    if ((attr = target.getAttribute('data-dtrans'))) {
+      var pdtr = attr.split(':');
+      cf.disposal.transfer.items[+pdtr[0]][pdtr[1]] = pdtr[1] === 'quantity' ? (num(v) || '') : v;
+      return true;
+    }
     if ((attr = target.getAttribute('data-fmember'))) {
       var pfm = attr.split(':');
       cf.formal.committee[+pfm[0]][pfm[1]] = target.type === 'checkbox' ? target.checked : v;
@@ -436,7 +441,7 @@
      would silently drop typed data, which this system must never do. */
   var SYNC_SELECTOR = ['[data-path]', '[data-item]', '[data-quote]', '[data-vcontact]',
     '[data-vsched]', '[data-esup]', '[data-eitem]', '[data-ecell]', '[data-esel]',
-    '[data-dcomm]', '[data-ditem]', '[data-dpdac]', '[data-dspend]', '[data-dstake]',
+    '[data-dcomm]', '[data-ditem]', '[data-dpdac]', '[data-dspend]', '[data-dstake]', '[data-dtrans]',
     '[data-fmember]', '[data-fmand]', '[data-fcrit]', '[data-fprop]', '[data-fscore]',
     '[data-fprice]', '[data-fclar]', '[data-frec]',
     '[data-folio]', '[data-att]', '[data-vblock]', '[data-vstatus]'].join(',');
@@ -598,6 +603,8 @@
     'dspend-del': function (t) { APP.caseFile.disposal.strategy.expenditure.splice(+t.getAttribute('data-i'), 1); render('work'); },
     'dstake-add': function () { APP.caseFile.disposal.strategy.stakeholders.push({ name: '', interest: '' }); render('work'); },
     'dstake-del': function (t) { APP.caseFile.disposal.strategy.stakeholders.splice(+t.getAttribute('data-i'), 1); render('work'); },
+    'dtrans-add': function () { APP.caseFile.disposal.transfer.items.push(M.disposal.blankTransferItem()); render('work'); },
+    'dtrans-del': function (t) { APP.caseFile.disposal.transfer.items.splice(+t.getAttribute('data-i'), 1); render('work'); },
     'fmember-add': function () { APP.caseFile.formal.committee.push(M.formal.blankMember()); render('work'); },
     'fmember-del': function (t) { APP.caseFile.formal.committee.splice(+t.getAttribute('data-i'), 1); render('work'); },
     'fmand-add': function () { APP.caseFile.formal.mandatoryCriteria.push({ name: '' }); render('work'); },
