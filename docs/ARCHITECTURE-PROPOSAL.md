@@ -1,9 +1,16 @@
-# PROPOSED CORRECTED ARCHITECTURE — AWAITING CONFIRMATION
+# CORRECTED ARCHITECTURE — CONFIRMED AND IMPLEMENTED
 
-Status: **PROPOSAL ONLY. No code has been changed under this proposal.**
-Nothing here alters any printed output. The existing byte-parity and
-sample-replay tests remain the guarantee that the routine/travelling-file
-documents do not change without express approval.
+Status: **CONFIRMED (July 2026) and BUILT.** The three-module separation
+described below was approved and is implemented across case-model v3
+(module + presentation, lossless v2→v3 migration), the start-screen
+process selector, module-scoped documents and check series, the disposal
+module (Forms A–E to OPR authority, case study replayed to TT$70,650.00),
+and the formal tender/RFP/ITB module (OPR Evaluation Report, Appendix I
+COI forms, computed ranking). The routine/travelling-file printed
+**layouts** are byte-unchanged — the byte-parity and sample-replay tests
+still enforce that; the only routine label change is the worksheet's
+title (see §4.1). Module-separation guarantees are locked by
+`tests/modulescope.test.js`. This document is kept as the design record.
 
 ## 1. Authorities reviewed
 

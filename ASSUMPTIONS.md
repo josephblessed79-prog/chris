@@ -139,17 +139,93 @@ system requires every contact recorded (the register exists to evidence
 them); the dry run uses clearly-marked illustrative names for the two
 unnamed companies. Hardening, not deviation.
 
-## 9. P4 disposal is a scaffold — CONFIRMED PENDING
+## 9. Disposal — RESOLVED to OPR authority (was a scaffold)
 
-**Confirmed (July 2026): no sample disposal file exists to provide.**
-The instruction is to keep the disposal items clearly marked pending
-format authority and to change nothing in the required output layout
-unless verified authority supports it. That is exactly the standing
-state: layouts follow the Act's disposal provisions and the house minute
-style; every P4 document carries the visible **SCAFFOLD — AWAITING
-FORMAT AUTHORITY** banner; verification carries a standing caution; and
-the layouts will not be altered until a signed disposal file or other
-verified authority is supplied.
+**Superseded (July 2026).** The earlier scaffold existed because no
+disposal format authority had been supplied. Two OPR documents were then
+provided and **are** that authority: the *Retention & Disposal of Public
+Property Handbook* (HGRD02 05-2023 v3.0) and *Sample Disposal Case Study
+#1* (Sept 2021 v1.0). The disposal module is now built to them:
+
+- Forms A–E to the case-study layouts (Request for Asset Disposal;
+  Inventory & Inspection Report with the VG/G/F/P/S disposition bands;
+  Committee Appraisal Report; Strategy Development Report; Strategy
+  Approval / Signature Form). The **SCAFFOLD — AWAITING FORMAT
+  AUTHORITY** banner is gone; each form cites its authority.
+- The appraisal arithmetic (unit NBV, 20% of NBV, appraised-value-less-
+  20%, expected returns) is computed and replays the case study to its
+  published total, **TT$70,650.00**, to the cent
+  (`tests/dryruns/disposal-casestudy.test.js`).
+- Governance from the Act and Regulations, each raised only when it
+  arises: Disposal Committee of not less than three officers (ss. 55–56);
+  reg 6(2) method list (open — a method off it needs recorded reasoning);
+  reg 6(3) TT$100,000 newspaper-advertising threshold; s.57/reg 7 prior
+  PDAC approval for a sale to employees; the AO's fourteen-day decision
+  and rejection-reasons rule; the six-week OPR notification; net proceeds
+  to account.
+
+➤ **Still pending format authority:** Form F (Summary Report of Approved
+Disposal Action), Form G (Transfer/Donation of Excess Personal
+Property), Form H (Notice of Rejection) — named in the Handbook workflow
+but not supplied as layouts — and **real-property** disposals (s. 57A;
+regulations pending). Each disposal form footer states this.
+
+## 9a. Formal tender / RFP / ITB evaluation — built to OPR authority
+
+The formal Evaluation Committee module is built to the OPR *General
+Guidelines: Evaluation of Submissions and Award of Contracts* (HGEA01
+08-2023 v2.0) — Appendix I Conflict of Interest & Confidentiality form,
+Appendix II Evaluation Report template — and the Tender Evaluation Report
+Template.
+
+- **Ranking formula.** The template states the technical and financial
+  scores are "normalised utilising the following pre-determined formula
+  ____________" — a blank, filled from the solicitation. This system
+  computes the standard QCBS normalisation (technical percentage, and
+  financial percentage = lowest verified price ÷ this price, combined by
+  the committee's weights), because it is deterministic and reproducible
+  for the audit trail the guideline requires. The **weights are case
+  data** (whole percentages that must total 100), never invented; the
+  free-text formula description is also recorded. ➤ If a public body's
+  solicitation prescribes a different normalisation, that formula must be
+  supplied and the computation adjusted.
+- **Minimum technical score (the gate), criteria and maxima** are case
+  data typed from the solicitation, never invented.
+- The recommendation states the amount **in words, VAT INCLUSIVE**, as
+  the template requires. Covered by `tests/formal.test.js` (a worked
+  example ranked to the cent).
+
+## 9b. Three-module separation — CONFIRMED and implemented
+
+**Confirmed (July 2026) and built.** The system is one solution organised
+as three separate modules chosen on a start screen before any data is
+entered — **routine/daily procurement**, **formal tender/RFP/ITB
+evaluation**, and **disposal of public property**. Standing rules,
+implemented and tested (`tests/modulescope.test.js`):
+
+- No cross-module logic. Tender-evaluation logic is not forced into
+  routine procurement; routine minute logic is not forced into a formal
+  report; procurement-award logic is not forced into disposal. Each
+  module owns its check series (routine C/E/V/H + G; formal F + G;
+  disposal D + G) and its documents; the framework merges only a
+  module's own series.
+- The routine supplier-comparison worksheet was previously mislabelled
+  "Evaluation Report" — it is now the **Supplier Comparison Record /
+  Worksheet**, a routine working paper, distinct from the formal OPR
+  Evaluation Report. This is the one printed-label change made to routine
+  outputs; the printed **layouts** of the approved routine documents
+  (minute, letter, worksheet body, certificate) are byte-unchanged, as
+  the parity and replay tests enforce.
+- Shared tools (money, words, folios, the vote book, save/load, the
+  verification framework, the offline composer) remain in the common
+  core and serve all three modules. The composer writes only facts the
+  user supplies, invents no figure, and inserts nothing until the user
+  reviews the draft and clicks Insert — in every module (its targets are
+  module-aware: routine minute fields, disposal strategy fields, or the
+  formal report's narrative).
+- Legacy case files (schema v2, pathways P1–P4) open losslessly: P1/P2/P3
+  map to routine, P4 to disposal, and the original pathway is preserved
+  on the case under `extra.legacyPathway`.
 
 ## 10. Miscellaneous
 

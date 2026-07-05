@@ -23,14 +23,16 @@ js/lib/               THE ENGINE. Pure logic, no screen code. Every file
   words.js            Amounts in words (TT house style).
   textutil.js         Escaping, dates, small helpers.
   compute.js          Item/quotation totals and award grouping.
-  verify.js           The C-series checks (item cases).
-  evaluation.js       The P3 worksheet engine and E-series checks.
-  verbal.js           P1 micro-procurement and V-series checks.
+  verify.js           Routine C-series checks (item cases).
+  evaluation.js       Routine supplier-comparison worksheet + E-series checks.
+  verbal.js           Routine micro-procurement + V-series checks.
   votestatus.js       Vote-book figures, computed balances, H-series checks.
-  disposal.js         P4 inventory/valuation and D-series checks.
-  verifycase.js       Assembles the right checks for a whole case.
+  disposal.js         Disposal module: Forms A–E data, appraisal, D-series.
+  formal.js           Formal tender/RFP/ITB module: scoring, ranking, F-series.
+  verifycase.js       Assembles a module's own checks for a whole case.
   folio.js            Folio numbering, both numeral styles, references.
-  casemodel.js        The case JSON (schema v2) and v1 migration.
+  casemodel.js        The case JSON (schema v3: module + presentation) and
+                      lossless v1/v2 migration.
   styleprofile.js     The style-profile registry.
   storage.js          File naming and the shared-folder register index.
   ingest.js           Candidate extraction from imported documents.
@@ -109,14 +111,27 @@ The phrases are presentation. The figures, words-from-figures, folio
 numbers and checks are computed by the engine identically for every
 profile — a profile cannot change arithmetic.
 
-## The disposal pathway (P4) is a scaffold
+## Three modules, kept separate
 
-No sample disposal file was provided. The P4 documents follow the Act's
-disposal provisions and the house minute style, and every one carries a
-visible **SCAFFOLD — AWAITING FORMAT AUTHORITY** banner. When a signed
-disposal file is available, its formats must be confirmed and the banner
-removed (in `js/lib/docs/disposaldocs.js`) — that is the one place a
-deliberate code change is expected.
+The Start screen sets the case's **module** — `routine`,
+`formal-evaluation` or `disposal` — before any data is entered
+(`casemodel.js`). Each module owns its documents and its check series;
+`verifycase.js` merges only a module's own series (routine C/E/V/H + G;
+formal F + G; disposal D + G) and `documents.availableDocs` offers only a
+module's own documents. This separation is the point of the design — do
+not add a cross-module document or check. It is locked by
+`tests/modulescope.test.js`, which fails if, say, a disposal case is ever
+offered the procurement certificate or a formal case runs a vote check.
+
+The disposal module is built to the OPR Retention & Disposal Handbook and
+Sample Case Study (Forms A–E; the case study replays to TT$70,650.00).
+Still pending format authority, and marked so in each form's footer:
+Forms F, G, H and real-property disposals. The formal module is built to
+the OPR Evaluation of Submissions guideline (Appendix I COI form,
+Appendix II report). The one place a solicitation-specific change might be
+needed is the ranking normalisation in `formal.js` (`ranking`) — it uses
+the standard QCBS weighting on integer maths; if a public body prescribes
+a different formula, adjust it there and add a test.
 
 ## Continuation formatting
 

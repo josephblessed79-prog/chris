@@ -28,27 +28,52 @@ document on the staging screen). The system:
   document generated while a check fails **DRAFT — NOT CLEARED**;
 - invents nothing, and sends nothing anywhere.
 
-## The four pathways
+## Three separate modules — chosen before any data is entered
 
-| Pathway | What it is | Documents |
+The system is one solution, but it does **not** treat all
+procurement-related work as the same. A start screen asks *what are you
+doing today?* and the answer sets the module: its forms, its questions,
+its checks, its documents. None borrows another's logic.
+
+| Module | What it is | Documents |
 |---|---|---|
-| **P1** — Ministry internal | Units and departments within MOD, including micro-procurement by verbal quotation | Hybrid minute sheet, verbal quotation form, telephone-contact register, checklist, verification certificate |
-| **P2** — External formations | Coast Guard, Defence Force, Air Guard, Regiment, Police, Fire, Prison Services, other agencies | Formation approval letter, Ministry minute, checklist, verification certificate |
-| **P3** — Evaluation Committee | Multi-item, multi-supplier evaluation worksheet | Worksheet, evaluation report, award tables, Breakdown of Price per Company |
-| **P4** — Disposal Committee | Disposal of public property under the 2015 Act | Inventory and valuation record, committee minute, approval instrument — **scaffolded, awaiting format authority** (no sample disposal file has been provided) |
+| **A. Routine / daily procurement** | The everyday travelling file. Two presentations chosen on Case Details — Ministry internal minute, or an external-formation letter + minute (Coast Guard, Defence Force, Regiment, Police, Fire, Prison Services, other agencies). Working paper chosen where it arises — written quotations, a verbal/telephone record, or a supplier-comparison worksheet | Minute sheet, formation approval letter, verbal quotation form, telephone-contact register, supplier comparison record & worksheet, checklist, verification certificate |
+| **B. Formal tender / RFP / ITB evaluation** | The Evaluation Committee report on a formal solicitation, to the OPR template | Evaluation Report (introduction, background, team, criteria & scoring, methodology, preliminary examination, technical & commercial evaluation, computed ranking, recommendation VAT inclusive), Conflict of Interest & Confidentiality declarations (Appendix I) |
+| **C. Disposal of public property** | Disposal under Part VI of the Act and the Retention & Disposal Regulations 2021, to the OPR Handbook and Sample Case Study | Forms A–E: Request for Asset Disposal, Inventory & Inspection Report, Committee Appraisal Report (computed), Strategy Development Report, Strategy Approval / Signature Form |
 
-Pathways share one case model. A case moves between pathways (an
-evaluation becomes an approval) with full data carry-over and its
-history recorded.
+Shared tools only — money in exact cents, amounts in words, folio
+numbering, the vote book (a routine instrument), save/load, the
+verification framework, the offline narrative composer — live in a
+common core. Each module owns its own workflow and check series
+(routine C/E/V/H + G; formal F + G; disposal D + G); the framework
+merges only a module's own series, so tender-evaluation logic never
+reaches routine procurement, routine minute logic never reaches a formal
+report, and procurement-award logic never reaches disposal.
+
+Legacy case files open losslessly: the old pathway codes P1/P2/P3 map to
+routine (internal / formation / with a comparison worksheet) and P4 to
+disposal, with the original pathway preserved on the case.
 
 ## Format authority
 
-The document formats are held to the four signed sample documents in
-`samples/source/`. The dry-run test suites replay all four to the cent —
-and, where the signed sheets themselves contain arithmetic errors (they
-do; see `tests/dryruns/`), the tests assert the **correct** figures and
-demonstrate that the system flags the malformed ones on entry.
-Deliberate deviations from the samples are listed in `ASSUMPTIONS.md`.
+- **Routine** documents are held to the four signed sample documents in
+  `samples/source/`; the dry-run suites replay all four to the cent, and
+  where the signed sheets themselves contain arithmetic errors (they do)
+  the tests assert the **correct** figures and show the system flagging
+  the malformed ones on entry.
+- **Disposal** Forms A–E are held to the OPR Retention & Disposal
+  Handbook (HGRD02 v3.0) and the Sample Disposal Case Study #1; the case
+  study replays to its published total, **TT$70,650.00**, with every
+  Form C column computed to the cent
+  (`tests/dryruns/disposal-casestudy.test.js`). Forms F, G and H and
+  real-property disposals remain pending their format authority.
+- **Formal evaluation** is held to the OPR Evaluation of Submissions
+  guideline (Appendix I COI form, Appendix II report template); a worked
+  example ranks two gate-passing proponents to the cent
+  (`tests/formal.test.js`).
+
+Deliberate deviations and everything still pending are listed in
+`ASSUMPTIONS.md`.
 
 ## Tests are the definition of done
 
@@ -57,12 +82,16 @@ node tests/run.js
 ```
 
 runs every suite: engine units, byte-parity against the original
-Approvals Composer, the four sample replays, seventeen further
-full-system scenarios, storage, ingestion, vendored libraries, and an
-adversarial suite. Nothing in this repository claims a capability that
-is not demonstrated by a passing test. A browser smoke test
-(`tools/browser-smoke.js`, Playwright + Chromium) drives the real UI
-from `file://`.
+Approvals Composer, the four sample replays, the disposal case-study
+replay, the formal worked example, the module-separation guarantees
+(`tests/modulescope.test.js`), seventeen further full-system scenarios,
+storage, ingestion, vendored libraries, and an adversarial suite.
+Nothing in this repository claims a capability that is not demonstrated
+by a passing test. Four browser smoke tests (Playwright + Chromium)
+drive the real UI from `file://`: `browser-smoke.js` (a routine case end
+to end), `browser-smoke-guidance.js` (conditional questions),
+`browser-smoke-composer.js` (the offline composer), and
+`browser-smoke-modules.js` (the three-module separation).
 
 ## Documentation
 
