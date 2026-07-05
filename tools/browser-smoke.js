@@ -24,7 +24,7 @@ const { chromium } = require('playwright-core');
   // start a P1 case
   await page.click('.pathcard[data-pathway="P1"]');
   await page.waitForTimeout(200);
-  check('case tab opens', (await page.textContent('#tab-case h2')).includes('P1'));
+  check('case tab opens', (await page.textContent('#tab-case h2')).includes('Routine / daily procurement'));
   check('status pill shows failing checks for an empty case', (await page.textContent('#statusPill')).includes('FAILING'));
 
   // fill case details
@@ -122,13 +122,11 @@ const { chromium } = require('playwright-core');
   check('arithmetic disagreement flagged in staging', stagText.includes('ARITHMETIC DISAGREES'));
   check('bulk accept excludes figures', stagText.includes('never bulk-accepted'));
 
-  // evaluation editor sanity via a P3 case
-  await page.click('nav.tabs button[data-t="case"]');
-  await page.waitForTimeout(150);
-  await page.selectOption('[data-special="pathway"]', 'P3');
-  await page.waitForTimeout(200);
+  // comparison-worksheet editor sanity via the routine working-paper choice
   await page.click('nav.tabs button[data-t="work"]');
   await page.waitForTimeout(150);
+  await page.click('input[data-special="routine-papers"][value="worksheet"]');
+  await page.waitForTimeout(200);
   await page.click('[data-action="esup-add"]');
   await page.waitForTimeout(100);
   await page.fill('[data-esup="0:name"]', 'Alpha Ltd');
@@ -155,7 +153,7 @@ const { chromium } = require('playwright-core');
   const dl = await downloadPromise;
   const pathSaved = await dl.path();
   const saved = JSON.parse(require('fs').readFileSync(pathSaved, 'utf8'));
-  check('saved case is schema v2 with the evaluation carried', saved.schemaVersion === 2 && saved.evaluation.items.length === 1);
+  check('saved case is schema v3 with the comparison worksheet carried', saved.schemaVersion === 3 && saved.module === 'routine' && saved.evaluation.items.length === 1);
 
   check('no console errors at the end', errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));

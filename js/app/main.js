@@ -60,12 +60,14 @@
   }
 
   /* ---------- case lifecycle ---------- */
-  function newCase(pathway) {
-    var profile = pathway === 'P2' ? 'ttcg-formation' : 'ministry-dotted';
-    APP.caseFile = M.casemodel.newCase(pathway, profile);
-    if (pathway === 'P1') APP.caseFile.verbal = M.verbal.newVerbal();
-    if (pathway === 'P3') APP.caseFile.evaluation = M.evaluation.newEvaluation();
-    if (pathway === 'P4') APP.caseFile.disposal = M.disposal.newDisposal();
+  /* activity: a module id or (from the older start cards) a legacy
+     pathway code; casemodel maps either onto the module structure. */
+  function newCase(activity) {
+    var profile = activity === 'P2' ? 'ttcg-formation' : 'ministry-dotted';
+    APP.caseFile = M.casemodel.newCase(activity, profile);
+    if (activity === 'P1') APP.caseFile.verbal = M.verbal.newVerbal();
+    if (activity === 'P3') APP.caseFile.evaluation = M.evaluation.newEvaluation();
+    if (APP.caseFile.module === 'disposal' && !APP.caseFile.disposal) APP.caseFile.disposal = M.disposal.newDisposal();
     APP.ingestCandidates = [];
     APP.ingestWarning = '';
     enableTabs(true);
@@ -240,13 +242,14 @@
     }
     if ((attr = target.getAttribute('data-special'))) {
       if (attr === 'folioStart') { cf.folioStart = Math.max(1, num(v) || 1); return true; }
-      if (attr === 'pathway') {
-        if (v !== cf.pathway) { M.casemodel.transitionPathway(cf, v, 'Changed on Case Details'); go('case'); }
+      if (attr === 'presentation') {
+        if (v !== cf.presentation) { M.casemodel.setPresentation(cf, v, 'Changed on Case Details'); go('case'); }
         return true;
       }
-      if (attr === 'p1mode') {
+      if (attr === 'routine-papers') {
         if (v === 'verbal' && !cf.verbal) cf.verbal = M.verbal.newVerbal();
         if (v === 'items') cf.verbal = null;
+        if (v === 'worksheet' && !cf.evaluation) cf.evaluation = M.evaluation.newEvaluation();
         render('work');
         return true;
       }
@@ -475,16 +478,22 @@
       ev.selections.forEach(function (s) { if (s.item > i) s.item--; });
       render('work');
     },
-    'carry-p1': function () {
-      M.casemodel.transitionPathway(APP.caseFile, 'P1', 'Evaluation result carried to a P1 minute');
+    'adopt-internal': function () {
+      var cf = APP.caseFile;
+      if (cf.presentation !== 'internal') M.casemodel.setPresentation(cf, 'internal', 'Comparison result adopted into the Ministry internal minute');
       go('case');
     },
-    'carry-p2': function () {
+    'adopt-formation': function () {
       var cf = APP.caseFile;
-      M.casemodel.transitionPathway(cf, 'P2', 'Evaluation result carried to a P2 formation approval');
+      if (cf.presentation !== 'formation') M.casemodel.setPresentation(cf, 'formation', 'Comparison result adopted into a formation approval');
       /* the formation letter reads docState items; project the award without retyping */
       cf.docState.items = M.evaluation.toDocItems(cf.evaluation);
       go('case');
+    },
+    'worksheet-discard': function () {
+      if (!confirm('Discard the supplier comparison worksheet? Every recorded price and selection on it is removed from this case. The case itself, its items and its documents remain.')) return;
+      APP.caseFile.evaluation = null;
+      render('work');
     },
     'dcomm-add': function () { APP.caseFile.disposal.committee.push({ name: '', post: '' }); render('work'); },
     'dcomm-del': function (t) { APP.caseFile.disposal.committee.splice(+t.getAttribute('data-i'), 1); render('work'); },

@@ -84,7 +84,7 @@
     for (var i = 0; i < R.length; i++) { if (R[i].result === 'FAIL') fails++; if (R[i].result === 'WARN') warns++; }
     var h = verifycase.draftStamp(caseFile);
     h += '<div class="ttl">VERIFICATION CERTIFICATE — PROCUREMENT CASE</div>';
-    h += '<p style="text-align:center;margin-top:-6pt"><b>' + esc(st.subject || (caseFile.verbal && caseFile.verbal.purpose) || '[subject]') + '</b><br>File: ' + esc(st.minfile || st.ref || '[file number]') + ' &nbsp;·&nbsp; Pathway: ' + esc(caseFile.pathway) + (st.date ? ' &nbsp;·&nbsp; Date: ' + esc(textutil.fmtDateProse(st.date)) : '') + '</p>';
+    h += '<p style="text-align:center;margin-top:-6pt"><b>' + esc(st.subject || (caseFile.verbal && caseFile.verbal.purpose) || '[subject]') + '</b><br>File: ' + esc(st.minfile || st.ref || '[file number]') + ' &nbsp;·&nbsp; Activity: Routine procurement (' + (caseFile.presentation === 'formation' ? 'external formation' : 'Ministry internal') + ')' +(st.date ? ' &nbsp;·&nbsp; Date: ' + esc(textutil.fmtDateProse(st.date)) : '') + '</p>';
     h += '<p style="font-size:10.5pt"><b>Part A — Automated consistency checks.</b> Computed from the case data at the time of printing. ' +
       (fails ? ('<b style="color:#b3261e">' + fails + ' check(s) FAILED — the pack must not be carried for signature.</b>') : 'All checks passed.') +
       (warns ? (' ' + warns + ' caution(s) noted.') : '') + '</p>';

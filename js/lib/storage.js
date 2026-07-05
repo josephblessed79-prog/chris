@@ -45,7 +45,8 @@
     return {
       caseId: caseFile.caseId,
       fileName: fileName || caseFileName(caseFile),
-      pathway: caseFile.pathway,
+      module: caseFile.module,
+      activity: casemodel.activityLabel(caseFile),
       subject: (caseFile.docState && caseFile.docState.subject) || '',
       fileNo: (caseFile.docState && (caseFile.docState.minfile || caseFile.docState.ref)) || '',
       styleProfileId: caseFile.styleProfileId,

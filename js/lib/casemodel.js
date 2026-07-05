@@ -1,9 +1,12 @@
 /* casemodel.js — the case file: a self-contained JSON document with a schema
-   version. Version 2 wraps the original Approvals_Composer draft (version 1)
-   unchanged inside `docState`, and adds the pathway, style profile, folio
-   start number, and the pathway-specific sections (evaluation, verbal,
-   disposal, vote status). Migration from v1 loses nothing: unknown fields
-   are preserved under `extra.unknownV1Fields` and reported.
+   version. Version 3 separates the three activities the office actually
+   performs — routine/daily procurement, formal tender/RFP/ITB evaluation,
+   and disposal of public property — as distinct modules chosen before any
+   data is entered. Version 2 wrapped the original Approvals_Composer draft
+   (version 1) unchanged inside `docState` and used pathway codes P1–P4;
+   both older versions still open losslessly: v1 fields are preserved under
+   `extra.unknownV1Fields`, and a v2 pathway is preserved under
+   `extra.legacyPathway` while mapping onto its module.
    Loads in the browser as MODPA.casemodel and in Node via require(). */
 (function (root, factory) {
   'use strict';
@@ -16,16 +19,56 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  var SCHEMA_VERSION = 2;
+  var SCHEMA_VERSION = 3;
   var APP = 'MODPA';
-  var APP_VERSION = '2.0.0';
+  var APP_VERSION = '3.0.0';
 
+  /* The three activities. Each is a separate workflow with its own forms,
+     checks, decision points and documents; they share only the neutral
+     tools (money, words, folios, save/load, verification framework). */
+  var MODULES = {
+    'routine': 'Routine / daily procurement',
+    'formal-evaluation': 'Formal tender / RFP / ITB evaluation',
+    'disposal': 'Disposal of public property'
+  };
+
+  /* Within routine procurement only: who the papers are presented for.
+     One workflow, two presentations — not two process types. */
+  var PRESENTATIONS = {
+    'internal': 'Ministry internal minute',
+    'formation': 'External formation (letter + minute)'
+  };
+
+  /* The v2 pathway codes, kept so old case files and callers map cleanly.
+     P1/P2 were the same routine workflow in two presentations; P3 was the
+     routine supplier-comparison worksheet mislevelled as a process type;
+     P4 was disposal. */
   var PATHWAYS = {
     P1: 'Ministry internal procurement',
     P2: 'Procurement on behalf of external formations',
     P3: 'Evaluation Committee',
     P4: 'Disposal Committee'
   };
+  var LEGACY_ACTIVITY = {
+    P1: { module: 'routine', presentation: 'internal' },
+    P2: { module: 'routine', presentation: 'formation' },
+    P3: { module: 'routine', presentation: 'internal' },
+    P4: { module: 'disposal', presentation: null }
+  };
+
+  /* Accepts a module id or a legacy pathway code; returns
+     { module, presentation } or null if unrecognised. */
+  function normalizeActivity(x) {
+    if (MODULES[x]) return { module: x, presentation: x === 'routine' ? 'internal' : null };
+    if (LEGACY_ACTIVITY[x]) return { module: LEGACY_ACTIVITY[x].module, presentation: LEGACY_ACTIVITY[x].presentation };
+    return null;
+  }
+
+  function activityLabel(cf) {
+    var label = MODULES[cf.module] || String(cf.module);
+    if (cf.module === 'routine' && PRESENTATIONS[cf.presentation]) label += ' — ' + PRESENTATIONS[cf.presentation];
+    return label;
+  }
 
   /* Every field of the v1 (Approvals_Composer) flat draft. Order is the
      legacy declaration order; anything outside this list is unknown-v1. */
@@ -67,13 +110,17 @@
     return 'CASE-' + stamp + '-' + suffix;
   }
 
-  function newCase(pathway, styleProfileId, nowIso) {
-    if (!PATHWAYS[pathway]) throw new Error('Unknown pathway: ' + pathway);
+  /* activity: a module id ('routine' | 'formal-evaluation' | 'disposal')
+     or a legacy pathway code (P1–P4), which maps to its module. */
+  function newCase(activity, styleProfileId, nowIso) {
+    var a = normalizeActivity(activity);
+    if (!a) throw new Error('Unknown activity: ' + activity);
     var now = nowIso || new Date().toISOString();
-    return {
+    var cf = {
       schemaVersion: SCHEMA_VERSION,
       caseId: newCaseId(now),
-      pathway: pathway,
+      module: a.module,
+      presentation: a.presentation,
       styleProfileId: styleProfileId || 'ministry-dotted',
       folioStart: 1,
       /* null until decided; 'manual' | 'follow-folio'. The question is
@@ -82,20 +129,24 @@
       meta: {
         app: APP, appVersion: APP_VERSION,
         createdAt: now, modifiedAt: now,
-        history: [{ at: now, event: 'created', detail: 'Pathway ' + pathway + ' — ' + PATHWAYS[pathway] }]
+        history: []
       },
       docState: blankDocState(),
       evaluation: null,
       verbal: null,
+      formal: null,
       disposal: null,
       voteStatus: null,
       extra: {}
     };
+    cf.meta.history.push({ at: now, event: 'created', detail: 'Activity: ' + activityLabel(cf) });
+    return cf;
   }
 
-  /* 2 | 1 | 0 (unrecognised) */
+  /* 3 | 2 | 1 | 0 (unrecognised) */
   function detectVersion(obj) {
     if (!obj || typeof obj !== 'object') return 0;
+    if (obj.schemaVersion === 3 && obj.docState && typeof obj.docState === 'object') return 3;
     if (obj.schemaVersion === 2 && obj.docState && typeof obj.docState === 'object') return 2;
     if (!('schemaVersion' in obj) && Array.isArray(obj.items)) return 1;
     return 0;
@@ -137,37 +188,71 @@
     for (var r = 0; r < repairNotes.length; r++) report.push('Repaired: ' + repairNotes[r]);
     var unknownKeys = Object.keys(unknown);
     if (unknownKeys.length) report.push('Preserved unrecognised v1 field(s) unchanged: ' + unknownKeys.join(', '));
-    var cf = newCase('P2', 'ttcg-formation', now);
+    var cf = newCase('routine', 'ttcg-formation', now);
+    cf.presentation = 'formation';
     cf.docState = doc;
     cf.extra = unknownKeys.length ? { unknownV1Fields: unknown } : {};
     cf.meta.history.push({ at: now, event: 'migrated', detail: 'Migrated from schema version 1 (Approvals Composer draft). ' + (report.length ? report.join(' | ') : 'No repairs required.') });
-    report.unshift('Migrated from schema version 1. The draft opened in pathway P2 (formation approval) with the TTCG formation profile — the combination that reproduces the old tool’s documents exactly. Change the pathway or profile if this case is something else.');
+    report.unshift('Migrated from schema version 1. The draft opened as routine procurement for an external formation, with the TTCG formation profile — the combination that reproduces the old tool’s documents exactly. Change the presentation or profile if this case is something else.');
+    return { caseFile: cf, report: report };
+  }
+
+  /* v2 case file -> { caseFile, report } . Operates on the object itself:
+     every section, figure and history entry is preserved; the pathway is
+     kept under extra.legacyPathway while its module takes over. */
+  function migrateV2(cf, nowIso) {
+    var now = nowIso || new Date().toISOString();
+    var report = [];
+    var pathway = cf.pathway;
+    var a = LEGACY_ACTIVITY[pathway] || { module: 'routine', presentation: 'internal' };
+    if (!LEGACY_ACTIVITY[pathway]) report.push('The saved pathway "' + pathway + '" is not one this system knows; the case opened under routine procurement. Its original value is preserved on the case.');
+    cf.schemaVersion = SCHEMA_VERSION;
+    cf.module = a.module;
+    cf.presentation = a.presentation;
+    if (!('formal' in cf)) cf.formal = null;
+    delete cf.pathway;
+    if (!cf.extra || typeof cf.extra !== 'object') cf.extra = {};
+    cf.extra.legacyPathway = pathway;
+    repairV1(cf.docState);
+    cf.meta.history.push({ at: now, event: 'migrated', detail: 'Migrated from schema version 2: pathway ' + pathway + ' (' + (PATHWAYS[pathway] || 'unknown') + ') became ' + activityLabel(cf) + '. Every section and figure carried over unchanged.' });
+    report.unshift('Migrated from schema version 2. Pathway ' + pathway + ' opened as ' + activityLabel(cf) + '; every section and figure carried over unchanged.');
     return { caseFile: cf, report: report };
   }
 
   /* Any parsed JSON object -> { ok, caseFile, report, errors } */
   function load(obj, nowIso) {
     var v = detectVersion(obj);
-    if (v === 2) {
+    if (v === 3) {
       var errs = validate(obj);
       if (errs.length) return { ok: false, caseFile: null, report: [], errors: errs };
       repairV1(obj.docState);
       return { ok: true, caseFile: obj, report: [], errors: [] };
     }
+    if (v === 2) {
+      var m2 = migrateV2(obj, nowIso);
+      var errs2 = validate(m2.caseFile);
+      if (errs2.length) return { ok: false, caseFile: null, report: [], errors: errs2 };
+      return { ok: true, caseFile: m2.caseFile, report: m2.report, errors: [] };
+    }
     if (v === 1) {
-      var m = migrateV1(obj, nowIso);
-      return { ok: true, caseFile: m.caseFile, report: m.report, errors: [] };
+      var m1 = migrateV1(obj, nowIso);
+      return { ok: true, caseFile: m1.caseFile, report: m1.report, errors: [] };
     }
     return { ok: false, caseFile: null, report: [], errors: ['This file is not a case file saved by this system, nor a draft saved by the Approvals Composer.'] };
   }
 
-  /* Structural validation of a v2 case file. Returns a list of problems;
+  /* Structural validation of a v3 case file. Returns a list of problems;
      an empty list means structurally sound. */
   function validate(cf) {
     var errs = [];
     if (!cf || typeof cf !== 'object') return ['Not an object.'];
-    if (cf.schemaVersion !== 2) errs.push('schemaVersion must be 2.');
-    if (!PATHWAYS[cf.pathway]) errs.push('Unknown pathway: ' + cf.pathway);
+    if (cf.schemaVersion !== SCHEMA_VERSION) errs.push('schemaVersion must be ' + SCHEMA_VERSION + '.');
+    if (!MODULES[cf.module]) errs.push('Unknown module: ' + cf.module);
+    if (cf.module === 'routine') {
+      if (!PRESENTATIONS[cf.presentation]) errs.push('A routine case must record its presentation ("internal" or "formation").');
+    } else if (cf.presentation != null) {
+      errs.push('Only routine procurement has a presentation; ' + cf.module + ' cases must leave it unset.');
+    }
     if (!cf.docState || typeof cf.docState !== 'object') errs.push('docState missing.');
     if (typeof cf.styleProfileId !== 'string' || !cf.styleProfileId) errs.push('styleProfileId missing.');
     if (!(Number.isInteger(cf.folioStart) && cf.folioStart >= 1)) errs.push('folioStart must be a whole number of 1 or more.');
@@ -178,16 +263,33 @@
     return errs;
   }
 
-  /* Move a case between pathways, keeping every section and recording the
-     transition. The caller applies any data projection (for example the
-     evaluation result becoming award items) before or after this call. */
-  function transitionPathway(cf, toPathway, detail, nowIso) {
-    if (!PATHWAYS[toPathway]) throw new Error('Unknown pathway: ' + toPathway);
+  /* Move a case to another activity (module id or legacy pathway code),
+     keeping every section and recording the transition. Rare by design —
+     the activity is chosen before data entry — but a case misfiled at the
+     start must be movable without retyping. */
+  function transitionActivity(cf, to, detail, nowIso) {
+    var a = normalizeActivity(to);
+    if (!a) throw new Error('Unknown activity: ' + to);
     var now = nowIso || new Date().toISOString();
-    var from = cf.pathway;
-    cf.pathway = toPathway;
+    var from = activityLabel(cf);
+    cf.module = a.module;
+    cf.presentation = a.presentation;
     cf.meta.modifiedAt = now;
-    cf.meta.history.push({ at: now, event: 'pathway-changed', detail: 'From ' + from + ' to ' + toPathway + (detail ? ' — ' + detail : '') });
+    cf.meta.history.push({ at: now, event: 'activity-changed', detail: 'From ' + from + ' to ' + activityLabel(cf) + (detail ? ' — ' + detail : '') });
+    return cf;
+  }
+
+  /* Routine only: switch between the Ministry-internal minute and the
+     external-formation presentation. The data is one case either way. */
+  function setPresentation(cf, presentation, detail, nowIso) {
+    if (cf.module !== 'routine') throw new Error('Only routine procurement has a presentation.');
+    if (!PRESENTATIONS[presentation]) throw new Error('Unknown presentation: ' + presentation);
+    if (cf.presentation === presentation) return cf;
+    var now = nowIso || new Date().toISOString();
+    var from = cf.presentation;
+    cf.presentation = presentation;
+    cf.meta.modifiedAt = now;
+    cf.meta.history.push({ at: now, event: 'presentation-changed', detail: 'From ' + (PRESENTATIONS[from] || from) + ' to ' + PRESENTATIONS[presentation] + (detail ? ' — ' + detail : '') });
     return cf;
   }
 
@@ -201,16 +303,22 @@
   return {
     SCHEMA_VERSION: SCHEMA_VERSION,
     APP_VERSION: APP_VERSION,
+    MODULES: MODULES,
+    PRESENTATIONS: PRESENTATIONS,
     PATHWAYS: PATHWAYS,
     V1_FIELDS: V1_FIELDS,
+    normalizeActivity: normalizeActivity,
+    activityLabel: activityLabel,
     blankDocState: blankDocState,
     newCase: newCase,
     newCaseId: newCaseId,
     detectVersion: detectVersion,
     migrateV1: migrateV1,
+    migrateV2: migrateV2,
     load: load,
     validate: validate,
-    transitionPathway: transitionPathway,
+    transitionActivity: transitionActivity,
+    setPresentation: setPresentation,
     touch: touch,
     serialize: serialize
   };

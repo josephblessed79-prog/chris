@@ -199,24 +199,22 @@ t.test('materials: paragraph numbering runs 2..10 as in the sample', () => {
   t.ok(html.indexOf('<div class="no">11.</div>') < 0);
 });
 
-t.test('materials: evaluation report and worksheet render for the P3 view of the case', () => {
+t.test('materials: comparison record and worksheet render for the case', () => {
   const cf = materialsCase();
-  cf.pathway = 'P3';
   const report = documents.build(cf, 'eval-report');
-  t.ok(report.indexOf('EVALUATION REPORT') > 0);
+  t.ok(report.indexOf('SUPPLIER COMPARISON RECORD') > 0);
   t.ok(report.indexOf('seven (7) suppliers') > 0);
   t.ok(report.indexOf('Lowest compliant quotation') > 0);
   t.ok(report.indexOf('Seventy-Eight Thousand, Three Hundred and Eighty-Nine Dollars and Sixty-Four Cents ($78,389.64)') > 0);
   const ws = documents.build(cf, 'eval-worksheet');
-  t.ok(ws.indexOf('EVALUATION WORKSHEET') > 0);
+  t.ok(ws.indexOf('SUPPLIER COMPARISON WORKSHEET') > 0);
   t.ok(ws.indexOf('Suppliers that Did Not Quote') > 0);
 });
 
-t.test('materials: P3 -> P1 carry-over keeps every figure without retyping', () => {
+t.test('materials: the comparison result reaches the minute without retyping', () => {
   const cf = materialsCase();
-  cf.pathway = 'P3';
-  cm.transitionPathway(cf, 'P1', 'Evaluation adopted; minute prepared', '2026-05-21T10:00:00.000Z');
-  t.eq(cf.pathway, 'P1');
+  t.eq(cf.module, 'routine');
+  t.eq(cf.presentation, 'internal');
   const html = documents.build(cf, 'minute');
   t.ok(html.indexOf('$78,389.64') > 0);
   const evd = require('../../js/lib/evaluation.js');

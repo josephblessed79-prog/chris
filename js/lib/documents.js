@@ -2,7 +2,7 @@
    profile, routes each document type to the right builder. Legacy-kind
    profiles route to the ported Approvals Composer builders (byte-identical
    output, proven by test); hybrid-kind profiles route to the hybrid minute
-   builder used by pathways P1 and P2 in the sample house style.
+   builder used by routine procurement in the sample house style.
    Loads in the browser as MODPA.documents and in Node via require(). */
 (function (root, factory) {
   'use strict';
@@ -38,24 +38,35 @@
     extraBuilders[docType] = fn;
   }
 
-  /* Which document types make sense for a case, by pathway and profile. */
+  /* Which document types make sense for a case. The menu is module-scoped:
+     each activity sees only its own instruments, and nothing procurement-
+     worded is ever offered to a disposal case. */
   function availableDocs(caseFile) {
-    var p = styleprofile.get(caseFile.styleProfileId);
     var out = [];
-    if (caseFile.pathway === 'P2') out.push({ id: 'approval', label: 'Formation approval letter' });
+    if (caseFile.module === 'disposal') {
+      if (caseFile.disposal) {
+        out.push({ id: 'disposal-inventory', label: 'Disposal inventory and valuation record' });
+        out.push({ id: 'disposal-minute', label: 'Disposal Committee minute' });
+        out.push({ id: 'disposal-instrument', label: 'Approval instrument (disposal)' });
+      }
+      return out;
+    }
+    if (caseFile.module === 'formal-evaluation') {
+      /* The formal module registers its own documents (OPR evaluation
+         report, conflict-of-interest and confidentiality declarations)
+         when its engine is loaded. */
+      return out;
+    }
+    /* routine / daily procurement */
+    if (caseFile.presentation === 'formation') out.push({ id: 'approval', label: 'Formation approval letter' });
     out.push({ id: 'minute', label: 'Ministry minute sheet' });
-    if (caseFile.pathway === 'P1' && caseFile.verbal) {
+    if (caseFile.verbal) {
       out.push({ id: 'verbal-form', label: 'Verbal quotation form' });
       out.push({ id: 'phone-register', label: 'Telephone-contact register' });
     }
-    if (caseFile.pathway === 'P3' && caseFile.evaluation) {
-      out.push({ id: 'eval-report', label: 'Evaluation report' });
-      out.push({ id: 'eval-worksheet', label: 'Evaluation worksheet' });
-    }
-    if (caseFile.pathway === 'P4' && caseFile.disposal) {
-      out.push({ id: 'disposal-inventory', label: 'Disposal inventory and valuation record' });
-      out.push({ id: 'disposal-minute', label: 'Disposal Committee minute' });
-      out.push({ id: 'disposal-instrument', label: 'Approval instrument (disposal)' });
+    if (caseFile.evaluation) {
+      out.push({ id: 'eval-report', label: 'Supplier comparison record' });
+      out.push({ id: 'eval-worksheet', label: 'Supplier comparison worksheet' });
     }
     out.push({ id: 'checklist', label: 'Approvals checklist' });
     out.push({ id: 'certificate', label: 'Verification certificate' });

@@ -1,9 +1,13 @@
-/* verifycase.js — pathway-aware verification over a whole v2 case file.
-   Assembles the right check series for what the case actually is:
-     - item/quote cases (legacy P1/P2): the full C-series;
-     - evaluation cases (P3, or P1/P2 carried from P3): G-series + E-series;
-     - verbal micro-procurement (P1): G-series + V-series;
-     - vote status (any pathway): H-series;
+/* verifycase.js — module-aware verification over a whole v3 case file.
+   Each module owns its check series; the framework merges only the series
+   that belong to the case's own module:
+     - routine procurement: C-series (item/quote cases) or G-series with
+       E-series (comparison worksheet) / V-series (verbal record), plus
+       the H-series vote checks — the vote book is a routine instrument;
+     - formal tender/RFP/ITB evaluation: G-series (F-series to come with
+       the formal engine);
+     - disposal: G-series + D-series — never procurement-award or vote
+       logic;
    and computes the one figure every stamp depends on: does the case clear?
    Loads in the browser as MODPA.verifycase and in Node via require(). */
 (function (root, factory) {
@@ -56,12 +60,21 @@
     var R = [];
     var isEval = !!(caseFile.evaluation && caseFile.evaluation.items && caseFile.evaluation.items.length);
     var isVerbal = !!(caseFile.verbal && (caseFile.verbal.contacts.length || caseFile.verbal.schedule.length));
-    var isDisposal = caseFile.pathway === 'P4' || !!(caseFile.disposal && caseFile.disposal.items && caseFile.disposal.items.length);
+    var isDisposal = caseFile.module === 'disposal' || !!(caseFile.disposal && caseFile.disposal.items && caseFile.disposal.items.length);
     if (isDisposal) {
       R = R.concat(runGeneralChecks(caseFile));
       R = R.concat(disposal.runDisposalChecks(caseFile.disposal));
       R = R.concat(sheetNumberingCheck(caseFile));
       return R; /* a disposal case has no procurement award or vote status */
+    }
+    if (caseFile.module === 'formal-evaluation') {
+      /* The formal engine brings its own F-series (committee, declarations,
+         preliminary examination, scoring, ranking). Until it is loaded the
+         general controls still apply; vote-book checks never do — the vote
+         book is a routine instrument. */
+      R = R.concat(runGeneralChecks(caseFile));
+      R = R.concat(sheetNumberingCheck(caseFile));
+      return R;
     }
     if (isEval || isVerbal) {
       R = R.concat(runGeneralChecks(caseFile));

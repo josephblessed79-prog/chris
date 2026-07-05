@@ -89,14 +89,16 @@
   function renderCase(panel) {
     var cf = APP.caseFile;
     var profiles = M.styleprofile.list().map(function (p) { return [p.id, p.name]; });
-    var h = '<h2 class="p">Case Details — ' + esc(cf.pathway) + ' · ' + esc(M.casemodel.PATHWAYS[cf.pathway]) + '</h2>';
-    h += '<p class="hint">Fields here appear on every document. The style profile controls presentation only (letterhead, folio numerals, routing lines, phrases); the figures and checks are the same for every profile.</p>';
+    var h = '<h2 class="p">Case Details — ' + esc(M.casemodel.activityLabel(cf)) + '</h2>';
+    h += '<p class="hint">Fields here appear on every document. The style profile controls presentation only (letterhead, folio numerals, routing lines, phrases); the figures and checks are the same for every profile. The activity was chosen on the Start screen and is recorded on the case.</p>';
     h += '<fieldset class="box"><legend>Presentation</legend><div class="grid">';
     h += fieldHTML('Style profile', 'styleProfileId', { type: 'select', options: profiles });
     h += '<label class="f">Starting folio number (the register numbers from here)<input type="number" min="1" step="1" data-special="folioStart" value="' + esc(String(cf.folioStart)) + '"></label>';
-    h += '<label class="f">Pathway<select data-special="pathway">' + Object.keys(M.casemodel.PATHWAYS).map(function (p) {
-      return '<option value="' + p + '"' + (cf.pathway === p ? ' selected' : '') + '>' + p + ' — ' + esc(M.casemodel.PATHWAYS[p]) + '</option>';
-    }).join('') + '</select></label>';
+    if (cf.module === 'routine') {
+      h += '<label class="f">Papers presented for<select data-special="presentation">' + Object.keys(M.casemodel.PRESENTATIONS).map(function (p) {
+        return '<option value="' + p + '"' + (cf.presentation === p ? ' selected' : '') + '>' + esc(M.casemodel.PRESENTATIONS[p]) + '</option>';
+      }).join('') + '</select></label>';
+    }
     h += '</div>';
     /* The sheet-numbering question lives in a computed container: it is
        asked ONLY while the starting folio is above 1 — with folio start 1
@@ -112,8 +114,8 @@
     h += fieldHTML('Background / operational need (each blank-line-separated paragraph becomes a numbered minute paragraph)', 'docState.need', { type: 'textarea', wide: true });
     h += fieldHTML('The suppliers are registered with the OPR’s Procurement Depository (prints the advisory line)', 'oprRegistered', { type: 'checkbox', wide: true });
     h += '</div></fieldset>';
-    if (cf.pathway === 'P2') {
-      h += '<fieldset class="box"><legend>Formation letter (P2)</legend><div class="grid">';
+    if (cf.module === 'routine' && cf.presentation === 'formation') {
+      h += '<fieldset class="box"><legend>Formation letter (external formation)</legend><div class="grid">';
       h += fieldHTML('Letter file reference', 'docState.ref', { placeholder: 'e.g. CG: 5/4/7' });
       h += fieldHTML('Formation name (letterhead)', 'docState.formation', {});
       h += fieldHTML('Letterhead lines (one per line)', 'docState.lhlines', { type: 'textarea' });
@@ -130,7 +132,7 @@
     h += fieldHTML('Post (e.g. Clerk IV (Ag))', 'docState.minsigpost', {});
     h += '</div></fieldset>';
     h += composerHTML(cf);
-    if (cf.pathway === 'P1' || cf.pathway === 'P2') {
+    if (cf.module === 'routine') {
       h += '<fieldset class="box"><legend>Procurement method (item-and-quotation cases)</legend><div class="grid">';
       h += fieldHTML('Method', 'docState.method', { type: 'select', options: ['Request for Quotation', 'Open Tender', 'Selective Tender', 'Direct Contracting', 'Single / National Provider', 'Emergency Procurement'].map(function (x) { return [x, x]; }) });
       h += fieldHTML('Date RFQ / invitation issued', 'docState.rfqdate', { type: 'date' });
@@ -147,24 +149,24 @@
   /* ================= WORKING PAPERS ================= */
   function renderWork(panel) {
     var cf = APP.caseFile;
-    if (cf.pathway === 'P3') return renderEvaluation(panel);
-    if (cf.pathway === 'P4') return renderDisposal(panel);
-    /* P1 / P2 */
-    var h = '<h2 class="p">Working Papers — ' + esc(cf.pathway) + '</h2>';
-    if (cf.evaluation && cf.evaluation.items.length) {
-      var bk = M.evaluation.breakdown(cf.evaluation);
-      h += '<div class="notice green"><b>This case carries an Evaluation Committee result</b> (' + bk.schedules.length + ' supplier award' + (bk.schedules.length === 1 ? '' : 's') + ', grand total ' + (bk.bad ? 'CHECK' : fmtMoney(bk.grandTotalCents)) + '). The minute is built from it without retyping. To adjust it, switch the pathway to P3, edit, and switch back.</div>';
-      panel.innerHTML = h;
+    if (cf.module === 'disposal') return renderDisposal(panel);
+    if (cf.module === 'formal-evaluation') {
+      panel.innerHTML = '<h2 class="p">Working Papers — Formal tender / RFP / ITB evaluation</h2>' +
+        '<div class="notice"><b>The formal evaluation module is being fitted.</b> This activity produces the Evaluation Committee report per the OPR template — committee, conflict-of-interest and confidentiality declarations, preliminary examination, technical and financial evaluation, ranking and recommendation. Its working papers arrive with that module; nothing routine belongs here.</div>';
       return;
     }
-    if (cf.pathway === 'P1') {
-      var isVerbal = !!cf.verbal;
-      h += '<fieldset class="box"><legend>How was this procured?</legend>';
-      h += '<label class="f" style="display:inline-block;margin-right:18px"><input type="radio" name="p1mode" data-special="p1mode" value="verbal"' + (isVerbal ? ' checked' : '') + '> Micro-procurement by verbal quotation</label>';
-      h += '<label class="f" style="display:inline-block"><input type="radio" name="p1mode" data-special="p1mode" value="items"' + (!isVerbal ? ' checked' : '') + '> Written quotations (items and supplier rows)</label>';
-      h += '</fieldset>';
-      if (isVerbal) { panel.innerHTML = h + verbalEditorHTML(cf); bindInputs(panel); return; }
-    }
+    /* routine / daily procurement: the case decides its own working paper —
+       written quotations on items, a verbal/telephone record, or the fuller
+       supplier-comparison worksheet. The choice is offered, never forced. */
+    if (cf.evaluation) return renderEvaluation(panel);
+    var isVerbal = !!cf.verbal;
+    var h = '<h2 class="p">Working Papers — Routine procurement</h2>';
+    h += '<fieldset class="box"><legend>How was this procured?</legend>';
+    h += '<label class="f" style="display:inline-block;margin-right:18px"><input type="radio" name="routinePapers" data-special="routine-papers" value="items"' + (!isVerbal ? ' checked' : '') + '> Written quotations (items and supplier rows)</label>';
+    h += '<label class="f" style="display:inline-block;margin-right:18px"><input type="radio" name="routinePapers" data-special="routine-papers" value="verbal"' + (isVerbal ? ' checked' : '') + '> Micro-procurement by verbal quotation</label>';
+    h += '<label class="f" style="display:inline-block"><input type="radio" name="routinePapers" data-special="routine-papers" value="worksheet"> Supplier comparison worksheet (many items × many suppliers)</label>';
+    h += '</fieldset>';
+    if (isVerbal) { panel.innerHTML = h + verbalEditorHTML(cf); bindInputs(panel); return; }
     h += itemsEditorHTML(cf);
     panel.innerHTML = h;
     bindInputs(panel);
@@ -294,7 +296,7 @@
      against the legacy tool). */
   function composerHTML(cf) {
     var targets = [['need', 'Background / operational need']];
-    if (cf.pathway === 'P1' || cf.pathway === 'P2') {
+    if (cf.module === 'routine') {
       targets.push(['methodjust', 'Method justification']);
       targets.push(['minextra', 'Extra minute paragraphs']);
     }
@@ -415,8 +417,8 @@
     var cf = APP.caseFile;
     if (!cf.evaluation) cf.evaluation = M.evaluation.newEvaluation();
     var ev = cf.evaluation;
-    var h = '<h2 class="p">Evaluation Worksheet — P3</h2>';
-    h += '<p class="hint">Items down the side, suppliers across the top. Tick V on a cell where VAT applies. Where a supplier prices by the case, record the pack size — the conversion is computed, never left as a note. The lowest compliant quotation per item is computed; overriding it requires a written justification and shows on every document.</p>';
+    var h = '<h2 class="p">Supplier Comparison Worksheet — Routine procurement</h2>';
+    h += '<p class="hint">A working paper inside the travelling file — not the formal tender evaluation report, which is a separate activity on the Start screen. Items down the side, suppliers across the top. Tick V on a cell where VAT applies. Where a supplier prices by the case, record the pack size — the conversion is computed, never left as a note. The lowest compliant quotation per item is computed; overriding it requires a written justification and shows on every document.</p>';
 
     h += '<fieldset class="box"><legend>Suppliers</legend><div class="scrollx"><table class="q"><thead><tr><th>Name</th><th>Status</th><th>Address</th><th></th></tr></thead><tbody>';
     for (var s = 0; s < ev.suppliers.length; s++) {
@@ -493,9 +495,10 @@
       h += '<div class="notice"><b>Awards (computed):</b> <span data-compute="eval-awards">' + bk.schedules.map(function (sch) {
         return esc(sch.name) + ' — ' + fmtMoney(sch.totalCents);
       }).join(' · ') + (bk.schedules.length ? ' · <b>Grand total ' + (bk.bad ? 'CHECK' : fmtMoney(bk.grandTotalCents)) + '</b>' : 'none yet') + '</span></div>';
-      h += '<button class="btn" data-action="carry-p1">Carry result to a P1 minute</button> ';
-      h += '<button class="btn sec" data-action="carry-p2">Carry result to a P2 formation approval</button>';
+      h += '<button class="btn" data-action="adopt-internal">Adopt into the Ministry internal minute</button> ';
+      h += '<button class="btn sec" data-action="adopt-formation">Adopt into a formation approval (letter + minute)</button> ';
     }
+    h += '<button class="btn danger small" style="margin-top:10px" data-action="worksheet-discard">Discard the comparison worksheet (removes every recorded price)</button>';
     panel.innerHTML = h;
     bindInputs(panel);
   }
@@ -505,7 +508,7 @@
     var cf = APP.caseFile;
     if (!cf.disposal) cf.disposal = M.disposal.newDisposal();
     var d = cf.disposal;
-    var h = '<h2 class="p">Disposal — P4</h2>';
+    var h = '<h2 class="p">Disposal of Public Property</h2>';
     h += '<div class="notice"><b>Formats awaiting authority.</b> No sample disposal file has been provided; the disposal documents are scaffolded from the Act and carry a visible banner saying so. Supply a signed sample disposal file to confirm the formats.</div>';
     h += '<fieldset class="box"><legend>Disposal Committee</legend><div class="scrollx"><table class="q"><thead><tr><th>Name</th><th>Post</th><th></th></tr></thead><tbody>';
     for (var m = 0; m < d.committee.length; m++) {
@@ -564,7 +567,7 @@
     h += '<div data-compute="vote-base-box">' + voteBaseBoxHTML(cf) + '</div>';
     h += '<div data-compute="vote-balances">' + voteBalancesHTML(cf) + '</div>';
     h += '</fieldset>';
-    if (cf.pathway === 'P1' || cf.pathway === 'P2') {
+    if (cf.module === 'routine') {
       h += '<fieldset class="box"><legend>Item-and-quotation cases (legacy fields, used by the formation letter and old-style minute)</legend><div class="grid">';
       h += fieldHTML('VAT treatment', 'docState.vat', { type: 'select', options: [['', '— select —'], ['VAT Inclusive', 'VAT Inclusive'], ['VAT Exclusive (VAT shown separately)', 'VAT Exclusive (VAT shown separately)'], ['VAT and Duty Free', 'VAT and Duty Free'], ['VAT Not Applicable', 'VAT Not Applicable']] });
       h += fieldHTML('Vote to be utilised (free text, one line per element)', 'docState.vote', { type: 'textarea', wide: true });
@@ -593,7 +596,7 @@
         '<td class="rowbtns"><button class="btn danger small" data-action="folio-del" data-i="' + i + '">✕</button></td></tr>';
     }
     h += '</tbody></table></div><button class="btn sec small" data-action="folio-add">＋ Add folio line</button>';
-    if (cf.pathway === 'P2') {
+    if (cf.module === 'routine' && cf.presentation === 'formation') {
       h += '<fieldset class="box" style="margin-top:16px"><legend>Attachments (formation letter)</legend>';
       h += '<button class="btn sec small" data-action="att-auto">Auto-build from supplier rows</button>';
       h += '<div class="scrollx"><table class="q"><thead><tr><th style="width:44px">No.</th><th>Attachment</th><th></th></tr></thead><tbody>';
@@ -681,9 +684,9 @@
     if (APP.registerIndex) {
       var idx = APP.registerIndex;
       h += '<p><b>' + idx.cases.length + '</b> case(s) indexed at ' + esc(idx.builtAt) + '.' + (idx.problems.length ? ' <b style="color:var(--red)">' + idx.problems.length + ' file(s) could not be read:</b> ' + esc(idx.problems.join(' | ')) : '') + '</p>';
-      h += '<div class="scrollx"><table class="q"><thead><tr><th>File No</th><th>Subject</th><th>Pathway</th><th>Total</th><th>Cleared</th><th>Modified</th><th></th></tr></thead><tbody>';
+      h += '<div class="scrollx"><table class="q"><thead><tr><th>File No</th><th>Subject</th><th>Activity</th><th>Total</th><th>Cleared</th><th>Modified</th><th></th></tr></thead><tbody>';
       idx.cases.forEach(function (c, i) {
-        h += '<tr><td>' + esc(c.fileNo) + '</td><td>' + esc(c.subject) + '</td><td class="ctr">' + esc(c.pathway) + '</td><td class="tot">' + esc(c.totalDisplay) + '</td><td class="ctr">' + (c.cleared ? 'Yes' : c.failing + ' failing') + '</td><td>' + esc(c.modifiedAt) + '</td><td><button class="btn small" data-action="register-open" data-i="' + i + '">Open</button></td></tr>';
+        h += '<tr><td>' + esc(c.fileNo) + '</td><td>' + esc(c.subject) + '</td><td class="ctr">' + esc(c.activity || c.module || c.pathway || '') + '</td><td class="tot">' + esc(c.totalDisplay) + '</td><td class="ctr">' + (c.cleared ? 'Yes' : c.failing + ' failing') + '</td><td>' + esc(c.modifiedAt) + '</td><td><button class="btn small" data-action="register-open" data-i="' + i + '">Open</button></td></tr>';
       });
       h += '</tbody></table></div>';
     }

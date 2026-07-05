@@ -53,12 +53,13 @@
     panel.innerHTML = h;
   }
 
-  /* Where can each kind of candidate go? Options depend on the pathway. */
+  /* Where can each kind of candidate go? Options depend on the module
+     and the sections the case actually carries. */
   function targetSelect(c, i) {
     var cf = APP.caseFile;
     var opts = [];
     if (c.kind === 'supplier') {
-      if (cf.pathway === 'P3') opts.push(['eval-supplier', 'Add to evaluation suppliers']);
+      if (cf.module === 'routine' && cf.evaluation) opts.push(['eval-supplier', 'Add to comparison-worksheet suppliers']);
       if (cf.verbal) opts.push(['verbal-contact', 'Add to telephone contacts']);
       opts.push(['item-supplier-row', 'Add a supplier row to the last item']);
     } else if (c.kind === 'date') {
@@ -68,7 +69,7 @@
     } else if (c.kind === 'figure') {
       opts.push(['fig-funds', 'Available funds (cover check)'], ['fig-note', 'Keep on the staging list for reference']);
     } else if (c.kind === 'item-line') {
-      if (cf.pathway === 'P3') opts.push(['eval-item', 'Add as evaluation item (price goes to the named supplier)']);
+      if (cf.module === 'routine' && cf.evaluation) opts.push(['eval-item', 'Add as comparison-worksheet item (price goes to the named supplier)']);
       opts.push(['case-item', 'Add as case item with a supplier row']);
     }
     return '<select data-cand-target="' + i + '">' + opts.map(function (o) {

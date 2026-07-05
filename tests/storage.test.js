@@ -25,7 +25,8 @@ t.test('case file names are safe and readable', () => {
 t.test('register entries summarise the case with computed totals and clearance', () => {
   const { caseFile } = cm.migrateV1(fx.shoesCase(), NOW);
   const e = storage.registerEntry(caseFile);
-  t.eq(e.pathway, 'P2');
+  t.eq(e.module, 'routine');
+  t.eq(e.activity, 'Routine / daily procurement — External formation (letter + minute)');
   // Black Shoes 120 × $450.00 + $6,750.00 VAT; White Shoes 80 × $430.00 + $4,300.00 VAT
   t.eq(e.totalCents, (120 * 45000 + 675000) + (80 * 43000 + 430000));
   t.eq(e.totalDisplay, '$99,450.00');
@@ -59,5 +60,5 @@ t.test('legacy v1 drafts in the shared folder are indexed through migration', ()
   const files = [{ name: 'old_draft.json', text: JSON.stringify(fx.splitAwardCase()) }];
   const idx = storage.rebuildRegister(files, NOW);
   t.eq(idx.cases.length, 1);
-  t.eq(idx.cases[0].pathway, 'P2');
+  t.eq(idx.cases[0].module, 'routine');
 });

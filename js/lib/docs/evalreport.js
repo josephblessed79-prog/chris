@@ -1,7 +1,10 @@
-/* docs/evalreport.js — the Evaluation Committee outputs (pathway P3):
-   the full worksheet document and the evaluation report. Registers
-   'eval-worksheet' and 'eval-report' with the dispatcher.
-   Loads as MODPA.docs.evalreport / require(). */
+/* docs/evalreport.js — the routine supplier-comparison working papers:
+   the full comparison worksheet and the comparison record. These are
+   folios inside a routine travelling file — NOT the formal OPR
+   Evaluation Committee report, which is a different module's document.
+   Registers 'eval-worksheet' and 'eval-report' with the dispatcher
+   (the ids are internal plumbing; the printed titles say what the
+   documents are). Loads as MODPA.docs.evalreport / require(). */
 (function (root, factory) {
   'use strict';
   if (typeof module === 'object' && module.exports) {
@@ -30,7 +33,7 @@
 
   function buildWorksheet(caseFile) {
     var ev = caseFile.evaluation;
-    var h = header(caseFile, 'EVALUATION WORKSHEET');
+    var h = header(caseFile, 'SUPPLIER COMPARISON WORKSHEET');
     if (!ev || !ev.items.length) return h + '<p>[No evaluation data entered.]</p>';
     h += evaluation.worksheetHTML(ev);
     h += '<p style="font-size:10.5pt">V marks a VAT-applicable cell. Pack conversions and comparable rates are computed from the recorded pack size; the comparison uses exact arithmetic, not rounded rates. [LOWEST] marks the computed lowest compliant quotation; [OVERRIDE] and [SELECTED — tied lowest] mark committee selections, with their justifications carried into the report and the verification certificate.</p>';
@@ -39,14 +42,14 @@
 
   function buildReport(caseFile) {
     var ev = caseFile.evaluation;
-    var h = header(caseFile, 'EVALUATION REPORT');
+    var h = header(caseFile, 'SUPPLIER COMPARISON RECORD');
     if (!ev || !ev.items.length) return h + '<p>[No evaluation data entered.]</p>';
     var quoted = ev.suppliers.filter(function (s) { return s.status === 'quoted'; });
     var dnq = evaluation.didNotQuote(ev);
     h += '<p>Quotations were invited from ' + textutil.countWord(ev.suppliers.length) + ' (' + ev.suppliers.length + ') suppliers; ' +
       textutil.countWord(quoted.length) + ' (' + quoted.length + ') quoted' +
       (dnq.length ? ' and ' + textutil.countWord(dnq.length) + ' (' + dnq.length + ') did not quote' : '') +
-      '. The comparison of every quoted item is at the attached worksheet; the committee’s determinations are set out below.</p>';
+      '. The comparison of every quoted item is at the attached worksheet; the determinations are set out below.</p>';
     /* per-item determinations, overrides spelled out */
     h += '<table class="cert"><thead><tr><th style="width:5%">No.</th><th>Item</th><th style="width:22%">Determination</th><th>Basis</th></tr></thead>';
     for (var i = 0; i < ev.items.length; i++) {
@@ -79,7 +82,7 @@
     }
     /* committee sign-off */
     var committee = caseFile.committee || [];
-    h += '<p style="margin-top:22pt">Determined by the Evaluation Committee:</p>';
+    h += '<p style="margin-top:22pt">Determined by:</p>';
     if (committee.length) {
       for (var m = 0; m < committee.length; m++) {
         h += '<p style="margin-top:18pt">____________________________<br><b>' + esc(committee[m].name) + '</b>' + (committee[m].post ? ' — ' + esc(committee[m].post) : '') + '</p>';

@@ -212,7 +212,7 @@ t.test('S12: evaluation result carried to a P2 letter keeps the totals exact', (
   const bk = evaluation.breakdown(ev);
   // Alpha: rope 10×$100 V, VAT $125, total $1,125; Beta: paint 20×$80 NV = $1,600
   t.eq(bk.grandTotalCents, 112500 + 160000);
-  cm.transitionPathway(cf, 'P2', 'Adopted', NOW);
+  cm.setPresentation(cf, 'formation', 'Comparison adopted into a formation approval', NOW);
   cf.docState.items = evaluation.toDocItems(ev);
   const compute = require('../../js/lib/compute.js');
   t.eq(compute.grandTotal(cf.docState.items), bk.grandTotalCents);
@@ -261,15 +261,20 @@ t.test('S15: amounts-in-words round-trip for every case total in this suite', ()
   }
 });
 
-/* Scenario 16 — a case moved P1 -> P3 -> P1 keeps its history and its data. */
-t.test('S16: pathway transitions preserve data and record history', () => {
+/* Scenario 16 — presentation moved internal -> formation -> internal keeps
+   the data and records each move; a module change does the same. */
+t.test('S16: presentation and activity transitions preserve data and record history', () => {
   const cf = cm.newCase('P1', 'ministry-dotted', NOW);
   cf.docState.subject = 'KEEP ME';
-  cm.transitionPathway(cf, 'P3', 'Evaluation needed', NOW);
-  cm.transitionPathway(cf, 'P1', 'Evaluation adopted', NOW);
+  cm.setPresentation(cf, 'formation', 'Formation request received', NOW);
+  cm.setPresentation(cf, 'internal', 'Reverted — internal after all', NOW);
   t.eq(cf.docState.subject, 'KEEP ME');
   const events = cf.meta.history.map(h => h.event);
-  t.eq(events.filter(e => e === 'pathway-changed').length, 2);
+  t.eq(events.filter(e => e === 'presentation-changed').length, 2);
+  cm.transitionActivity(cf, 'disposal', 'Misfiled', NOW);
+  t.eq(cf.docState.subject, 'KEEP ME');
+  t.eq(cf.module, 'disposal');
+  t.eq(cf.meta.history[cf.meta.history.length - 1].event, 'activity-changed');
 });
 
 /* Scenario 17 — hostile text cannot break out of the documents. */
