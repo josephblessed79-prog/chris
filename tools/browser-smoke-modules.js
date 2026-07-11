@@ -26,6 +26,8 @@ const { chromium } = require('playwright-core');
 
   // ---- disposal: own screens, no vote tab, no procurement documents
   await page.click('.pathcard[data-activity="disposal"]');
+  await page.waitForTimeout(300);
+  { const gx = await page.$('[data-action="guide-expert"]'); if (gx) await gx.click(); } // full form view (button absent if already in expert view)
   await page.waitForTimeout(250);
   check('disposal case header', (await page.textContent('#tab-case h2')).includes('Disposal of public property'));
   check('vote tab hidden for disposal', await page.isHidden('nav.tabs button[data-t="vote"]'));
@@ -74,6 +76,8 @@ const { chromium } = require('playwright-core');
   await page.click('nav.tabs button[data-t="start"]');
   await page.waitForTimeout(150);
   await page.click('.pathcard[data-activity="formal-evaluation"]');
+  await page.waitForTimeout(300);
+  { const gx = await page.$('[data-action="guide-expert"]'); if (gx) await gx.click(); } // full form view (button absent if already in expert view)
   await page.waitForTimeout(250);
   check('formal case header', (await page.textContent('#tab-case h2')).includes('Formal tender / RFP / ITB evaluation'));
   check('vote tab hidden for formal', await page.isHidden('nav.tabs button[data-t="vote"]'));
@@ -127,6 +131,8 @@ const { chromium } = require('playwright-core');
   await page.click('nav.tabs button[data-t="start"]');
   await page.waitForTimeout(150);
   await page.click('.pathcard[data-activity="routine"]');
+  await page.waitForTimeout(300);
+  { const gx = await page.$('[data-action="guide-expert"]'); if (gx) await gx.click(); } // full form view (button absent if already in expert view)
   await page.waitForTimeout(250);
   check('routine case header', (await page.textContent('#tab-case h2')).includes('Routine / daily procurement'));
   check('vote tab visible for routine', await page.isVisible('nav.tabs button[data-t="vote"]'));

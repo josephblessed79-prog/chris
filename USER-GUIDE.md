@@ -36,6 +36,37 @@ come up, each explained on screen in plain words. An old case file saved
 by the earlier version still opens: its P1/P2/P3 become routine and P4
 becomes disposal, and nothing is lost.
 
+## The guided journey (how the system opens)
+
+When you pick an activity, the system does **not** show you a wall of
+fields. It opens a **guided journey**: one plain question at a time, with
+the actual document growing in a **live preview** beside you as you type.
+What you see on the right is what will print.
+
+- The **left rail** lists the steps. A tick means done; click any step to
+  jump straight to it. Steps marked *optional* can be skipped.
+- The second step — **“Have you papers to read in?”** — is a drop zone.
+  Drop a quotation, requisition or list (Word, Excel, CSV or text-PDF)
+  and the system reads it and shows a tick-list of what it found. Safe
+  facts (references, dates, names) come pre-ticked; **amounts and item
+  lines are never pre-ticked** — each figure is your decision, ticked one
+  by one. Click **Add ticked items to my case** and the fields fill
+  themselves, each wearing a small blue **Imported** badge. You can skip
+  this step entirely and type instead.
+- The **“Check and sign”** step lists anything still missing in plain
+  words — no check codes — with a **Go** button that takes you to the
+  exact step that fixes it.
+- The last step, **“Your documents”**, previews and downloads every
+  document the case produces.
+
+Experienced users can click **Full form view** in the left rail at any
+time: the complete tabbed layout (Case Details, Working Papers, Vote &
+Funding, Folios & References, Verification, Documents). **✦ Guided view**
+in the tab strip returns to the journey. Both views edit the same case —
+switch freely, nothing is lost. The journey walkthroughs below name the
+full-form tabs; in the guided view the same questions appear inside the
+steps, in the same order you would meet them.
+
 ## The golden rules
 
 1. **Type each figure once, exactly as printed on the source document.**
@@ -156,10 +187,12 @@ disagree.
 
 ## Uploading a document (any module)
 
-Click **⬆ Upload & Extract Document** in the top bar — it is available at
-any time, from any tab. A window opens over your work; you upload a
-document and first choose, in plain words, **how the system should use
-it**:
+The quickest route is the guided journey's **papers step** — drop the
+file, tick, done. For the full options, click **⬆ Upload & Extract
+Document** in the top bar (or the link under the drop zone) — it is
+available at any time, from any tab. A window opens over your work; you
+upload a document and first choose, in plain words, **how the system
+should use it**:
 
 - **A — information only.** Read the facts inside and help fill the
   fields. The official form does not change.

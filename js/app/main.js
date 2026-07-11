@@ -17,7 +17,12 @@
     intakeAnalysis: null,
     registerIndex: null,
     registerTexts: {},
-    autosaveEnabled: true
+    autosaveEnabled: true,
+    /* Guided Mode is the default for first-time users; the full form view
+       ('expert') is one click away and fully interchangeable mid-case. */
+    uiMode: 'guided',
+    guideStep: 0,
+    guideDoc: null
   };
 
   function el(id) { return document.getElementById(id); }
@@ -25,12 +30,20 @@
   /* ---------- tabs ---------- */
   function go(tab) {
     APP.currentTab = tab;
+    document.body.classList.toggle('guided', tab === 'guide');
     var btns = document.querySelectorAll('nav.tabs button');
     for (var i = 0; i < btns.length; i++)
 
       btns[i].classList.toggle('active', btns[i].getAttribute('data-t') === tab);
     var panels = document.querySelectorAll('section.panel');
-    for (var j = 0; j < panels.length; j++) panels[j].classList.toggle('show', panels[j].id === 'tab-' + tab);
+    for (var j = 0; j < panels.length; j++) {
+      var showIt = panels[j].id === 'tab-' + tab;
+      panels[j].classList.toggle('show', showIt);
+      /* hidden panels are emptied: every panel is rebuilt on entry, and a
+         stale hidden copy of the shared editors (or a duplicate #preview)
+         must never shadow the live one */
+      if (!showIt) panels[j].innerHTML = '';
+    }
     render(tab);
     window.scrollTo(0, 0);
   }
@@ -38,15 +51,25 @@
   function render(tab) {
     var panel = el('tab-' + (tab || APP.currentTab));
     if (!panel) return;
+    if ((tab || APP.currentTab) === 'guide') { GUIDE.render(panel); updatePill(); return; }
     var fn = PANELS[tab || APP.currentTab];
     if (fn) fn(panel);
     updatePill();
   }
 
+  /* Re-render where the user actually is: the guided journey re-renders
+     itself; the tab view re-renders the named tab. */
+  function rerender(defTab) {
+    render(APP.currentTab === 'guide' ? 'guide' : defTab);
+  }
+
   /* ---------- global intake modal (available at any time) ---------- */
   function refreshIntake() {
+    /* the intake results may be showing in the modal, in the guided
+       papers step, or both — refresh whichever is live */
     var host = el('intakeBody');
-    if (host && INGEST_UI) INGEST_UI.renderIngest(host);
+    if (host && INGEST_UI && !el('intakeModal').hidden) INGEST_UI.renderIngest(host);
+    if (APP.currentTab === 'guide') render('guide');
   }
   function openIntakeModal() {
     if (!APP.caseFile) { alert('Start or open a case first, then upload a document into it.'); return; }
@@ -74,6 +97,7 @@
     }
     el('btnSave').disabled = !enabled;
     el('btnIntake').disabled = !enabled;
+    el('btnGuided').disabled = !enabled;
   }
 
   function updatePill() {
@@ -97,8 +121,10 @@
     if (APP.caseFile.module === 'formal-evaluation' && !APP.caseFile.formal) APP.caseFile.formal = M.formal.newFormal();
     APP.ingestCandidates = [];
     APP.ingestWarning = '';
+    APP.guideStep = 0;
+    APP.guideDoc = null;
     enableTabs(true);
-    go('case');
+    go(APP.uiMode === 'guided' ? 'guide' : 'case');
     touchAndAutosave();
   }
 
@@ -111,8 +137,10 @@
     APP.caseFile = loaded.caseFile;
     if (loaded.report.length) alert('Opened with notes:\n\n' + loaded.report.join('\n'));
     APP.ingestCandidates = [];
+    APP.guideStep = 0;
+    APP.guideDoc = null;
     enableTabs(true);
-    go('case');
+    go(APP.uiMode === 'guided' ? 'guide' : 'case');
     touchAndAutosave();
   }
 
@@ -248,6 +276,14 @@
       /* seed each candidate's default target so the staging screen can show
          where each fact will go, and Apply can act without re-deriving it */
       (APP.ingestCandidates || []).forEach(function (c) { c.target = INGEST_UI.defaultTargetFor(c); });
+      /* in the guided papers step, pre-tick the safe kinds (suppliers,
+         dates, references) — figures and item lines are never pre-ticked;
+         each amount is a human decision, ticked one by one */
+      if (APP.currentTab === 'guide') {
+        APP.ingestCandidates.forEach(function (c) {
+          if (M.ingest.canBulkAccept(c) && M.ingest.canAccept(c)) c.accepted = true;
+        });
+      }
       buildIntakeAnalysis(file, res);
       refreshIntake();
     }).catch(function (e) {
@@ -435,14 +471,18 @@
     if ((attr = target.getAttribute('data-special'))) {
       if (attr === 'folioStart') { cf.folioStart = Math.max(1, num(v) || 1); return true; }
       if (attr === 'presentation') {
-        if (v !== cf.presentation) { M.casemodel.setPresentation(cf, v, 'Changed on Case Details'); go('case'); }
+        if (v !== cf.presentation) {
+          M.casemodel.setPresentation(cf, v, 'Changed by the officer');
+          if (APP.currentTab === 'guide') rerender('guide'); else go('case');
+        }
         return true;
       }
+      if (attr === 'guide-doc') { APP.guideDoc = v; return true; }
       if (attr === 'routine-papers') {
         if (v === 'verbal' && !cf.verbal) cf.verbal = M.verbal.newVerbal();
         if (v === 'items') cf.verbal = null;
         if (v === 'worksheet' && !cf.evaluation) cf.evaluation = M.evaluation.newEvaluation();
-        render('work');
+        rerender('work');
         return true;
       }
       if (attr === 'intake-mode') {
@@ -454,7 +494,7 @@
       if (attr === 'outputProfile') {
         cf.outputProfile = (v === 'enhanced') ? 'enhanced' : 'approved';
         cf.meta.history.push({ at: new Date().toISOString(), event: 'output-profile', detail: 'Output profile set to ' + cf.outputProfile });
-        render('case');
+        rerender('case');
         return true;
       }
       return true;
@@ -627,7 +667,12 @@
     if (target.id === 'docSel') { APP.currentDoc = v; render('docs'); return true; }
     if (target.id === 'autosaveToggle') { APP.autosaveEnabled = target.checked; return true; }
     if (target.id === 'registerDir') { handleRegisterFiles(target.files); return false; }
-    if (target.id === 'ingestFile') { if (target.files[0]) handleIngestFile(target.files[0]); target.value = ''; return false; }
+    if (target.id === 'ingestFile' || target.id === 'guideFile') { if (target.files[0]) handleIngestFile(target.files[0]); target.value = ''; return false; }
+    if (target.hasAttribute('data-gcand')) {
+      var gc = APP.ingestCandidates[+target.getAttribute('data-gcand')];
+      if (gc) gc.accepted = target.checked;
+      return true;
+    }
     return false;
   }
 
@@ -686,7 +731,7 @@
     if (handleEdit(t)) {
       syncPanelFromDOM();
       touchAndAutosave();
-      if (structural && ['work', 'vote', 'fol', 'ver', 'docs'].indexOf(APP.currentTab) >= 0) {
+      if (structural && ['work', 'vote', 'fol', 'ver', 'docs', 'guide'].indexOf(APP.currentTab) >= 0) {
         render(APP.currentTab);
       } else {
         PANELS.lightUpdate(el('tab-' + APP.currentTab));
@@ -736,26 +781,26 @@
       try { localStorage.removeItem(M.storage.AUTOSAVE_KEY); } catch (e) { }
       render('start');
     },
-    'item-add': function () { APP.caseFile.docState.items.push({ desc: '', qty: '', unitname: '', mode: 'qty', quotes: [] }); render('work'); },
-    'item-del': function (t) { if (confirm('Delete this item and its supplier rows?')) { APP.caseFile.docState.items.splice(+t.getAttribute('data-i'), 1); render('work'); } },
+    'item-add': function () { APP.caseFile.docState.items.push({ desc: '', qty: '', unitname: '', mode: 'qty', quotes: [] }); rerender('work'); },
+    'item-del': function (t) { if (confirm('Delete this item and its supplier rows?')) { APP.caseFile.docState.items.splice(+t.getAttribute('data-i'), 1); rerender('work'); } },
     'quote-add': function (t) {
       var it = APP.caseFile.docState.items[+t.getAttribute('data-i')];
       it.quotes.push({ supplier: '', status: 'Quoted', qty: it.qty, unit: '', sub: '', vat: '', compliant: 'Yes', recommended: false, address: '', mode: it.mode });
-      render('work');
+      rerender('work');
     },
-    'quote-del': function (t) { APP.caseFile.docState.items[+t.getAttribute('data-i')].quotes.splice(+t.getAttribute('data-j'), 1); render('work'); },
-    'vcontact-add': function () { APP.caseFile.verbal.contacts.push({ name: '', phone: '', date: '', spokeTo: '', officer: '', outcome: 'quoted', amount: '' }); render('work'); },
+    'quote-del': function (t) { APP.caseFile.docState.items[+t.getAttribute('data-i')].quotes.splice(+t.getAttribute('data-j'), 1); rerender('work'); },
+    'vcontact-add': function () { APP.caseFile.verbal.contacts.push({ name: '', phone: '', date: '', spokeTo: '', officer: '', outcome: 'quoted', amount: '' }); rerender('work'); },
     'vcontact-del': function (t) {
       var i = +t.getAttribute('data-i');
       var vb = APP.caseFile.verbal;
       vb.contacts.splice(i, 1);
       if (vb.selected === i) vb.selected = null;
       else if (vb.selected > i) vb.selected--;
-      render('work');
+      rerender('work');
     },
-    'vsched-add': function () { APP.caseFile.verbal.schedule.push({ date: '', desc: '', qty: 1, rate: '', kind: 'line' }); render('work'); },
-    'vsched-del': function (t) { APP.caseFile.verbal.schedule.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'esup-add': function () { APP.caseFile.evaluation.suppliers.push({ name: '', address: '', status: 'quoted' }); render('work'); },
+    'vsched-add': function () { APP.caseFile.verbal.schedule.push({ date: '', desc: '', qty: 1, rate: '', kind: 'line' }); rerender('work'); },
+    'vsched-del': function (t) { APP.caseFile.verbal.schedule.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'esup-add': function () { APP.caseFile.evaluation.suppliers.push({ name: '', address: '', status: 'quoted' }); rerender('work'); },
     'esup-del': function (t) {
       var i = +t.getAttribute('data-i');
       var ev = APP.caseFile.evaluation;
@@ -765,9 +810,9 @@
       ev.cells.forEach(function (c) { if (c.supplier > i) c.supplier--; });
       ev.selections = ev.selections.filter(function (s) { return s.supplier !== i; });
       ev.selections.forEach(function (s) { if (s.supplier > i) s.supplier--; });
-      render('work');
+      rerender('work');
     },
-    'eitem-add': function () { APP.caseFile.evaluation.items.push({ desc: '', variant: '', qty: 1, unitName: '' }); render('work'); },
+    'eitem-add': function () { APP.caseFile.evaluation.items.push({ desc: '', variant: '', qty: 1, unitName: '' }); rerender('work'); },
     'eitem-del': function (t) {
       var i = +t.getAttribute('data-i');
       var ev = APP.caseFile.evaluation;
@@ -777,42 +822,42 @@
       ev.cells.forEach(function (c) { if (c.item > i) c.item--; });
       ev.selections = ev.selections.filter(function (s) { return s.item !== i; });
       ev.selections.forEach(function (s) { if (s.item > i) s.item--; });
-      render('work');
+      rerender('work');
     },
     'adopt-internal': function () {
       var cf = APP.caseFile;
       if (cf.presentation !== 'internal') M.casemodel.setPresentation(cf, 'internal', 'Comparison result adopted into the Ministry internal minute');
-      go('case');
+      if (APP.currentTab === 'guide') rerender('guide'); else go('case');
     },
     'adopt-formation': function () {
       var cf = APP.caseFile;
       if (cf.presentation !== 'formation') M.casemodel.setPresentation(cf, 'formation', 'Comparison result adopted into a formation approval');
       /* the formation letter reads docState items; project the award without retyping */
       cf.docState.items = M.evaluation.toDocItems(cf.evaluation);
-      go('case');
+      if (APP.currentTab === 'guide') rerender('guide'); else go('case');
     },
     'worksheet-discard': function () {
       if (!confirm('Discard the supplier comparison worksheet? Every recorded price and selection on it is removed from this case. The case itself, its items and its documents remain.')) return;
       APP.caseFile.evaluation = null;
-      render('work');
+      rerender('work');
     },
-    'dcomm-add': function () { APP.caseFile.disposal.committee.push({ name: '', post: '' }); render('work'); },
-    'dcomm-del': function (t) { APP.caseFile.disposal.committee.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'dpdac-add': function () { APP.caseFile.disposal.pdac.push({ name: '', post: '' }); render('work'); },
-    'dpdac-del': function (t) { APP.caseFile.disposal.pdac.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'ditem-add': function () { APP.caseFile.disposal.items.push(M.disposal.blankItem()); render('work'); },
-    'ditem-del': function (t) { APP.caseFile.disposal.items.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'dspend-add': function () { APP.caseFile.disposal.strategy.expenditure.push({ detail: '', amount: '' }); render('work'); },
-    'dspend-del': function (t) { APP.caseFile.disposal.strategy.expenditure.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'dstake-add': function () { APP.caseFile.disposal.strategy.stakeholders.push({ name: '', interest: '' }); render('work'); },
-    'dstake-del': function (t) { APP.caseFile.disposal.strategy.stakeholders.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'dtrans-add': function () { APP.caseFile.disposal.transfer.items.push(M.disposal.blankTransferItem()); render('work'); },
-    'dtrans-del': function (t) { APP.caseFile.disposal.transfer.items.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'fmember-add': function () { APP.caseFile.formal.committee.push(M.formal.blankMember()); render('work'); },
-    'fmember-del': function (t) { APP.caseFile.formal.committee.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'fmand-add': function () { APP.caseFile.formal.mandatoryCriteria.push({ name: '' }); render('work'); },
-    'fmand-del': function (t) { APP.caseFile.formal.mandatoryCriteria.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'fcrit-add': function () { APP.caseFile.formal.criteria.push(M.formal.blankCriterion()); render('work'); },
+    'dcomm-add': function () { APP.caseFile.disposal.committee.push({ name: '', post: '' }); rerender('work'); },
+    'dcomm-del': function (t) { APP.caseFile.disposal.committee.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'dpdac-add': function () { APP.caseFile.disposal.pdac.push({ name: '', post: '' }); rerender('work'); },
+    'dpdac-del': function (t) { APP.caseFile.disposal.pdac.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'ditem-add': function () { APP.caseFile.disposal.items.push(M.disposal.blankItem()); rerender('work'); },
+    'ditem-del': function (t) { APP.caseFile.disposal.items.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'dspend-add': function () { APP.caseFile.disposal.strategy.expenditure.push({ detail: '', amount: '' }); rerender('work'); },
+    'dspend-del': function (t) { APP.caseFile.disposal.strategy.expenditure.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'dstake-add': function () { APP.caseFile.disposal.strategy.stakeholders.push({ name: '', interest: '' }); rerender('work'); },
+    'dstake-del': function (t) { APP.caseFile.disposal.strategy.stakeholders.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'dtrans-add': function () { APP.caseFile.disposal.transfer.items.push(M.disposal.blankTransferItem()); rerender('work'); },
+    'dtrans-del': function (t) { APP.caseFile.disposal.transfer.items.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'fmember-add': function () { APP.caseFile.formal.committee.push(M.formal.blankMember()); rerender('work'); },
+    'fmember-del': function (t) { APP.caseFile.formal.committee.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'fmand-add': function () { APP.caseFile.formal.mandatoryCriteria.push({ name: '' }); rerender('work'); },
+    'fmand-del': function (t) { APP.caseFile.formal.mandatoryCriteria.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'fcrit-add': function () { APP.caseFile.formal.criteria.push(M.formal.blankCriterion()); rerender('work'); },
     'fcrit-del': function (t) {
       var i = +t.getAttribute('data-i');
       var f = APP.caseFile.formal;
@@ -825,13 +870,13 @@
         next[pp + ':' + (cc > i ? cc - 1 : cc)] = f.techScores[k];
       });
       f.techScores = next;
-      render('work');
+      rerender('work');
     },
     'fprop-add': function () {
       var f = APP.caseFile.formal;
       f.proponents.push(M.formal.blankProponent());
       f.prices.push(M.formal.blankPrice());
-      render('work');
+      rerender('work');
     },
     'fprop-del': function (t) {
       var i = +t.getAttribute('data-i');
@@ -851,14 +896,14 @@
       f.techScores = next;
       f.clarifications = f.clarifications.filter(function (c) { return c.proponent !== i; });
       f.clarifications.forEach(function (c) { if (c.proponent > i) c.proponent--; });
-      render('work');
+      rerender('work');
     },
-    'fclar-add': function () { APP.caseFile.formal.clarifications.push({ proponent: null, issued: '', received: '', summary: '' }); render('work'); },
-    'fclar-del': function (t) { APP.caseFile.formal.clarifications.splice(+t.getAttribute('data-i'), 1); render('work'); },
-    'folio-add': function () { APP.caseFile.docState.folios.push({ desc: '', date: '', tag: '' }); render('fol'); },
-    'folio-del': function (t) { APP.caseFile.docState.folios.splice(+t.getAttribute('data-i'), 1); render('fol'); },
-    'att-add': function () { APP.caseFile.docState.attachments.push(''); render('fol'); },
-    'att-del': function (t) { APP.caseFile.docState.attachments.splice(+t.getAttribute('data-i'), 1); render('fol'); },
+    'fclar-add': function () { APP.caseFile.formal.clarifications.push({ proponent: null, issued: '', received: '', summary: '' }); rerender('work'); },
+    'fclar-del': function (t) { APP.caseFile.formal.clarifications.splice(+t.getAttribute('data-i'), 1); rerender('work'); },
+    'folio-add': function () { APP.caseFile.docState.folios.push({ desc: '', date: '', tag: '' }); rerender('fol'); },
+    'folio-del': function (t) { APP.caseFile.docState.folios.splice(+t.getAttribute('data-i'), 1); rerender('fol'); },
+    'att-add': function () { APP.caseFile.docState.attachments.push(''); rerender('fol'); },
+    'att-del': function (t) { APP.caseFile.docState.attachments.splice(+t.getAttribute('data-i'), 1); rerender('fol'); },
     'att-auto': function () {
       var st = APP.caseFile.docState;
       var out = [];
@@ -866,7 +911,7 @@
       sup.forEach(function (s) { if (s.quoted) out.push('Quotation received from ' + s.name); });
       sup.forEach(function (s) { out.push('Request for Quotation sent to ' + s.name); });
       st.attachments = out;
-      render('fol');
+      rerender('fol');
     },
     'fix': function (t) { go(t.getAttribute('data-tab')); },
     /* ---- offline narrative composer (engine: js/lib/narrative.js) ---- */
@@ -985,8 +1030,26 @@
     /* conflict resolution beside a field (Phase 5) */
     'conflict-keep': function (t) { M.intake.resolveConflict(APP.caseFile, t.getAttribute('data-path'), 'manual'); render(APP.currentTab); touchAndAutosave(); },
     'conflict-accept': function (t) { M.intake.resolveConflict(APP.caseFile, t.getAttribute('data-path'), 'imported'); render(APP.currentTab); touchAndAutosave(); },
-    'toast-goto': function (t) { closeToasts(); closeIntakeModal(); go(t.getAttribute('data-tab')); },
-    'toast-close': function (t) { var n = t.closest('.toast'); if (n) n.remove(); }
+    'toast-goto': function (t) { closeToasts(); closeIntakeModal(); if (APP.currentTab === 'guide') render('guide'); else go(t.getAttribute('data-tab')); },
+    'toast-close': function (t) { var n = t.closest('.toast'); if (n) n.remove(); },
+    /* ---- Guided Mode navigation and actions ---- */
+    'guide-next': function () { APP.guideStep = (APP.guideStep || 0) + 1; render('guide'); window.scrollTo(0, 0); },
+    'guide-back': function () { APP.guideStep = Math.max(0, (APP.guideStep || 0) - 1); render('guide'); window.scrollTo(0, 0); },
+    'guide-goto': function (t) { APP.guideStep = +t.getAttribute('data-i'); render('guide'); window.scrollTo(0, 0); },
+    'guide-fix': function (t) {
+      var stepId = GUIDE.stepForCheck(APP.caseFile.module, t.getAttribute('data-check'));
+      APP.guideStep = GUIDE.stepIndex(APP.caseFile.module, stepId);
+      render('guide');
+      window.scrollTo(0, 0);
+    },
+    'guide-expert': function () { APP.uiMode = 'expert'; go('case'); },
+    'guide-start': function () { go('start'); },
+    'to-guided': function () { APP.uiMode = 'guided'; go('guide'); },
+    'guide-pick': function () { var f = el('guideFile'); if (f) f.click(); },
+    'open-intake-modal': function () { openIntakeModal(); },
+    'guide-preview-doc': function (t) { APP.guideDoc = t.getAttribute('data-doc'); render('guide'); },
+    'guide-download': function (t) { downloadDoc(t.getAttribute('data-doc')); },
+    'guide-download-all': function () { downloadAllDocs(); }
   };
 
   document.body.addEventListener('click', function (e) {
@@ -998,8 +1061,15 @@
 
   el('tabs').addEventListener('click', function (e) {
     var b = e.target.closest('button');
-    if (b && !b.disabled) go(b.getAttribute('data-t'));
+    if (b && !b.disabled && b.getAttribute('data-t')) {
+      var t = b.getAttribute('data-t');
+      if (t !== 'start') APP.uiMode = 'expert'; /* using a case tab IS choosing the full view */
+      go(t);
+    }
   });
+
+  /* minimal surface for Guided Mode (drag-and-drop upload) */
+  window.MAIN = { handleIngestFile: handleIngestFile };
 
   /* ---------- boot ---------- */
   render('start');

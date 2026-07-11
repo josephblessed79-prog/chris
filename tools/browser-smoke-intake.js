@@ -28,6 +28,8 @@ const SAMPLE = path.resolve(__dirname, '../samples/source/Evaluation of Pantry S
 
   // open a routine case; type a File Number by hand so we can force a conflict
   await page.click('.pathcard[data-activity="routine"]');
+  await page.waitForTimeout(300);
+  { const gx = await page.$('[data-action="guide-expert"]'); if (gx) await gx.click(); } // full form view (button absent if already in expert view)
   await page.waitForTimeout(250);
   await page.fill('[data-path="docState.minfile"]', 'MOD/HAND-TYPED');
   await page.dispatchEvent('[data-path="docState.minfile"]', 'change');

@@ -13,6 +13,8 @@ const { chromium } = require('playwright-core');
 
   await page.goto('file:///home/user/chris/index.html');
   await page.click('.pathcard[data-activity="routine"]');
+  await page.waitForTimeout(300);
+  { const gx = await page.$('[data-action="guide-expert"]'); if (gx) await gx.click(); } // full form view (button absent if already in expert view)
   await page.waitForTimeout(200);
 
   check('composer fieldset present on Case Details', (await page.textContent('#tab-case')).includes('Narrative composer (offline, optional)'));
@@ -55,6 +57,8 @@ const { chromium } = require('playwright-core');
   await page.click('nav.tabs button[data-t="start"]');
   await page.waitForTimeout(150);
   await page.click('.pathcard[data-activity="disposal"]');
+  await page.waitForTimeout(300);
+  { const gx = await page.$('[data-action="guide-expert"]'); if (gx) await gx.click(); } // full form view (button absent if already in expert view)
   await page.waitForTimeout(250);
   const dispTargets = await page.$$eval('[data-path="docState.da_target"] option', os => os.map(o => o.textContent));
   check('disposal composer targets the disposal strategy', dispTargets.some(t => t.includes('Disposal strategy — Background')));

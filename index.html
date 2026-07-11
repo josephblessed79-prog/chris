@@ -27,9 +27,11 @@
   <button data-t="ver" disabled>Verification</button>
   <button data-t="docs" disabled>Documents</button>
   <button data-t="settings" disabled>Case File &amp; Register</button>
+  <button id="btnGuided" data-action="to-guided" disabled>✦ Guided view</button>
 </nav>
 
 <main>
+  <section class="panel" id="tab-guide"></section>
   <section class="panel show" id="tab-start"></section>
   <section class="panel" id="tab-case"></section>
   <section class="panel" id="tab-work"></section>
@@ -109,6 +111,7 @@
 <!-- ============ APPLICATION ============ -->
 <script src="js/app/panels.js"></script>
 <script src="js/app/ingest-ui.js"></script>
+<script src="js/app/guide.js"></script>
 <script src="js/app/main.js"></script>
 </body>
 </html>

@@ -35,11 +35,18 @@ procurement-related work as the same. A start screen asks *what are you
 doing today?* and the answer sets the module: its forms, its questions,
 its checks, its documents. None borrows another's logic.
 
+Each module then opens as a **guided journey** — one plain question per
+step, a document drop-zone second, and a live preview of the actual
+output document beside the questions. A **Full form view** (the complete
+tabbed layout) is one click away for experienced users; both views edit
+the same case file. The rationale — and the adversarial critique that
+forced this design — is recorded in `docs/UX-CRITIQUE.md`.
+
 | Module | What it is | Documents |
 |---|---|---|
 | **A. Routine / daily procurement** | The everyday travelling file. Two presentations chosen on Case Details — Ministry internal minute, or an external-formation letter + minute (Coast Guard, Defence Force, Regiment, Police, Fire, Prison Services, other agencies). Working paper chosen where it arises — written quotations, a verbal/telephone record, or a supplier-comparison worksheet | Minute sheet, formation approval letter, verbal quotation form, telephone-contact register, supplier comparison record & worksheet, checklist, verification certificate |
 | **B. Formal tender / RFP / ITB evaluation** | The Evaluation Committee report on a formal solicitation, to the OPR template | Evaluation Report (introduction, background, team, criteria & scoring, methodology, preliminary examination, technical & commercial evaluation, computed ranking, recommendation VAT inclusive), Conflict of Interest & Confidentiality declarations (Appendix I) |
-| **C. Disposal of public property** | Disposal under Part VI of the Act and the Retention & Disposal Regulations 2021, to the OPR Handbook and Sample Case Study | Forms A–E: Request for Asset Disposal, Inventory & Inspection Report, Committee Appraisal Report (computed), Strategy Development Report, Strategy Approval / Signature Form |
+| **C. Disposal of public property** | Disposal under Part VI of the Act and the Retention & Disposal Regulations 2021, to the official OPR Disposal Templates (Forms A–H) and Sample Case Study | Forms A–H: Request for Asset Disposal, Inventory & Inspection Report, Committee Appraisal Report (computed), Strategy Development Report, Strategy Approval / Signature Form, Disposal Summary, Transfer/Donation Form, Notice of Rejection — plus an optional computed Appraisal Catalogue |
 
 Shared tools only — money in exact cents, amounts in words, folio
 numbering, the vote book (a routine instrument), save/load, the

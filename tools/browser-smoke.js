@@ -23,6 +23,8 @@ const { chromium } = require('playwright-core');
 
   // start a routine case from the activity selector
   await page.click('.pathcard[data-activity="routine"]');
+  await page.waitForTimeout(300);
+  { const gx = await page.$('[data-action="guide-expert"]'); if (gx) await gx.click(); } // full form view (button absent if already in expert view)
   await page.waitForTimeout(200);
   check('case tab opens', (await page.textContent('#tab-case h2')).includes('Routine / daily procurement'));
   check('status pill shows failing checks for an empty case', (await page.textContent('#statusPill')).includes('FAILING'));

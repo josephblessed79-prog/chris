@@ -84,11 +84,11 @@
   /* ================= START ================= */
   function renderStart(panel) {
     var h = '<h2 class="p">What are you doing today?</h2>';
-    h += '<p class="hint">Choose the activity before entering any data. The three activities are separate workflows — each has its own forms, questions, checks and documents, and none borrows from the others. Choices inside an activity (who the papers are for, how suppliers were contacted, which working paper to use) are asked where they arise, not here.</p>';
+    h += '<p class="hint">Pick one. The system then walks you through it, step by step, and builds the documents as you go.</p>';
     var cards = [
-      ['routine', 'Routine / daily procurement', 'The everyday travelling file: purchase requisition, vote and funds check, written or telephone quotations, supplier comparison, minute sheet ("Approval is hereby sought…"), formation letter where an outside formation asked, checklist and verification certificate.'],
-      ['formal-evaluation', 'Formal tender / RFP / ITB evaluation', 'An Evaluation Committee reporting on a formal solicitation: conflict-of-interest and confidentiality declarations, preliminary examination, technical and financial evaluation against the published criteria, ranking, and the OPR-format Evaluation Report. (Module being fitted.)'],
-      ['disposal', 'Disposal of public property', 'Disposal under the 2015 Act: inventory and condition, valuation with its recorded basis, Disposal Committee recommendation of a method, committee minute and approval instrument.']
+      ['routine', 'Routine / daily procurement', 'Everyday purchases: quotations (written or by telephone), supplier comparison, the minute sheet, and the formation letter where an outside formation asked.'],
+      ['formal-evaluation', 'Formal tender / RFP / ITB evaluation', 'An Evaluation Committee reporting on a formal solicitation — declarations, scoring, ranking, and the OPR-format Evaluation Report.'],
+      ['disposal', 'Disposal of public property', 'Disposing of stores or equipment under the Act — the official Forms A to H, with every valuation figure worked out for you.']
     ];
     for (var i = 0; i < cards.length; i++) {
       h += '<div class="pathcard" data-action="new-case" data-activity="' + cards[i][0] + '"><h3>' + esc(cards[i][1]) + '</h3><p>' + esc(cards[i][2]) + '</p></div>';
@@ -99,7 +99,8 @@
         '<button class="btn small" data-action="autosave-restore">Restore it</button> ' +
         '<button class="btn sec small" data-action="autosave-discard">Discard it</button></div>';
     }
-    h += '<div class="notice green"><b>The rule of the tool.</b> Every name, quantity, price and vote figure is typed once, straight from the document in the file (or accepted from an imported document on the staging screen). The system does all the arithmetic, writes every amount in words from the same number as the figure, numbers every folio from the register, and stamps anything unverified DRAFT — NOT CLEARED. It invents nothing, and nothing leaves this computer.</div>';
+    h += '<p class="hint" style="margin-top:14px">Have a saved case? Use <b>Open Case / Old Draft</b> in the bottom bar. Prefer the complete tabbed form instead of the step-by-step journey? Switch any time with <b>Full form view</b>.</p>';
+    h += '<div class="notice green"><b>The rule of the tool.</b> Every figure is typed once (or read from a document you upload and tick). The system does all the arithmetic, writes every amount in words from the same number as the figure, numbers every folio, and stamps anything unverified DRAFT — NOT CLEARED. It invents nothing, and nothing leaves this computer.</div>';
     panel.innerHTML = h;
   }
 
@@ -170,14 +171,10 @@
   }
 
   /* ================= WORKING PAPERS ================= */
-  function renderWork(panel) {
-    var cf = APP.caseFile;
-    if (cf.module === 'disposal') return renderDisposal(panel);
-    if (cf.module === 'formal-evaluation') return renderFormal(panel);
-    /* routine / daily procurement: the case decides its own working paper —
-       written quotations on items, a verbal/telephone record, or the fuller
-       supplier-comparison worksheet. The choice is offered, never forced. */
-    if (cf.evaluation) return renderEvaluation(panel);
+  /* The routine working-paper body (radio + the chosen editor), reusable
+     by the tab view and by Guided Mode. Returns HTML only. */
+  function routineWorkHTML(cf) {
+    if (cf.evaluation) return evaluationHTML(cf);
     var isVerbal = !!cf.verbal;
     var h = '<h2 class="p">Working Papers — Routine procurement</h2>';
     h += '<fieldset class="box"><legend>How was this procured?</legend>';
@@ -185,9 +182,15 @@
     h += '<label class="f" style="display:inline-block;margin-right:18px"><input type="radio" name="routinePapers" data-special="routine-papers" value="verbal"' + (isVerbal ? ' checked' : '') + '> Micro-procurement by verbal quotation</label>';
     h += '<label class="f" style="display:inline-block"><input type="radio" name="routinePapers" data-special="routine-papers" value="worksheet"> Supplier comparison worksheet (many items × many suppliers)</label>';
     h += '</fieldset>';
-    if (isVerbal) { panel.innerHTML = h + verbalEditorHTML(cf); bindInputs(panel); return; }
-    h += itemsEditorHTML(cf);
-    panel.innerHTML = h;
+    h += isVerbal ? verbalEditorHTML(cf) : itemsEditorHTML(cf);
+    return h;
+  }
+
+  function renderWork(panel) {
+    var cf = APP.caseFile;
+    if (cf.module === 'disposal') return renderDisposal(panel);
+    if (cf.module === 'formal-evaluation') return renderFormal(panel);
+    panel.innerHTML = routineWorkHTML(cf);
     bindInputs(panel);
   }
 
@@ -459,7 +462,11 @@
 
   /* ---- P3 evaluation editor ---- */
   function renderEvaluation(panel) {
-    var cf = APP.caseFile;
+    panel.innerHTML = evaluationHTML(APP.caseFile);
+    bindInputs(panel);
+  }
+
+  function evaluationHTML(cf) {
     if (!cf.evaluation) cf.evaluation = M.evaluation.newEvaluation();
     var ev = cf.evaluation;
     var h = '<h2 class="p">Supplier Comparison Worksheet — Routine procurement</h2>';
@@ -544,18 +551,17 @@
       h += '<button class="btn sec" data-action="adopt-formation">Adopt into a formation approval (letter + minute)</button> ';
     }
     h += '<button class="btn danger small" style="margin-top:10px" data-action="worksheet-discard">Discard the comparison worksheet (removes every recorded price)</button>';
-    panel.innerHTML = h;
-    bindInputs(panel);
+    return h;
   }
 
-  /* ---- disposal editor: the OPR Forms A–E on one working screen ---- */
-  function renderDisposal(panel) {
-    var cf = APP.caseFile;
+  /* ---- disposal editor sections (Forms A–H), reusable by the tab view
+     and by Guided Mode. Each key is one screen-sized chunk of HTML. ---- */
+  function disposalSections(cf) {
     if (!cf.disposal) cf.disposal = M.disposal.newDisposal();
     M.disposal.upgrade(cf.disposal);
     var d = cf.disposal;
-    var h = '<h2 class="p">Disposal of Public Property</h2>';
-    h += '<div class="notice green">Built to the OPR Retention &amp; Disposal Handbook and Sample Case Study — Forms A to E. Every figure below (unit NBV, 20%, appraised value, expected returns, the total) is computed from the quantities and net book values you type; nothing is invented. Fill only what applies — leave the rest blank. Forms F, G and H and real-property disposals are not yet built.</div>';
+    var S = {};
+    var h = '';
 
     /* Form A header — the request */
     h += '<fieldset class="box"><legend>Request details (Form A)</legend><div class="grid">';
@@ -568,6 +574,7 @@
     h += fieldHTML('Verified by (Assigned Officer)', 'disposal.verifiedBy', {});
     h += fieldHTML('Other information', 'disposal.otherInformation', { wide: true });
     h += '</div></fieldset>';
+    S.request = h; h = '';
 
     /* Officers */
     h += '<fieldset class="box"><legend>Officers</legend><div class="grid">';
@@ -595,6 +602,7 @@
         '<td class="rowbtns"><button class="btn danger small" data-action="dpdac-del" data-i="' + p + '">✕</button></td></tr>';
     }
     h += '</tbody></table></div><button class="btn sec small" data-action="dpdac-add">＋ Add PDAC member</button></fieldset>';
+    S.people = h; h = '';
 
     /* Property — one card per item, Forms A/B/C fields grouped */
     h += '<fieldset class="box"><legend>Property for disposal — inventory, inspection and appraisal (Forms A, B, C)</legend>';
@@ -614,6 +622,7 @@
     h += fieldHTML('Findings / observations', 'disposal.appraisalFindings', { type: 'textarea', wide: true });
     h += fieldHTML('Valuation procedures / considerations', 'disposal.appraisalProcedures', { type: 'textarea', wide: true });
     h += '</div></fieldset>';
+    S.property = h; h = '';
 
     /* Form D strategy */
     h += '<fieldset class="box"><legend>Disposal strategy (Form D)</legend>';
@@ -656,6 +665,7 @@
     }
     h += '</tbody></table></div><button class="btn sec small" data-action="dstake-add">＋ Add stakeholder</button>';
     h += '</fieldset>';
+    S.strategy = h; h = '';
 
     /* Form E + statutory dates */
     h += '<fieldset class="box"><legend>Approvals and statutory steps (Form E and the Act)</legend>';
@@ -673,6 +683,7 @@
     h += fieldHTML('OPR notified (through the Procurement Depository) — date', 'disposal.approvals.oprNotifiedDate', { type: 'date' });
     h += fieldHTML('Net proceeds brought to account', 'disposal.approvals.proceedsAccounted', { type: 'checkbox', wide: true });
     h += '</div></fieldset>';
+    S.approvals = h; h = '';
 
     /* Form F — Summary Report of Approved Disposal Action */
     h += '<fieldset class="box"><legend>Summary of the completed disposal (Form F)</legend>';
@@ -716,7 +727,16 @@
     h += fieldHTML('Prepared by (Accounting Officer)', 'disposal.rejection.preparedByAO', {});
     h += fieldHTML('Confirmation of Line Minister (name)', 'disposal.rejection.lineMinisterName', {});
     h += '</div></fieldset>';
+    S.after = h;
 
+    return S;
+  }
+
+  function renderDisposal(panel) {
+    var S = disposalSections(APP.caseFile);
+    var h = '<h2 class="p">Disposal of Public Property</h2>';
+    h += '<div class="notice green">Built to the official OPR Disposal Templates — Forms A to H. Every derived figure (unit NBV, 20%, appraised value, expected returns, totals) is computed from what you type; nothing is invented. Fill only what applies. Only real-property disposals are not yet built.</div>';
+    h += S.request + S.people + S.property + S.strategy + S.approvals + S.after;
     panel.innerHTML = h;
     bindInputs(panel);
   }
@@ -768,14 +788,15 @@
   }
 
   /* ---- formal tender / RFP / ITB evaluation editor (OPR template) ---- */
-  function renderFormal(panel) {
-    var cf = APP.caseFile;
+  /* ---- formal editor sections, reusable by the tab view and Guided
+     Mode. Each key is one screen-sized chunk of HTML. ---- */
+  function formalSections(cf) {
     if (!cf.formal) cf.formal = M.formal.newFormal();
     var f = cf.formal;
     /* keep the parallel price array aligned with the proponents */
     while (f.prices.length < f.proponents.length) f.prices.push(M.formal.blankPrice());
-    var h = '<h2 class="p">Formal Evaluation — Tender / RFP / ITB</h2>';
-    h += '<div class="notice green">Built to the OPR Evaluation of Submissions guideline and the Tender Evaluation Report Template. This is the formal Evaluation Committee report — committee declarations, preliminary examination, technical then commercial evaluation, ranking and a recommendation VAT inclusive. Scores and weights are the committee’s and the solicitation’s; the ranking is computed from them, nothing is invented.</div>';
+    var S = {};
+    var h = '';
 
     /* Solicitation */
     h += '<fieldset class="box"><legend>Solicitation</legend><div class="grid">';
@@ -788,6 +809,7 @@
     h += fieldHTML('Introduction (reason for the project)', 'formal.introduction', { type: 'textarea', wide: true });
     h += fieldHTML('Background (initiation, prior approval, invitation, deadline, firms, opening)', 'formal.background', { type: 'textarea', wide: true });
     h += '</div></fieldset>';
+    S.solicitation = h; h = '';
 
     /* Committee + declarations */
     h += '<fieldset class="box"><legend>Evaluation Committee — each member signs the Appendix I declaration (typically three to six)</legend><div class="scrollx"><table class="q"><thead><tr><th>Name</th><th>Job title</th><th>Role</th><th>COI + confidentiality signed</th><th>Conflict? ("none" or details)</th><th></th></tr></thead><tbody>';
@@ -801,6 +823,7 @@
         '<td class="rowbtns"><button class="btn danger small" data-action="fmember-del" data-i="' + m + '">✕</button></td></tr>';
     }
     h += '</tbody></table></div><button class="btn sec small" data-action="fmember-add">＋ Add member</button></fieldset>';
+    S.committee = h; h = '';
 
     /* Mandatory + weighted criteria */
     h += '<fieldset class="box"><legend>Mandatory (pass/fail) criteria — from the solicitation</legend><div class="scrollx"><table class="q"><thead><tr><th>Requirement</th><th></th></tr></thead><tbody>';
@@ -829,6 +852,7 @@
     h += fieldHTML('Ranking formula (as pre-determined, for the record)', 'formal.rankingFormula', { wide: true });
     h += fieldHTML('Methodology note (optional)', 'formal.methodologyNote', { type: 'textarea', wide: true });
     h += '</div></fieldset>';
+    S.criteria = h; h = '';
 
     /* Proponents + preliminary examination */
     h += '<fieldset class="box"><legend>Proponents and preliminary examination</legend><div class="scrollx"><table class="q"><thead><tr><th>Firm</th><th style="width:130px">Compliant?</th><th>Reason if non-compliant</th><th></th></tr></thead><tbody>';
@@ -840,6 +864,7 @@
         '<td class="rowbtns"><button class="btn danger small" data-action="fprop-del" data-i="' + p + '">✕</button></td></tr>';
     }
     h += '</tbody></table></div><button class="btn sec small" data-action="fprop-add">＋ Add proponent</button></fieldset>';
+    S.proponents = h; h = '';
 
     /* Technical scoring grid — compliant proponents × criteria */
     var compliant = [];
@@ -874,6 +899,7 @@
       });
       h += '</tbody></table></div><p class="hint">A price below the technical gate is shown greyed and is not carried into the ranking or the report.</p></fieldset>';
     }
+    S.scores = h; h = '';
 
     /* Clarifications */
     h += '<fieldset class="box"><legend>Clarifications (arithmetic corrections only)</legend><div class="scrollx"><table class="q"><thead><tr><th style="width:22%">Proponent</th><th style="width:110px">Issued</th><th style="width:110px">Received</th><th>Summary</th><th></th></tr></thead><tbody>';
@@ -886,6 +912,7 @@
         '<td class="rowbtns"><button class="btn danger small" data-action="fclar-del" data-i="' + cl + '">✕</button></td></tr>';
     }
     h += '</tbody></table></div><button class="btn sec small" data-action="fclar-add">＋ Add clarification</button></fieldset>';
+    S.clarifications = h; h = '';
 
     /* Ranking (computed) + recommendation */
     h += '<fieldset class="box"><legend>Ranking and recommendation</legend>';
@@ -898,7 +925,16 @@
     h += fieldHTML('PDAC review', 'formal.pdacReview', { wide: true });
     h += fieldHTML('Accounting Officer review', 'formal.aoReview', { wide: true });
     h += '</div></fieldset>';
+    S.decision = h;
 
+    return S;
+  }
+
+  function renderFormal(panel) {
+    var S = formalSections(APP.caseFile);
+    var h = '<h2 class="p">Formal Evaluation — Tender / RFP / ITB</h2>';
+    h += '<div class="notice green">Built to the OPR Evaluation of Submissions guideline and the Tender Evaluation Report Template. This is the formal Evaluation Committee report — committee declarations, preliminary examination, technical then commercial evaluation, ranking and a recommendation VAT inclusive. Scores and weights are the committee’s and the solicitation’s; the ranking is computed from them, nothing is invented.</div>';
+    h += S.solicitation + S.committee + S.criteria + S.proponents + S.scores + S.clarifications + S.decision;
     panel.innerHTML = h;
     bindInputs(panel);
   }
@@ -925,8 +961,7 @@
   }
 
   /* ================= VOTE & FUNDING ================= */
-  function renderVote(panel) {
-    var cf = APP.caseFile;
+  function voteHTML(cf) {
     var h = '<h2 class="p">Vote &amp; Funding</h2>';
     h += '<p class="hint">Type the five figures from the vote book; the three balances are computed and printed — they are never typed. If the uncommitted balance cannot cover the case total, the minute includes the transfer-of-funds line automatically.</p>';
     h += '<fieldset class="box"><legend>Vote block (Head / Sub-Head / Item / Sub-Item)</legend><div class="scrollx"><table class="q"><thead><tr><th></th><th style="width:110px">Code</th><th>Description</th></tr></thead><tbody>';
@@ -958,13 +993,16 @@
       h += fieldHTML('Available funds on vote (optional, for the cover check)', 'docState.funds', {});
       h += '</div></fieldset>';
     }
-    panel.innerHTML = h;
+    return h;
+  }
+
+  function renderVote(panel) {
+    panel.innerHTML = voteHTML(APP.caseFile);
     bindInputs(panel);
   }
 
   /* ================= FOLIOS ================= */
-  function renderFol(panel) {
-    var cf = APP.caseFile;
+  function folHTML(cf) {
     var h = '<h2 class="p">Folio Register</h2>';
     h += '<p class="hint">The numbered register at the head of the minute. Numbers are computed from the starting folio number (' + cf.folioStart + ' — change it on Case Details) and renumber everywhere automatically. Tag the special folios so paragraphs can cite them by computed number: <b>verbal-form</b>, <b>evaluation</b>, or <b>quote:</b> followed by the supplier’s exact name.</p>';
     h += '<div class="scrollx"><table class="q"><thead><tr><th style="width:44px">No.</th><th>Folio description</th><th style="width:130px">Date (dd/mm/yy)</th><th style="width:220px">Tag (optional)</th><th></th></tr></thead><tbody>';
@@ -989,7 +1027,11 @@
       }
       h += '</tbody></table></div><button class="btn sec small" data-action="att-add">＋ Add attachment</button></fieldset>';
     }
-    panel.innerHTML = h;
+    return h;
+  }
+
+  function renderFol(panel) {
+    panel.innerHTML = folHTML(APP.caseFile);
   }
 
   /* ================= VERIFICATION ================= */
@@ -1158,6 +1200,11 @@
     lightUpdate: lightUpdate,
     start: renderStart, 'case': renderCase, work: renderWork, vote: renderVote,
     fol: renderFol, ver: renderVer, docs: renderDocs, settings: renderSettings,
-    bindInputs: bindInputs, getPath: getPath, setPath: setPath, fixTabFor: fixTabFor
+    bindInputs: bindInputs, getPath: getPath, setPath: setPath, fixTabFor: fixTabFor,
+    /* section builders shared with Guided Mode */
+    fieldHTML: fieldHTML, composerHTML: composerHTML,
+    routineWorkHTML: routineWorkHTML, evaluationHTML: evaluationHTML,
+    voteHTML: voteHTML, folHTML: folHTML,
+    formalSections: formalSections, disposalSections: disposalSections
   };
 })();

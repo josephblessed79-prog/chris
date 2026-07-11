@@ -13,6 +13,8 @@ const { chromium } = require('playwright-core');
 
   await page.goto('file:///home/user/chris/index.html');
   await page.click('.pathcard[data-activity="routine"]');
+  await page.waitForTimeout(300);
+  { const gx = await page.$('[data-action="guide-expert"]'); if (gx) await gx.click(); } // full form view (button absent if already in expert view)
   await page.waitForTimeout(200);
   // choose the comparison worksheet as the routine working paper
   await page.click('nav.tabs button[data-t="work"]');
