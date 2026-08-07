@@ -43,11 +43,19 @@ fields. It opens a **guided journey**: one plain question at a time, with
 the actual document growing in a **live preview** beside you as you type.
 What you see on the right is what will print.
 
+**New here?** Under the three activity cards the Start screen offers
+**See a complete worked example** — one per module. Each loads a full,
+correct, already-cleared case (the boxed-meals telephone quotation, a
+ranked formal evaluation, and the OPR disposal case study) so you can
+walk the steps and see exactly what "done" looks like before starting
+your own.
+
 - The **left rail** lists the steps. A tick means done; click any step to
   jump straight to it. Steps marked *optional* can be skipped.
 - The second step — **“Have you papers to read in?”** — is a drop zone.
-  Drop a quotation, requisition or list (Word, Excel, CSV or text-PDF)
-  and the system reads it and shows a tick-list of what it found. Safe
+  Drop a quotation, requisition or list (Word, Excel, CSV or text-PDF) —
+  or **paste text straight from an email or message** into the box below
+  it — and the system reads it and shows a tick-list of what it found. Safe
   facts (references, dates, names) come pre-ticked; **amounts and item
   lines are never pre-ticked** — each figure is your decision, ticked one
   by one. Click **Add ticked items to my case** and the fields fill

@@ -39,6 +39,8 @@
 
     h += '<input type="file" id="ingestFile" style="display:none" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt,.png,.jpg,.jpeg,.bmp,.tif,.tiff">';
     h += '<button class="btn" data-action="ingest-pick">Choose a file…</button> <span id="ingestStatus" class="hint"></span>';
+    h += '<textarea id="intakePaste" class="gpaste" placeholder="…or paste the document text here — a quotation from an email, a requisition, a vote-book extract — and press Read pasted text."></textarea>';
+    h += '<div style="margin-top:6px"><button class="btn sec small" data-action="guide-paste">Read pasted text</button></div>';
     if (APP.ingestWarning) h += '<div class="notice" style="margin-top:10px">' + esc(APP.ingestWarning) + '</div>';
 
     /* Step 3 — the intake analysis (what was found + the layout decision). */
@@ -64,7 +66,7 @@
           (c.canonical && c.canonical !== c.value ? ' <span class="hint">→ ' + esc(c.canonical) + '</span>' : '') +
           '<div class="hint">' + esc(c.kind) + '</div></td>' +
           '<td><span class="snip">' + esc(c.snippet || '') + '</span>' + (c.note ? '<div class="hint">' + esc(c.note) + '</div>' : '') + '</td>' +
-          '<td><span class="conf ' + esc(c.confidence || 'review') + '">' + esc(c.confidence || 'review') + '</span></td>' +
+          '<td><span class="conf ' + esc(c.confidence || 'review') + '">' + esc({ high: 'clear match', medium: 'likely', low: 'check carefully' }[c.confidence] || 'check carefully') + '</span></td>' +
           '<td>' + (c.rejected ? '<span class="hint">—</span>' : targetSelect(c, i)) + '</td>' +
           '<td>' + rowActions(c, i, malformed) + '</td></tr>';
       }

@@ -1047,6 +1047,28 @@
     'to-guided': function () { APP.uiMode = 'guided'; go('guide'); },
     'guide-pick': function () { var f = el('guideFile'); if (f) f.click(); },
     'open-intake-modal': function () { openIntakeModal(); },
+    'guide-paste': function (t) {
+      /* the paste box sits immediately before the button's wrapper, in
+         both the guided papers step and the upload window */
+      var wrap = t.parentElement;
+      var box = wrap && wrap.previousElementSibling;
+      if (!box || !box.classList || !box.classList.contains('gpaste')) box = el('guidePaste') || el('intakePaste');
+      var txt = box ? box.value.trim() : '';
+      if (!txt) { alert('Paste some text first — a quotation, a requisition, a vote-book extract.'); return; }
+      handleIngestFile(new File([txt], 'pasted-text.txt', { type: 'text/plain' }));
+    },
+    'load-sample': function (t) {
+      var cf = window.SAMPLES && window.SAMPLES.build(t.getAttribute('data-mod'));
+      if (!cf) return;
+      APP.caseFile = cf;
+      APP.ingestCandidates = [];
+      APP.ingestWarning = '';
+      APP.guideStep = 0;
+      APP.guideDoc = null;
+      enableTabs(true);
+      go(APP.uiMode === 'guided' ? 'guide' : 'case');
+      showToast('<b>Worked example loaded.</b> Every figure below is a source figure; every total, word and folio is computed. Walk the steps to see how it fits together — then start your own case from the Start screen.', true);
+    },
     'guide-preview-doc': function (t) { APP.guideDoc = t.getAttribute('data-doc'); render('guide'); },
     'guide-download': function (t) { downloadDoc(t.getAttribute('data-doc')); },
     'guide-download-all': function () { downloadAllDocs(); }

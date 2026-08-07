@@ -35,7 +35,7 @@
   /* -- shared steps -- */
   function papersStep() {
     return {
-      id: 'papers', optional: true,
+      id: 'papers', optional: true, sub: 'drop or paste sources',
       title: 'Have you papers to read in?',
       hint: 'Drop quotations, requisitions or lists here — the system reads them and you tick what to use. You can skip this and type everything instead.',
       checks: [],
@@ -46,7 +46,7 @@
 
   function signStep(extraChecks) {
     return {
-      id: 'sign',
+      id: 'sign', sub: 'clear the checks',
       title: 'Check and sign',
       hint: 'Anything still missing is listed below in plain words — the Go button takes you straight to it.',
       checks: [/^G4/].concat(extraChecks || []),
@@ -65,7 +65,7 @@
 
   function docsStep() {
     return {
-      id: 'docs',
+      id: 'docs', sub: 'preview · download',
       title: 'Your documents',
       hint: 'Everything below is built from your answers — figures computed, amounts written in words, folio numbers assigned.',
       checks: [],
@@ -99,7 +99,7 @@
   function routineSteps() {
     return [
       {
-        id: 'about',
+        id: 'about', sub: 'subject · file · date',
         title: 'What is this purchase?',
         hint: 'Answer in the words that should appear on the papers.',
         checks: [/^G[1236]/, /^C(1|2|3|4|5)$/, /^C1[78]/, /^C22/],
@@ -121,7 +121,7 @@
       },
       papersStep(),
       {
-        id: 'who',
+        id: 'who', sub: 'ministry or formation',
         title: 'Who is this for?',
         hint: 'A Ministry section gets an internal minute; an outside formation (Coast Guard, Regiment, Police…) gets an approval letter as well.',
         checks: [],
@@ -147,7 +147,7 @@
         }
       },
       {
-        id: 'prices',
+        id: 'prices', sub: 'what each supplier said',
         title: 'How did you get prices?',
         hint: 'Written quotations, telephone calls, or the fuller comparison worksheet — pick what actually happened and enter what each supplier said.',
         checks: [/^C(6|7|8|9|10|11|13|19)/, /^E/, /^V/],
@@ -170,7 +170,7 @@
         }
       },
       {
-        id: 'money',
+        id: 'money', sub: 'the vote book figures',
         title: 'What money pays for it?',
         hint: 'Type the five figures from the vote book; the three balances are worked out for you.',
         checks: [/^C1[2456]/, /^H/],
@@ -178,7 +178,7 @@
         render: function (cf) { return root().PANELS.voteHTML(cf); }
       },
       {
-        id: 'folios',
+        id: 'folios', sub: 'the file, in order',
         title: 'Which papers are in the file?',
         hint: 'List the papers in order — every folio number in every document is worked out from this list.',
         checks: [/^C2[01]/, /^G5/],
@@ -196,7 +196,7 @@
   function formalSteps() {
     return [
       {
-        id: 'about',
+        id: 'about', sub: 'the solicitation',
         title: 'What is being evaluated?',
         hint: 'The solicitation as advertised — its title, number and story so far.',
         checks: [/^G[1236]/],
@@ -216,7 +216,7 @@
       },
       papersStep(),
       {
-        id: 'committee',
+        id: 'committee', sub: 'members · declarations',
         title: 'Who is on the committee?',
         hint: 'Typically three to six people. Every member signs the conflict-of-interest and confidentiality declaration before evaluating.',
         checks: [/^F1$/],
@@ -227,7 +227,7 @@
         render: function (cf) { return root().PANELS.formalSections(cf).committee; }
       },
       {
-        id: 'rules',
+        id: 'rules', sub: 'criteria · gate · weights',
         title: 'What are the rules of the evaluation?',
         hint: 'Straight from the solicitation: the criteria and their points, the minimum technical score, and the technical/financial weights (they must total 100).',
         checks: [/^F[238]/],
@@ -239,7 +239,7 @@
         render: function (cf) { return root().PANELS.formalSections(cf).criteria; }
       },
       {
-        id: 'proponents',
+        id: 'proponents', sub: 'who submitted',
         title: 'Who submitted, and did they comply?',
         hint: 'List every firm, then mark each compliant or not at the preliminary examination — a rejection needs its reason.',
         checks: [/^F[45]/],
@@ -250,7 +250,7 @@
         render: function (cf) { return root().PANELS.formalSections(cf).proponents; }
       },
       {
-        id: 'scores',
+        id: 'scores', sub: 'score · gate · price',
         title: 'Score and price the proposals',
         hint: 'Score each compliant firm on each criterion; the gate and totals are computed. Gate-passers get their verified price (VAT inclusive).',
         checks: [/^F[67]/],
@@ -261,7 +261,7 @@
         }
       },
       {
-        id: 'decision',
+        id: 'decision', sub: 'computed ranking',
         title: 'The ranking and the recommendation',
         hint: 'The ranking is computed from your scores and weights. Recommend the top-ranked firm, or another with written reasons.',
         checks: [/^F(9|10)/],
@@ -280,7 +280,7 @@
   function disposalSteps() {
     return [
       {
-        id: 'about',
+        id: 'about', sub: 'the request (Form A)',
         title: 'What is being disposed of, and why?',
         hint: 'The request as it will appear on Form A.',
         checks: [/^G[1236]/],
@@ -300,7 +300,7 @@
       },
       papersStep(),
       {
-        id: 'people',
+        id: 'people', sub: 'officers · committee · PDAC',
         title: 'Who is handling it?',
         hint: 'The officers, the Disposal Committee (the Act requires at least three), and the PDAC that reviews the file.',
         checks: [/^D1$/],
@@ -311,7 +311,7 @@
         render: function (cf) { return root().PANELS.disposalSections(cf).people; }
       },
       {
-        id: 'property',
+        id: 'property', sub: 'items · appraisal',
         title: 'What exactly is the property?',
         hint: 'One card per item. Enter the Total NBV where one exists — the unit NBV, 20% and appraised value are worked out; the sale price is the committee’s decision.',
         checks: [/^D(2|3|4|5|6)/],
@@ -319,7 +319,7 @@
         render: function (cf) { return root().PANELS.disposalSections(cf).property; }
       },
       {
-        id: 'strategy',
+        id: 'strategy', sub: 'Form D',
         title: 'What is the disposal strategy?',
         hint: 'Form D — fill only what applies to this disposal.',
         checks: [/^D7/],
@@ -328,7 +328,7 @@
         render: function (cf) { return root().PANELS.disposalSections(cf).strategy; }
       },
       {
-        id: 'approvals',
+        id: 'approvals', sub: 'dates · the fourteen days',
         title: 'Approvals and the statutory clock',
         hint: 'The dates as they happen. The system watches the fourteen-day decision and the six-week OPR notification for you.',
         checks: [/^D(8|9)/],
@@ -337,7 +337,7 @@
         render: function (cf) { return root().PANELS.disposalSections(cf).approvals; }
       },
       {
-        id: 'after',
+        id: 'after', sub: 'Forms F · G · H',
         title: 'After the disposal',
         hint: 'Only if they apply: the summary of the completed disposal (Form F), a transfer or donation (Form G), or a rejection notice (Form H).',
         checks: [/^D1[012]/],
@@ -422,6 +422,8 @@
     var APP = root().APP;
     var h = '<div class="dropzone" data-action="guide-pick"><div class="dzicon">📄</div><div><b>Drop a document here, or click to choose</b><div class="hint">Word, Excel, CSV or text-PDF. The system reads it; nothing enters the case until you tick it below.</div></div></div>';
     h += '<input type="file" id="guideFile" style="display:none" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt">';
+    h += '<textarea id="guidePaste" class="gpaste" placeholder="…or paste the document text here — a quotation from an email, a requisition, a vote-book extract — and press Read pasted text."></textarea>';
+    h += '<div style="margin-top:6px"><button class="btn sec small" data-action="guide-paste">Read pasted text</button></div>';
     if (APP.ingestWarning) h += '<div class="notice" style="margin-top:10px">' + esc(APP.ingestWarning) + '</div>';
     var cands = APP.ingestCandidates || [];
     if (cands.length) {
@@ -498,7 +500,7 @@
       try { isDone = !!s.done(cf); } catch (e) { }
       var cls = idx === i ? 'cur' : (isDone && !s.optional ? 'ok' : '');
       var dot = (idx !== i && isDone && !s.optional) ? '✓' : String(idx + 1);
-      h += '<li class="' + cls + '"><button data-action="guide-goto" data-i="' + idx + '"><span class="gdot">' + dot + '</span>' + esc(s.title) + '</button></li>';
+      h += '<li class="' + cls + '"><button data-action="guide-goto" data-i="' + idx + '"><span class="gdot">' + dot + '</span><span class="gtxt"><b>' + esc(s.title) + '</b>' + (s.sub ? '<small>' + esc(s.sub) + '</small>' : '') + '</span></button></li>';
     });
     h += '</ol>';
     h += '<div class="grail-foot"><button class="btn sec small" data-action="guide-expert" title="The complete tabbed form, for experienced users">Full form view</button> ' +

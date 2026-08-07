@@ -67,6 +67,14 @@ const { chromium } = require('playwright-core');
   const minfile = await page.evaluate(() => window.APP.caseFile.docState.minfile);
   check('the document fed the file number into the case', minfile === 'MOD/PROC: 22/18/7:2026');
 
+  // pasted text flows through the same staging safeguards
+  await page.fill('#guidePaste', 'Quotation from Alpha Cleaning Ltd\nSubject: Cleaning supplies\nTotal $250.00');
+  await page.click('[data-action="guide-paste"]');
+  await page.waitForTimeout(700);
+  check('pasted text is read through the same intake', await page.evaluate(() => (window.APP.intakeAnalysis || {}).fileName === 'pasted-text.txt'));
+  check('a pasted amount stays a human decision (not pre-ticked)',
+    await page.evaluate(() => (window.APP.ingestCandidates || []).some(c => c.kind === 'figure' && !c.accepted)));
+
   // back on the about step, the field shows its value with the Imported badge
   await page.click('[data-action="guide-back"]');
   await page.waitForTimeout(250);
@@ -186,6 +194,26 @@ const { chromium } = require('playwright-core');
   check('the journey resumes where it was left', (await page.textContent('.gq h2')).includes('Your documents'));
   const total = await page.evaluate(() => window.APP.caseFile.verbal.schedule.length);
   check('nothing was lost across the round trip', total === 2);
+
+  // ---- the worked examples: one click shows what "done" looks like
+  await page.click('[data-action="guide-start"]');
+  await page.waitForTimeout(300);
+  check('start screen offers the worked examples', (await page.textContent('#tab-start')).includes('See a complete worked example'));
+  await page.click('[data-action="load-sample"][data-mod="routine"]');
+  await page.waitForTimeout(500);
+  check('worked example opens in the guided journey', await page.evaluate(() => document.body.classList.contains('guided')));
+  check('example minute computes to the proven figure', (await page.textContent('#tab-guide .gpreview .doc')).includes('Four Hundred Dollars ($400.00)'));
+  check('the routine example is fully cleared', !(await page.textContent('#statusPill')).includes('FAILING'));
+  await page.click('[data-action="guide-start"]');
+  await page.waitForTimeout(300);
+  await page.click('[data-action="load-sample"][data-mod="disposal"]');
+  await page.waitForTimeout(500);
+  check('the disposal example (OPR case study) loads cleared', !(await page.textContent('#statusPill')).includes('FAILING'));
+  await page.click('[data-action="guide-start"]');
+  await page.waitForTimeout(300);
+  await page.click('[data-action="load-sample"][data-mod="formal-evaluation"]');
+  await page.waitForTimeout(500);
+  check('the formal example (ranked evaluation) loads cleared', !(await page.textContent('#statusPill')).includes('FAILING'));
 
   check('no page errors', errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));

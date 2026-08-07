@@ -93,6 +93,10 @@
     for (var i = 0; i < cards.length; i++) {
       h += '<div class="pathcard" data-action="new-case" data-activity="' + cards[i][0] + '"><h3>' + esc(cards[i][1]) + '</h3><p>' + esc(cards[i][2]) + '</p></div>';
     }
+    h += '<p class="samplerow">New here? See a complete worked example first: ' +
+      '<button class="btn sec small" data-action="load-sample" data-mod="routine">Routine — boxed meals</button> ' +
+      '<button class="btn sec small" data-action="load-sample" data-mod="formal-evaluation">Formal — ranked evaluation</button> ' +
+      '<button class="btn sec small" data-action="load-sample" data-mod="disposal">Disposal — OPR case study</button></p>';
     var saved = APP.autosavePeek();
     if (saved) {
       h += '<div class="notice"><b>Unsaved work found on this computer</b> (autosaved ' + esc(saved.when) + ' — ' + esc(saved.subject || 'no subject') + ').&nbsp; ' +
