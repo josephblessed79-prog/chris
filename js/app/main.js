@@ -104,6 +104,21 @@
 
   function updatePill() {
     var p = el('statusPill');
+    /* Which case is open, visible from every screen — in the full form
+       view the subject otherwise only appears on Case Details. */
+    var cp = el('casePill');
+    if (cp) {
+      var cf0 = APP.caseFile;
+      if (!cf0) { cp.hidden = true; cp.textContent = ''; }
+      else {
+        var label = (cf0.docState.minfile || '').trim();
+        var subj = (cf0.docState.subject || '').trim();
+        if (subj) label = label ? label + ' · ' + subj : subj;
+        cp.hidden = false;
+        cp.textContent = label || 'Untitled case';
+        cp.title = label || 'This case has no file number or subject yet';
+      }
+    }
     if (!APP.caseFile) { p.textContent = 'NO CASE OPEN'; p.className = ''; return; }
     var s = M.verifycase.stats(APP.caseFile);
     if (s.fail) { p.textContent = s.fail + ' CHECK(S) FAILING'; p.className = 'bad'; }
