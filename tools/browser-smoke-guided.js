@@ -215,6 +215,28 @@ const { chromium } = require('playwright-core');
   await page.waitForTimeout(500);
   check('the formal example (ranked evaluation) loads cleared', !(await page.textContent('#statusPill')).includes('FAILING'));
 
+  // ---- keyboard operation and the unsaved-work guard
+  await page.click('[data-action="guide-start"]');
+  await page.waitForTimeout(300);
+  let focusCls = '';
+  for (let i = 0; i < 24 && !focusCls.includes('pathcard'); i++) {
+    await page.keyboard.press('Tab');
+    focusCls = await page.evaluate(() => document.activeElement.className || '');
+  }
+  check('an activity card is reachable by keyboard', focusCls.includes('pathcard'));
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(500);
+  check('Enter on a focused card opens the journey', await page.evaluate(() => document.body.classList.contains('guided')));
+  check('a brand-new case is not flagged unsaved', await page.evaluate(() => window.APP.dirty === false));
+  await page.fill('#tab-guide [data-path="docState.subject"]', 'Keyboard-entered subject');
+  await page.waitForTimeout(150);
+  check('typing flags unsaved work at once', await page.evaluate(() => window.APP.dirty === true));
+  const savePromise = page.waitForEvent('download');
+  await page.click('#btnSave');
+  await savePromise;
+  await page.waitForTimeout(1200);
+  check('saving the .json clears the unsaved flag and it stays clear', await page.evaluate(() => window.APP.dirty === false));
+
   check('no page errors', errors.length === 0);
   if (errors.length) console.log(errors.join('\n'));
   await browser.close();

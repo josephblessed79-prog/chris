@@ -22,7 +22,9 @@
        ('expert') is one click away and fully interchangeable mid-case. */
     uiMode: 'guided',
     guideStep: 0,
-    guideDoc: null
+    guideDoc: null,
+    /* true once the open case differs from the last .json the user saved */
+    dirty: false
   };
 
   function el(id) { return document.getElementById(id); }
@@ -126,6 +128,7 @@
     enableTabs(true);
     go(APP.uiMode === 'guided' ? 'guide' : 'case');
     touchAndAutosave();
+    APP.dirty = false; /* a brand-new empty case holds nothing to lose */
   }
 
   function openCaseObject(obj, sourceName) {
@@ -142,6 +145,7 @@
     enableTabs(true);
     go(APP.uiMode === 'guided' ? 'guide' : 'case');
     touchAndAutosave();
+    APP.dirty = false; /* just loaded from a file — it matches that file */
   }
 
   /* ---------- autosave (browser storage, recovery only) ---------- */
@@ -165,7 +169,7 @@
   };
 
   function touchAndAutosave() {
-    if (APP.caseFile) M.casemodel.touch(APP.caseFile);
+    if (APP.caseFile) { M.casemodel.touch(APP.caseFile); APP.dirty = true; }
     autosaveWrite();
     updatePill();
   }
@@ -186,8 +190,13 @@
 
   function saveCase() {
     if (!APP.caseFile) return;
+    /* Flush any keystroke autosave still waiting on its debounce: those
+       edits are in the file we are about to write, so letting the timer
+       fire afterwards would wrongly re-flag the case as unsaved. */
+    if (autosaveTimer) { clearTimeout(autosaveTimer); autosaveTimer = null; }
     M.casemodel.touch(APP.caseFile);
     downloadBlob(M.casemodel.serialize(APP.caseFile), M.storage.caseFileName(APP.caseFile), 'application/json');
+    APP.dirty = false; /* the record on disk now matches the open case */
   }
 
   el('btnSave').addEventListener('click', saveCase);
@@ -708,6 +717,9 @@
     var t = e.target;
     if (t.type === 'checkbox' || t.type === 'radio' || t.tagName === 'SELECT') return;
     if (handleEdit(t)) {
+      /* flagged on the keystroke, not on the debounce: closing the tab a
+         moment after typing must still warn about the unsaved change */
+      APP.dirty = true;
       PANELS.lightUpdate(el('tab-' + APP.currentTab));
       updatePill();
       if (autosaveTimer) clearTimeout(autosaveTimer);
@@ -728,9 +740,18 @@
       return;
     }
     var structural = t.tagName === 'SELECT' || t.type === 'checkbox' || t.type === 'radio' || t.type === 'file';
+    /* A field that fires 'change' on blur without its value having moved
+       (clicking Save blurs the last field) must not mark the case unsaved
+       again — the record on disk still matches. */
+    var before = APP.caseFile ? M.casemodel.serialize(APP.caseFile) : null;
     if (handleEdit(t)) {
       syncPanelFromDOM();
-      touchAndAutosave();
+      if (before !== null && APP.caseFile && M.casemodel.serialize(APP.caseFile) === before) {
+        autosaveWrite();
+        updatePill();
+      } else {
+        touchAndAutosave();
+      }
       if (structural && ['work', 'vote', 'fol', 'ver', 'docs', 'guide'].indexOf(APP.currentTab) >= 0) {
         render(APP.currentTab);
       } else {
@@ -1079,6 +1100,27 @@
     if (!t) return;
     var fn = actions[t.getAttribute('data-action')];
     if (fn) { fn(t); }
+  });
+
+  /* Keyboard parity: elements given role="button" (activity cards, the
+     drop zone) must activate on Enter and Space like a real button —
+     an officer working without a mouse is not a second-class user. */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    var t = e.target;
+    if (!t || t.getAttribute('role') !== 'button' || !t.hasAttribute('data-action')) return;
+    e.preventDefault();
+    t.click();
+  });
+
+  /* The .json file is the record. Autosave is crash recovery only, so
+     closing the tab with unsaved changes is real data loss — warn first.
+     APP.dirty is cleared whenever the case is saved to a file. */
+  window.addEventListener('beforeunload', function (e) {
+    if (!APP.caseFile || !APP.dirty) return;
+    e.preventDefault();
+    e.returnValue = '';
+    return '';
   });
 
   el('tabs').addEventListener('click', function (e) {

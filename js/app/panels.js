@@ -91,7 +91,7 @@
       ['disposal', 'Disposal of public property', 'Disposing of stores or equipment under the Act — the official Forms A to H, with every valuation figure worked out for you.']
     ];
     for (var i = 0; i < cards.length; i++) {
-      h += '<div class="pathcard" data-action="new-case" data-activity="' + cards[i][0] + '"><h3>' + esc(cards[i][1]) + '</h3><p>' + esc(cards[i][2]) + '</p></div>';
+      h += '<div class="pathcard" role="button" tabindex="0" data-action="new-case" data-activity="' + cards[i][0] + '"><h3>' + esc(cards[i][1]) + '</h3><p>' + esc(cards[i][2]) + '</p></div>';
     }
     h += '<p class="samplerow">New here? See a complete worked example first: ' +
       '<button class="btn sec small" data-action="load-sample" data-mod="routine">Routine — boxed meals</button> ' +

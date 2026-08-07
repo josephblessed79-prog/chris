@@ -420,7 +420,7 @@
   /* The documents-first drop-zone step. */
   function papersHTML(cf) {
     var APP = root().APP;
-    var h = '<div class="dropzone" data-action="guide-pick"><div class="dzicon">📄</div><div><b>Drop a document here, or click to choose</b><div class="hint">Word, Excel, CSV or text-PDF. The system reads it; nothing enters the case until you tick it below.</div></div></div>';
+    var h = '<div class="dropzone" role="button" tabindex="0" data-action="guide-pick"><div class="dzicon">📄</div><div><b>Drop a document here, or click to choose</b><div class="hint">Word, Excel, CSV or text-PDF. The system reads it; nothing enters the case until you tick it below.</div></div></div>';
     h += '<input type="file" id="guideFile" style="display:none" accept=".pdf,.docx,.xlsx,.xls,.csv,.txt">';
     h += '<textarea id="guidePaste" class="gpaste" placeholder="…or paste the document text here — a quotation from an email, a requisition, a vote-book extract — and press Read pasted text."></textarea>';
     h += '<div style="margin-top:6px"><button class="btn sec small" data-action="guide-paste">Read pasted text</button></div>';

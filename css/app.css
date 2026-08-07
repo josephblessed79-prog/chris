@@ -205,3 +205,8 @@ nav.tabs #btnGuided:disabled{opacity:.45}
  .gprevbody{max-height:none;overflow:visible}
  .gprevbody .doc{zoom:1}
 }
+
+/* Keyboard users must see where they are: the activity cards and the
+   drop zone are operable with Enter/Space and show a clear focus ring. */
+.pathcard:focus-visible,.dropzone:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.pathcard:focus,.dropzone:focus{outline:3px solid var(--gold);outline-offset:2px}

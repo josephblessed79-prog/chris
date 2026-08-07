@@ -147,3 +147,64 @@ that is, become this system. The right foundation is the one that
 already replays the Ministry's signed samples byte-for-byte; what it
 needed from the upload was its face and two conveniences, and it now has
 them.
+
+---
+
+# Second upload (2,246 bytes) — verdict
+
+The second uploaded `index.html` is a **shell only**. It is 2,246 bytes
+and references fourteen external files — `css/app.css`, ten `js/lib/*.js`
+engine modules, three vendored parsers and `js/app/app.js` — **none of
+which were uploaded**.
+
+Opened in a real browser exactly as delivered (measured, not assumed):
+
+- **15 resources fail to load** (`net::ERR_FILE_NOT_FOUND` × 15).
+- `#stepRail` renders `""`. `#pane` renders `""`.
+- The page is **blank below the header**. Three footer buttons are wired
+  to a script that does not exist.
+
+There is therefore nothing to compare on substance: no engine, no
+documents, no checks, no intake, no examples. What can be judged is the
+*intent* the shell declares, and it is sound — and it is the architecture
+this system already has:
+
+| The shell declares | This system |
+|---|---|
+| separate `js/lib/*` engine, `js/app/app.js` wiring | already so: `js/lib/` (pure, Node-tested) + `js/app/` (browser wiring) |
+| external `css/app.css` | already so |
+| vendored mammoth / xlsx / pdf.js, OCR excluded honestly | already so, and the honest OCR message is fixed text under test |
+| a live preview pane beside the work | already so, since the guided rebuild |
+| a step rail | already so, with completion ticks and subtitles |
+| "every figure typed once, everything else computed" | already so, and proven by 274 tests |
+
+**Verdict: not better — it is a blank page.** The one thing it adds is
+independent confirmation that the layered architecture already in place
+is the right one. Nothing was adopted from it, because there was nothing
+to adopt.
+
+## What this round changed instead — the critique turned inward
+
+With nothing to take from the upload, the same severity was applied to
+this system's own code. Three real defects were found and fixed:
+
+1. **The activity cards and the document drop zone were `<div>`s** with
+   click handlers — invisible to keyboard and screen-reader users. An
+   officer working without a mouse could not start a case at all. They
+   now carry `role="button"`, `tabindex="0"`, a visible focus ring, and
+   activate on Enter and Space. *(Verified by driving the app with the
+   keyboard only.)*
+2. **Closing the tab with unsaved work lost it silently.** Autosave is
+   crash recovery; the `.json` is the record. The system now tracks a
+   dirty flag and warns before the page closes.
+3. **The dirty flag was subtly wrong twice, and both were fixed at the
+   source rather than papered over:** a `change` event fired on blur with
+   no value movement re-flagged a just-saved case (now compared before
+   and after, and skipped when nothing moved); and the 800 ms keystroke
+   autosave debounce fired *after* a save, re-flagging it (the pending
+   timer is now flushed when saving). The flag is also raised on the
+   keystroke itself, not on the debounce — closing the tab a moment after
+   typing still warns.
+
+All three are now locked into `tools/browser-smoke-guided.js` so they
+cannot regress.
