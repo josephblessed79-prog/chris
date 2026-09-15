@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carlsen Field CEA Programme — Stakeholder Concept Visuals</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap">
+<style>
+/* ============================================================
+   CARLSEN FIELD / CEA PROGRAMME — PRINT-READY STAKEHOLDER VISUALS
+   A3 Landscape (420mm x 297mm), 12 pages, no JavaScript
+   ============================================================ */
+
+@page {
+  size: 420mm 297mm landscape;
+  margin: 0;
+}
+
+:root {
+  --deep-green: #0B3D2E;
+  --gold: #C4A24F;
+  --cream: #F7F4E8;
+  --text: #1A1D21;
+  --text-muted: #4A4E54;
+  --text-light: #6B7078;
+  --white: #FFFFFF;
+  --border: #D4D1C6;
+  --light-green: #E8F0E4;
+  --light-gold: #F5EDD4;
+  --light-blue: #E4EEF5;
+  --light-red: #F5E4E4;
+  --blue: #2F6B8F;
+  --red: #A63030;
+  --orange: #B87028;
+  --green-mid: #1A6B4A;
+  --purple: #6B5A80;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text);
+  background: var(--white);
+  line-height: 1.45;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ---- PAGE STRUCTURE ---- */
+.page {
+  width: 420mm;
+  height: 297mm;
+  position: relative;
+  overflow: hidden;
+  background: var(--cream);
+  break-after: page;
+  page-break-after: always;
+}
+
+.page-inner {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- HEADER BAR ---- */
+.header-bar {
+  background: var(--deep-green);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 40px;
+  min-height: 44px;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+
+.header-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.header-separator {
+  color: var(--gold);
+  font-size: 14px;
+  font-weight: 300;
+}
+
+.header-subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.header-right {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ---- FOOTER BAR ---- */
+.footer-bar {
+  background: var(--deep-green);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 40px;
+  min-height: 36px;
+  flex-shrink: 0;
+  font-size: 9px;
+  letter-spacing: 0.8px;
+}
+
+.footer-left {
+  font-weight: 500;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.footer-center {
+  color: var(--gold);
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.footer-right {
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* ---- CONTENT AREA ---- */
+.content {
+  flex: 1;
+  padding: 28px 40px 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- GOLD ACCENT BAR ---- */
+.gold-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+/* ---- TYPOGRAPHY ---- */
+.page-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.page-heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--deep-green);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.page-subheading {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  max-width: 80ch;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--deep-green);
+  margin-bottom: 8px;
+}
+
+h4 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--deep-green);
+  margin-bottom: 4px;
+}
+
+/* ---- LAYOUT HELPERS ---- */
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.cols-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+.cols-5 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 14px; }
+.cols-23 { display: grid; grid-template-columns: 2fr 3fr; gap: 24px; }
+.cols-32 { display: grid; grid-template-columns: 3fr 2fr; gap: 24px; }
+.flex-grow { flex: 1; }
+
+/* ---- CARD ---- */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+}
+
+.card-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  margin-bottom: 6px;
+}
+
+.card p, .card li {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.card ul {
+  padding-left: 14px;
+}
+
+.card li {
+  margin-bottom: 2px;
+}
+
+/* ---- TABLE ---- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10.5px;
+}
+
+.data-table th {
+  background: var(--deep-green);
+  color: var(--white);
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.data-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.4;
+}
+
+.data-table tr:nth-child(even) td {
+  background: rgba(247, 244, 232, 0.5);
+}
+
+.data-table .category {
+  font-weight: 600;
+  color: var(--deep-green);
+}
+
+/* ---- CALLOUT BOX ---- */
+.callout {
+  background: var(--deep-green);
+  color: var(--white);
+  border-radius: 6px;
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.callout p {
+  color: var(--white);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.callout-gold {
+  background: var(--light-gold);
+  border: 2px solid var(--gold);
+  color: var(--text);
+}
+
+.callout-gold p {
+  color: var(--text);
+}
+
+/* ---- FLOW BOXES ---- */
+.flow-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  justify-content: center;
+}
+
+.flow-box {
+  padding: 10px 18px;
+  border-radius: 5px;
+  font-weight: 700;
+  font-size: 12px;
+  text-align: center;
+  color: var(--white);
+}
+
+.flow-arrow {
+  font-size: 18px;
+  color: var(--gold);
+  padding: 0 6px;
+  font-weight: 700;
+}
+
+/* ---- STAT TILE ---- */
+.stat-tile {
+  text-align: center;
+  padding: 14px 8px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.stat-num {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--deep-green);
+  line-height: 1.1;
+}
+
+.stat-unit {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green-mid);
+  margin-top: 2px;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ---- RISK CARD ---- */
+.risk-card {
+  background: var(--white);
+  border-radius: 5px;
+  border-left: 4px solid;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.risk-card h4 { font-size: 11px; margin-bottom: 2px; }
+.risk-card .risk-level {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 4px;
+}
+.risk-card p { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+.risk-high { border-left-color: var(--red); }
+.risk-high .risk-level { color: var(--red); }
+.risk-med { border-left-color: var(--orange); }
+.risk-med .risk-level { color: var(--orange); }
+.risk-low { border-left-color: var(--green-mid); }
+.risk-low .risk-level { color: var(--green-mid); }
+
+/* ---- STAKEHOLDER CARD ---- */
+.smap-card {
+  background: var(--white);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.smap-header {
+  padding: 8px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--white);
+  letter-spacing: 0.5px;
+}
+.smap-body { padding: 10px 12px; }
+.smap-body h4 { font-size: 10px; font-weight: 700; color: var(--deep-green); margin-bottom: 3px; margin-top: 8px; }
+.smap-body h4:first-child { margin-top: 0; }
+.smap-body ul { padding-left: 12px; font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+.smap-body li { margin-bottom: 1px; }
+.smap-body p { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+
+/* ---- TAG ---- */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: var(--light-green);
+  color: var(--green-mid);
+}
+.tag-gold { background: var(--light-gold); color: var(--gold); }
+.tag-blue { background: var(--light-blue); color: var(--blue); }
+.tag-red { background: var(--light-red); color: var(--red); }
+
+/* ---- SVG DEFAULTS ---- */
+svg text {
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+/* ---- CONCEPT NOTICE ---- */
+.concept-notice {
+  background: var(--light-gold);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* ---- REFERENCE LIST ---- */
+.ref-list {
+  list-style: none;
+  padding: 0;
+}
+.ref-list li {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-cat {
+  font-weight: 700;
+  color: var(--deep-green);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ---- PHASE ITEM ---- */
+.phase-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.phase-marker {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--white);
+  flex-shrink: 0;
+}
+.phase-content h4 { font-size: 12px; margin-bottom: 2px; }
+.phase-content p { font-size: 10px; color: var(--text-muted); line-height: 1.45; }
+.phase-content ul { padding-left: 14px; font-size: 10px; color: var(--text-muted); line-height: 1.45; }
+
+/* ---- PRINT OVERRIDES ---- */
+@media print {
+  body { background: none; }
+  .page { break-after: page; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     S01/12 — PROGRAMME INTRODUCTION
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S01 / Programme Introduction</div>
+      <div class="page-heading">From Local Roots to a More Secure Tomorrow</div>
+      <div class="page-subheading">
+        A staged programme using mature technology, measured evidence and modular design to prove what works
+        in Trinidad first — then replicate only the parts that earn their right to scale.
+      </div>
+
+      <div class="concept-notice">Concept Design — Not for Construction &nbsp;&middot;&nbsp; All Drawings Not to Scale</div>
+
+      <div class="flow-row" style="margin-bottom: 24px;">
+        <div class="flow-box" style="background:var(--deep-green);">MEASURE</div>
+        <div class="flow-arrow">&#9654;</div>
+        <div class="flow-box" style="background:var(--green-mid);">VERIFY</div>
+        <div class="flow-arrow">&#9654;</div>
+        <div class="flow-box" style="background:var(--blue);">PROVE</div>
+        <div class="flow-arrow">&#9654;</div>
+        <div class="flow-box" style="background:var(--gold);">SCALE</div>
+      </div>
+
+      <div class="cols-2" style="margin-bottom: 20px;">
+        <div class="card">
+          <div class="card-label">Private Site = Prove</div>
+          <h3>Pilot / First Commercial Campus</h3>
+          <p>Edinburgh Road and Thompson Road, Carlsen Field. Approximately 3.56 acres of private family land. Build Wing 0 (existing structure, approximately 279 m&sup2; subject to survey verification), compact Spine, Wing 1, packhouse, utility yard. Validate climate, yield, uptime, water, energy and maintenance costs under local conditions. Produce first commercial sales. Train people and refine operating procedures.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+            <span class="tag">Wing 0</span>
+            <span class="tag">Spine</span>
+            <span class="tag">Wing 1</span>
+            <span class="tag">Pack + Cold</span>
+            <span class="tag">Utility Yard</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">State Site = Scale (Only If Gates Pass)</div>
+          <h3>Conditional Full-Scale Campus</h3>
+          <p>Opposite state land (approximately 16 acres) south of Thompson Road. Tenure unverified — state land allocation is conditional, subject to Commissioner of State Lands approval, EMA Certificate of Environmental Clearance, DevelopTT planning, and other statutory requirements. Replicate proven modules — not untested ambition. Preserve failure isolation and maintainability. Expand only against demonstrated demand, confirmed finance, secured tenure and obtained approvals.</p>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+            <span class="tag">Wings A–D</span>
+            <span class="tag">Central Spine</span>
+            <span class="tag">Admin + Training</span>
+            <span class="tag">Stormwater</span>
+            <span class="tag">Future Reserve</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cols-4" style="margin-bottom: 20px;">
+        <div class="stat-tile">
+          <div class="stat-num">~3.56</div>
+          <div class="stat-unit">acres (private)</div>
+          <div class="stat-label">Pilot site, family land</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-num">~16</div>
+          <div class="stat-unit">acres (conditional)</div>
+          <div class="stat-label">State land, unverified tenure</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-num">2+R</div>
+          <div class="stat-unit">levels</div>
+          <div class="stat-label">Spine: ground, upper, roof plant</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-num">5</div>
+          <div class="stat-unit">gates</div>
+          <div class="stat-label">Evidence-based decision points</div>
+        </div>
+      </div>
+
+      <div class="callout" style="flex-grow:0;">
+        <p style="font-size:14px;font-weight:500;max-width:65ch;margin:0 auto;">
+          Carlsen Field is not a bet on an expensive futuristic farm. It is a staged programme that uses mature technology, measured evidence and modular design to prove what works in Trinidad first — then replicate only the parts that earn their right to scale.
+        </p>
+        <p style="margin-top:8px;font-size:11px;opacity:0.7;">Every drawing in this concept set tells that same story.</p>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S01 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S02/12 — DESIGN BASIS
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S02 / Design Basis</div>
+      <div class="page-heading">One Design Basis for Both Documents</div>
+      <div class="page-subheading">
+        Every concept in this programme rests on the same assumptions. Where an assumption has not yet been verified, it is flagged as such.
+        No claimed compliance, no committed values — concept status throughout.
+      </div>
+
+      <div style="flex:1;overflow:hidden;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:18%;">Category</th>
+              <th style="width:28%;">Design Basis Statement</th>
+              <th style="width:28%;">Status / Qualification</th>
+              <th style="width:26%;">Verification Required</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="category">Site — Pilot</td>
+              <td>Private land, approximately 3.56 acres, Edinburgh Rd / Thompson Rd, Carlsen Field</td>
+              <td>Deed held; exact boundaries and levels require survey</td>
+              <td>Cadastral survey, boundary confirmation, topographic levels</td>
+            </tr>
+            <tr>
+              <td class="category">Site — Scale</td>
+              <td>State land approximately 16 acres opposite Thompson Road</td>
+              <td>Conditional — tenure not secured, area approximate</td>
+              <td>Commissioner of State Lands application; boundary survey; EMA CEC</td>
+            </tr>
+            <tr>
+              <td class="category">Climate</td>
+              <td>Tropical maritime; ambient typically 24–34 &deg;C; high humidity year-round</td>
+              <td>General knowledge; site-specific psychrometric data not yet collected</td>
+              <td>On-site weather station; minimum 12 months logged data before HVAC sizing</td>
+            </tr>
+            <tr>
+              <td class="category">Power Supply</td>
+              <td>T&amp;TEC grid as primary; backup generator with ATS; UPS for controls</td>
+              <td>T&amp;TEC supply availability to be confirmed; generator and UPS sizes TBD</td>
+              <td>T&amp;TEC load enquiry; Govt Electrical Inspectorate for installation certification</td>
+            </tr>
+            <tr>
+              <td class="category">Water Supply</td>
+              <td>WASA mains, rainwater harvesting, potential well — sources to be tested</td>
+              <td>WASA availability not confirmed; well yield and quality unknown</td>
+              <td>WASA connection enquiry; water quality testing; well yield test if applicable</td>
+            </tr>
+            <tr>
+              <td class="category">Structure</td>
+              <td>Wing 0: existing structure to be assessed and retrofitted. New structures concept only.</td>
+              <td>No structural design completed; no assumed dimensions or loadings</td>
+              <td>Structural assessment of Wing 0; geotechnical investigation; structural engineer</td>
+            </tr>
+            <tr>
+              <td class="category">Drainage</td>
+              <td>Site drainage and stormwater management required for Trinidad rainfall</td>
+              <td>No drainage design; catchment and discharge routing unknown</td>
+              <td>Hydrological study; EMA requirements; outfall identification</td>
+            </tr>
+            <tr>
+              <td class="category">Growing System</td>
+              <td>Recirculating hydroponics; nutrient mixing per module; no shared untreated return</td>
+              <td>System type to be confirmed through trials; specific equipment TBD</td>
+              <td>Trial crops in Wing 0; nutrient management validation; local water analysis</td>
+            </tr>
+            <tr>
+              <td class="category">Post-Harvest</td>
+              <td>Packhouse with grading, packing, cold storage — crop-appropriate temperatures</td>
+              <td>Cold chain temperatures vary by crop (basil is chilling-sensitive at below approximately 12 &deg;C; tomato storage varies by maturity stage)</td>
+              <td>UC Davis produce fact sheets; crop-specific trials; cold room sizing after demand</td>
+            </tr>
+            <tr>
+              <td class="category">Regulatory</td>
+              <td>Planning via DevelopTT; EMA CEC; T&amp;TEC; Govt Electrical Inspectorate; WASA; fire; food safety</td>
+              <td>No applications submitted; requirements to be confirmed with each authority</td>
+              <td>Pre-application enquiries to each authority; legal review of requirements</td>
+            </tr>
+            <tr>
+              <td class="category">Seismic / Wind</td>
+              <td>Trinidad is in a seismically active region with hurricane-season wind exposure</td>
+              <td>No assumed zone values, wind speeds, or structural design parameters</td>
+              <td>Structural engineer to determine applicable codes and design parameters</td>
+            </tr>
+            <tr>
+              <td class="category">Commercial</td>
+              <td>Market demand for target crops to be validated before production commitment</td>
+              <td>Buyer interest to be confirmed; pricing assumptions are preliminary</td>
+              <td>Buyer engagement; price benchmarking; demand validation at Stage 0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S02 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S03/12 — PILOT SITE CONCEPT ARRANGEMENT
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S03 / Pilot Site Concept Arrangement</div>
+      <div class="page-heading">Private Pilot Site — Functional Map</div>
+      <div class="page-subheading">
+        Approximately 3.56 acres, Edinburgh Road / Thompson Road, Carlsen Field. This is a concept-level functional arrangement showing zone relationships — not a dimensioned site plan. All positions, sizes and access routes are indicative and subject to survey, detailed design and authority approvals.
+      </div>
+
+      <div class="concept-notice">Functional diagram only — NTS — all positions indicative — subject to survey and detailed design</div>
+
+      <div style="flex:1;display:flex;gap:24px;">
+        <div style="flex:3;">
+          <svg viewBox="0 0 700 440" style="width:100%;height:auto;max-height:100%;display:block;" role="img" aria-label="Pilot site functional arrangement showing zone relationships">
+            <rect x="0" y="0" width="700" height="440" fill="var(--white)" rx="6" stroke="var(--border)" stroke-width="1"/>
+            <!-- Roads -->
+            <rect x="0" y="0" width="44" height="370" fill="#888E94" rx="3"/>
+            <text x="22" y="200" fill="white" font-size="10" font-weight="600" text-anchor="middle" transform="rotate(-90,22,200)">EDINBURGH ROAD</text>
+            <rect x="44" y="370" width="656" height="44" fill="#888E94" rx="3"/>
+            <text x="370" y="396" fill="white" font-size="10" font-weight="600" text-anchor="middle">THOMPSON ROAD</text>
+            <!-- NTS notice -->
+            <text x="660" y="20" fill="var(--text-light)" font-size="8" font-weight="600" text-anchor="end">NTS</text>
+            <!-- North arrow -->
+            <text x="650" y="40" fill="var(--text)" font-size="11" font-weight="700" text-anchor="middle">N</text>
+            <polygon points="650,44 644,58 656,58" fill="var(--text)"/>
+            <!-- Site boundary -->
+            <rect x="54" y="10" width="636" height="350" fill="none" stroke="var(--deep-green)" stroke-width="2.5" stroke-dasharray="8,4" rx="4"/>
+            <text x="372" y="352" fill="var(--deep-green)" font-size="8" font-weight="500" text-anchor="middle">Approximate site boundary — subject to cadastral survey</text>
+            <!-- Admin / Entry -->
+            <rect x="74" y="30" width="110" height="56" fill="#F0EBD8" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="129" y="56" fill="var(--text)" font-size="10" font-weight="700" text-anchor="middle">ADMIN / ENTRY</text>
+            <text x="129" y="70" fill="var(--text-muted)" font-size="8" text-anchor="middle">Staff, visitors, hygiene</text>
+            <!-- Wing 0 -->
+            <rect x="74" y="108" width="120" height="120" fill="#D6E8F0" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="134" y="162" fill="var(--text)" font-size="12" font-weight="700" text-anchor="middle">WING 0</text>
+            <text x="134" y="178" fill="var(--text-muted)" font-size="9" text-anchor="middle">Existing structure</text>
+            <text x="134" y="190" fill="var(--text-muted)" font-size="8" text-anchor="middle">Approx. 279 m&sup2;</text>
+            <text x="134" y="202" fill="var(--text-light)" font-size="7" text-anchor="middle">(subject to survey)</text>
+            <!-- Spine -->
+            <rect x="216" y="90" width="100" height="160" fill="#D8ECD8" stroke="var(--text)" stroke-width="1.5" rx="4"/>
+            <text x="266" y="160" fill="var(--text)" font-size="13" font-weight="700" text-anchor="middle">SPINE</text>
+            <text x="266" y="176" fill="var(--text-muted)" font-size="9" text-anchor="middle">2 levels + roof</text>
+            <text x="266" y="188" fill="var(--text-muted)" font-size="8" text-anchor="middle">Nursery | LED | Ops</text>
+            <!-- Wing 1 -->
+            <rect x="338" y="76" width="170" height="186" fill="#D6E8F0" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="423" y="162" fill="var(--text)" font-size="12" font-weight="700" text-anchor="middle">WING 1</text>
+            <text x="423" y="178" fill="var(--text-muted)" font-size="9" text-anchor="middle">Main commercial</text>
+            <text x="423" y="190" fill="var(--text-muted)" font-size="9" text-anchor="middle">greenhouse</text>
+            <!-- Pack + Cold -->
+            <rect x="530" y="90" width="120" height="140" fill="#F0EBD8" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="590" y="155" fill="var(--text)" font-size="10" font-weight="700" text-anchor="middle">PACK +</text>
+            <text x="590" y="169" fill="var(--text)" font-size="10" font-weight="700" text-anchor="middle">COLD CHAIN</text>
+            <text x="590" y="185" fill="var(--text-muted)" font-size="8" text-anchor="middle">Grading, packing</text>
+            <text x="590" y="196" fill="var(--text-muted)" font-size="8" text-anchor="middle">Crop-appropriate storage</text>
+            <!-- Utility Yard -->
+            <rect x="216" y="274" width="160" height="60" fill="#E0E3E6" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="296" y="302" fill="var(--text)" font-size="10" font-weight="700" text-anchor="middle">UTILITY YARD</text>
+            <text x="296" y="316" fill="var(--text-muted)" font-size="8" text-anchor="middle">Power, water treatment, controls</text>
+            <!-- Service Yard -->
+            <rect x="400" y="274" width="250" height="60" fill="#E8E8EA" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="525" y="302" fill="var(--text)" font-size="10" font-weight="700" text-anchor="middle">SERVICE YARD</text>
+            <text x="525" y="316" fill="var(--text-muted)" font-size="8" text-anchor="middle">Receiving, maintenance, waste</text>
+            <!-- Access arrows -->
+            <line x1="10" y1="55" x2="50" y2="55" stroke="var(--green-mid)" stroke-width="3"/>
+            <polygon points="50,55 42,50 42,60" fill="var(--green-mid)"/>
+            <text x="8" y="44" fill="var(--green-mid)" font-size="8" font-weight="600">Staff / Visitor</text>
+            <line x1="570" y1="412" x2="570" y2="372" stroke="var(--red)" stroke-width="3"/>
+            <polygon points="570,372 564,382 576,382" fill="var(--red)"/>
+            <text x="520" y="426" fill="var(--red)" font-size="8" font-weight="600">Service / Trucks</text>
+            <!-- Clean dispatch -->
+            <line x1="650" y1="170" x2="690" y2="170" stroke="var(--green-mid)" stroke-width="3"/>
+            <polygon points="690,170 682,165 682,175" fill="var(--green-mid)"/>
+            <text x="660" y="157" fill="var(--green-mid)" font-size="7" font-weight="600">Clean</text>
+            <text x="660" y="185" fill="var(--green-mid)" font-size="7" font-weight="600">dispatch</text>
+          </svg>
+        </div>
+        <div style="flex:2;display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="flex:1;">
+            <div class="card-label">Zone Key</div>
+            <ul style="list-style:none;padding:0;font-size:10px;color:var(--text-muted);line-height:2;">
+              <li><span style="display:inline-block;width:14px;height:10px;background:#D6E8F0;border:1px solid var(--border);border-radius:2px;vertical-align:middle;margin-right:6px;"></span> <strong>Wings</strong> — sunlight greenhouses, passive climate first</li>
+              <li><span style="display:inline-block;width:14px;height:10px;background:#D8ECD8;border:1px solid var(--border);border-radius:2px;vertical-align:middle;margin-right:6px;"></span> <strong>Spine</strong> — 2 occupied levels + roof plant (nursery, LED, ops)</li>
+              <li><span style="display:inline-block;width:14px;height:10px;background:#F0EBD8;border:1px solid var(--border);border-radius:2px;vertical-align:middle;margin-right:6px;"></span> <strong>Support</strong> — admin, packhouse, cold chain</li>
+              <li><span style="display:inline-block;width:14px;height:10px;background:#E0E3E6;border:1px solid var(--border);border-radius:2px;vertical-align:middle;margin-right:6px;"></span> <strong>Utility</strong> — power, water, treatment</li>
+              <li><span style="display:inline-block;width:14px;height:10px;background:#E8E8EA;border:1px solid var(--border);border-radius:2px;vertical-align:middle;margin-right:6px;"></span> <strong>Service</strong> — receiving, maintenance, waste</li>
+            </ul>
+          </div>
+          <div class="card" style="flex:1;">
+            <div class="card-label">Design Intent</div>
+            <ul style="font-size:10px;">
+              <li>Dirty-to-clean flow separates inputs from produce</li>
+              <li>Staff enter from Edinburgh Road via hygiene zone</li>
+              <li>Service vehicles enter from Thompson Road — separate access</li>
+              <li>Clean dispatch from packhouse side, away from service</li>
+              <li>Each wing connects to Spine but operates independently</li>
+              <li>Utility yard serves all zones but is physically separated</li>
+            </ul>
+          </div>
+          <div class="card" style="flex:0;">
+            <p style="font-size:9px;color:var(--text-light);line-height:1.4;">All positions, sizes, access routes, and setbacks are indicative. Final layout depends on cadastral survey, geotechnical investigation, drainage study, planning approvals (DevelopTT), and detailed engineering design.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S03 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S04/12 — CONDITIONAL FULL-SCALE CAMPUS
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S04 / Conditional Full-Scale Campus</div>
+      <div class="page-heading">Scale Site — Only If All Gates Pass</div>
+      <div class="page-subheading">
+        Approximately 16 acres opposite Thompson Road. State land — tenure not secured, area approximate. This arrangement is conditional on: pilot operating data, Commissioner of State Lands approval, EMA CEC, DevelopTT planning permission, secured finance, and confirmed market demand. Replicate proven modules, not untested ambition.
+      </div>
+
+      <div class="concept-notice">Conditional arrangement — NTS — all positions indicative — subject to tenure, planning, EMA, finance and demand</div>
+
+      <div style="flex:1;display:flex;gap:24px;">
+        <div style="flex:3;">
+          <svg viewBox="0 0 700 390" style="width:100%;height:auto;max-height:100%;display:block;" role="img" aria-label="Full-scale campus functional arrangement showing four wings around central spine">
+            <rect x="0" y="0" width="700" height="390" fill="var(--white)" rx="6" stroke="var(--border)" stroke-width="1"/>
+            <!-- Roads -->
+            <rect x="44" y="0" width="612" height="40" fill="#888E94" rx="3"/>
+            <text x="350" y="25" fill="white" font-size="10" font-weight="600" text-anchor="middle">THOMPSON ROAD</text>
+            <rect x="0" y="40" width="44" height="350" fill="#888E94" rx="3"/>
+            <text x="22" y="220" fill="white" font-size="10" font-weight="600" text-anchor="middle" transform="rotate(-90,22,220)">EDINBURGH ROAD</text>
+            <!-- NTS notice -->
+            <text x="660" y="56" fill="var(--text-light)" font-size="8" font-weight="600" text-anchor="end">NTS</text>
+            <!-- North arrow -->
+            <text x="640" y="62" fill="var(--text)" font-size="11" font-weight="700" text-anchor="middle">N</text>
+            <polygon points="640,66 634,80 646,80" fill="var(--text)"/>
+            <!-- Site boundary -->
+            <rect x="52" y="48" width="600" height="332" fill="none" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="8,4" rx="4"/>
+            <text x="352" y="374" fill="var(--gold)" font-size="7" font-weight="500" text-anchor="middle">Approximate boundary — conditional state land — tenure not secured</text>
+            <!-- Admin + Training -->
+            <rect x="72" y="62" width="130" height="48" fill="#F0EBD8" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="137" y="86" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">ADMIN + TRAINING</text>
+            <text x="137" y="98" fill="var(--text-muted)" font-size="7" text-anchor="middle">Visitor centre</text>
+            <!-- Pack + Cold -->
+            <rect x="520" y="62" width="110" height="48" fill="#F0EBD8" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="575" y="86" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">PACK + COLD</text>
+            <text x="575" y="98" fill="var(--text-muted)" font-size="7" text-anchor="middle">Dispatch</text>
+            <!-- Wing A -->
+            <rect x="78" y="128" width="170" height="68" fill="#D6E8F0" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="163" y="168" fill="var(--text)" font-size="12" font-weight="700" text-anchor="middle">WING A</text>
+            <!-- Wing B -->
+            <rect x="452" y="128" width="170" height="68" fill="#D6E8F0" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="537" y="168" fill="var(--text)" font-size="12" font-weight="700" text-anchor="middle">WING B</text>
+            <!-- Central Spine -->
+            <rect x="266" y="122" width="168" height="148" fill="#D8ECD8" stroke="var(--text)" stroke-width="1.5" rx="4"/>
+            <text x="350" y="186" fill="var(--text)" font-size="13" font-weight="700" text-anchor="middle">CENTRAL</text>
+            <text x="350" y="202" fill="var(--text)" font-size="13" font-weight="700" text-anchor="middle">SPINE</text>
+            <text x="350" y="218" fill="var(--text-muted)" font-size="8" text-anchor="middle">Same 2-level + roof logic</text>
+            <text x="350" y="230" fill="var(--text-muted)" font-size="8" text-anchor="middle">Proven design replicated</text>
+            <!-- Wing C -->
+            <rect x="78" y="210" width="170" height="68" fill="#D6E8F0" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="163" y="250" fill="var(--text)" font-size="12" font-weight="700" text-anchor="middle">WING C</text>
+            <!-- Wing D -->
+            <rect x="452" y="210" width="170" height="68" fill="#D6E8F0" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="537" y="250" fill="var(--text)" font-size="12" font-weight="700" text-anchor="middle">WING D</text>
+            <!-- Utility -->
+            <rect x="72" y="300" width="140" height="52" fill="#E0E3E6" stroke="var(--text)" stroke-width="1.2" rx="4"/>
+            <text x="142" y="330" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">UTILITY YARD</text>
+            <!-- Stormwater -->
+            <rect x="230" y="300" width="170" height="52" fill="#DBE8F2" stroke="var(--blue)" stroke-width="1.2" rx="4"/>
+            <text x="315" y="330" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">STORMWATER / WATER</text>
+            <!-- Future reserve -->
+            <rect x="420" y="300" width="210" height="52" fill="#ECECEE" stroke="var(--text-light)" stroke-width="1.2" stroke-dasharray="5,3" rx="4"/>
+            <text x="525" y="330" fill="var(--text-light)" font-size="9" font-weight="700" text-anchor="middle">FUTURE RESERVE</text>
+            <!-- Access arrows -->
+            <line x1="137" y1="10" x2="137" y2="44" stroke="var(--green-mid)" stroke-width="3"/>
+            <polygon points="137,44 131,34 143,34" fill="var(--green-mid)"/>
+            <text x="86" y="8" fill="var(--green-mid)" font-size="7" font-weight="600">Visitor / Staff</text>
+            <line x1="570" y1="10" x2="570" y2="44" stroke="var(--red)" stroke-width="3"/>
+            <polygon points="570,44 564,34 576,34" fill="var(--red)"/>
+            <text x="524" y="8" fill="var(--red)" font-size="7" font-weight="600">Service / Trucks</text>
+          </svg>
+        </div>
+        <div style="flex:2;display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="flex:1;">
+            <div class="card-label">Scale-Site Conditions</div>
+            <p style="font-size:10px;font-weight:600;color:var(--red);margin-bottom:6px;">This campus is conditional. It proceeds only when all of the following are satisfied:</p>
+            <ul style="font-size:10px;">
+              <li>Pilot site demonstrates commercial viability with measured data</li>
+              <li>State land tenure secured through Commissioner of State Lands</li>
+              <li>EMA Certificate of Environmental Clearance obtained</li>
+              <li>DevelopTT planning permission granted</li>
+              <li>Finance secured against demonstrated (not projected) returns</li>
+              <li>Market demand confirmed at scale volumes</li>
+              <li>Operating team capable of managing expanded campus</li>
+            </ul>
+          </div>
+          <div class="card" style="flex:1;">
+            <div class="card-label">Replication Principle</div>
+            <ul style="font-size:10px;">
+              <li>Same Spine architecture — do not redesign what is proven</li>
+              <li>Wings replicate proven module; each independently isolated</li>
+              <li>Expanded packhouse and cold chain sized to actual demand</li>
+              <li>Admin and training centre enables workforce development</li>
+              <li>Stormwater management per hydrological study</li>
+              <li>Future reserve land kept for expansion only if justified</li>
+            </ul>
+          </div>
+          <div class="card" style="flex:0;">
+            <p style="font-size:9px;color:var(--text-light);line-height:1.4;">Layout, land use, access routes and zone sizes are indicative. Subject to state land allocation process, environmental assessment, planning conditions, utility capacity studies and detailed engineering design. No area, dimension or position is committed.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S04 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S05/12 — THE COMPACT SPINE
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S05 / The Compact Spine</div>
+      <div class="page-heading">Two Occupied Levels + Roof Plant</div>
+      <div class="page-subheading">
+        The Spine is the technical core of the campus. It houses the functions that require the most control — nursery propagation, compact LED leafy production, operations and controls — stacked vertically to reduce footprint. Roof level carries HVAC, dehumidification and extraction plant. This is a concept section — no dimensions, structural sizes or equipment specifications are committed.
+      </div>
+
+      <div class="concept-notice">Concept section — NTS — no structural design, dimensions or equipment sizes committed</div>
+
+      <div style="flex:1;display:flex;flex-direction:column;gap:16px;">
+        <div style="flex:3;">
+          <svg viewBox="0 0 1100 300" style="width:100%;height:auto;display:block;" role="img" aria-label="Concept section through Spine showing ground level, upper level and roof plant">
+            <rect x="0" y="0" width="1100" height="300" fill="var(--white)" rx="6" stroke="var(--border)" stroke-width="1"/>
+            <!-- NTS label -->
+            <text x="1060" y="18" fill="var(--text-light)" font-size="8" font-weight="600" text-anchor="end">NTS — CONCEPT SECTION</text>
+            <!-- Optional future annotation -->
+            <rect x="250" y="8" width="600" height="16" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="5,3" rx="3"/>
+            <text x="550" y="19" fill="var(--gold)" font-size="7" font-weight="600" text-anchor="middle">OPTIONAL FUTURE LEVEL — ONLY IF PROVEN ECONOMICS JUSTIFY</text>
+            <!-- Roof Plant -->
+            <rect x="140" y="28" width="820" height="44" fill="#E0E3E6" stroke="var(--text)" stroke-width="1.5" rx="4"/>
+            <text x="550" y="54" fill="var(--text)" font-size="11" font-weight="700" text-anchor="middle">ROOF PLANT — HVAC / DEHUMIDIFICATION / EXTRACTION / PV WHERE SUITABLE</text>
+            <text x="550" y="66" fill="var(--text-muted)" font-size="8" text-anchor="middle">Equipment types and capacities to be determined from measured psychrometric data</text>
+            <!-- Upper Level -->
+            <rect x="80" y="78" width="940" height="90" fill="#EEF4EA" stroke="var(--text)" stroke-width="1.5" rx="4"/>
+            <text x="110" y="96" fill="var(--deep-green)" font-size="10" font-weight="700">UPPER LEVEL</text>
+            <!-- Nursery zone -->
+            <rect x="100" y="104" width="340" height="54" fill="#F0F6EC" stroke="var(--border)" stroke-width="1" rx="3"/>
+            <text x="270" y="128" fill="var(--text)" font-size="12" font-weight="700" text-anchor="middle">NURSERY / PROPAGATION</text>
+            <text x="270" y="142" fill="var(--text-muted)" font-size="8" text-anchor="middle">Clean seedling production for Wings — disease-free transplant stock</text>
+            <!-- LED zone -->
+            <rect x="460" y="104" width="400" height="54" fill="#F0F6EC" stroke="var(--border)" stroke-width="1" rx="3"/>
+            <text x="660" y="128" fill="var(--text)" font-size="12" font-weight="700" text-anchor="middle">COMPACT LED LEAFY MODULE</text>
+            <text x="660" y="142" fill="var(--text-muted)" font-size="8" text-anchor="middle">High-value leafy greens and herbs — LED lighting justified by crop value and cycle time</text>
+            <!-- Divider -->
+            <line x1="450" y1="82" x2="450" y2="164" stroke="var(--text)" stroke-width="1"/>
+            <!-- Growing trays (abstracted) -->
+            <rect x="140" y="148" width="60" height="5" fill="#A8C98F" rx="2"/>
+            <rect x="220" y="148" width="60" height="5" fill="#A8C98F" rx="2"/>
+            <rect x="300" y="148" width="60" height="5" fill="#A8C98F" rx="2"/>
+            <rect x="500" y="148" width="60" height="5" fill="#A8C98F" rx="2"/>
+            <rect x="580" y="148" width="60" height="5" fill="#A8C98F" rx="2"/>
+            <rect x="660" y="148" width="60" height="5" fill="#A8C98F" rx="2"/>
+            <rect x="740" y="148" width="60" height="5" fill="#A8C98F" rx="2"/>
+            <!-- Ground Level -->
+            <rect x="80" y="178" width="940" height="90" fill="#FBF6EE" stroke="var(--text)" stroke-width="1.5" rx="4"/>
+            <text x="110" y="196" fill="var(--deep-green)" font-size="10" font-weight="700">GROUND LEVEL</text>
+            <!-- Ground zones -->
+            <rect x="100" y="204" width="150" height="54" fill="var(--white)" stroke="var(--border)" stroke-width="1" rx="3"/>
+            <text x="175" y="228" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">CLEAN ENTRY</text>
+            <text x="175" y="241" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">+ HYGIENE</text>
+            <rect x="268" y="204" width="200" height="54" fill="var(--white)" stroke="var(--border)" stroke-width="1" rx="3"/>
+            <text x="368" y="228" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">OPS / CONTROL ROOM</text>
+            <text x="368" y="241" fill="var(--text-muted)" font-size="8" text-anchor="middle">PLC, HMI, SCADA, historian</text>
+            <rect x="486" y="204" width="240" height="54" fill="var(--white)" stroke="var(--border)" stroke-width="1" rx="3"/>
+            <text x="606" y="228" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">SERVICE CORRIDOR / UTILITY RISERS</text>
+            <text x="606" y="241" fill="var(--text-muted)" font-size="8" text-anchor="middle">Nutrient mixing, water treatment, electrical</text>
+            <rect x="744" y="204" width="200" height="54" fill="var(--white)" stroke="var(--border)" stroke-width="1" rx="3"/>
+            <text x="844" y="228" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle">PACK CONNECTION</text>
+            <text x="844" y="241" fill="var(--text-muted)" font-size="8" text-anchor="middle">Clean transfer to packhouse</text>
+            <!-- Ground line -->
+            <line x1="60" y1="280" x2="1040" y2="280" stroke="var(--text)" stroke-width="2"/>
+            <text x="550" y="294" fill="var(--text-muted)" font-size="8" text-anchor="middle">GROUND LEVEL — Stack crops before stacking buildings. Future expansion is optional, never assumed.</text>
+          </svg>
+        </div>
+
+        <div class="cols-5" style="flex:0;">
+          <div class="card" style="padding:10px;text-align:center;">
+            <h4 style="font-size:11px;">Power</h4>
+            <p style="font-size:9px;">T&amp;TEC grid primary. Generator backup with ATS. UPS for controls. Sizes TBD from load study.</p>
+          </div>
+          <div class="card" style="padding:10px;text-align:center;">
+            <h4 style="font-size:11px;">Water</h4>
+            <p style="font-size:9px;">WASA / well / rain — sources to be tested. Treatment as required. Isolated nutrient loops per zone.</p>
+          </div>
+          <div class="card" style="padding:10px;text-align:center;">
+            <h4 style="font-size:11px;">Climate</h4>
+            <p style="font-size:9px;">Wings: passive first (ventilation, shade, fans). Spine: dedicated HVAC sized from measured data.</p>
+          </div>
+          <div class="card" style="padding:10px;text-align:center;">
+            <h4 style="font-size:11px;">Controls</h4>
+            <p style="font-size:9px;">PLC/HMI local operation. SCADA historian for data. Sub-metering all zones. Manual fallback.</p>
+          </div>
+          <div class="card" style="padding:10px;text-align:center;">
+            <h4 style="font-size:11px;">Survival Mode</h4>
+            <p style="font-size:9px;">Grid loss: UPS holds, generator starts, critical loads only. No cloud dependency for essential functions.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S05 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S06/12 — BIOSECURITY AND MOVEMENT
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S06 / Biosecurity and Movement</div>
+      <div class="page-heading">Five Flows — The Butterfly Logic</div>
+      <div class="page-subheading">
+        The Butterfly is a process flow concept, not a building shape. It describes how five distinct flow categories move through the campus from dirty side to clean side, with controlled transitions. Every flow is managed to prevent contamination crossing from one zone to another.
+      </div>
+
+      <div style="flex:1;display:flex;gap:20px;">
+        <!-- Left: five flows diagram -->
+        <div style="flex:3;">
+          <svg viewBox="0 0 720 450" style="width:100%;height:auto;display:block;" role="img" aria-label="Five biosecurity flows showing dirty-to-clean separation">
+            <rect x="0" y="0" width="720" height="450" fill="var(--white)" rx="6" stroke="var(--border)" stroke-width="1"/>
+
+            <!-- Title -->
+            <text x="360" y="22" fill="var(--deep-green)" font-size="12" font-weight="700" text-anchor="middle">FIVE BIOSECURITY FLOWS — DIRTY TO CLEAN SEPARATION</text>
+
+            <!-- Column headers -->
+            <rect x="30" y="36" width="140" height="26" fill="var(--light-red)" rx="3"/>
+            <text x="100" y="53" fill="var(--red)" font-size="10" font-weight="700" text-anchor="middle">DIRTY SIDE (INPUT)</text>
+
+            <rect x="200" y="36" width="140" height="26" fill="var(--light-gold)" rx="3"/>
+            <text x="270" y="53" fill="var(--gold)" font-size="10" font-weight="700" text-anchor="middle">TRANSITION</text>
+
+            <rect x="370" y="36" width="160" height="26" fill="var(--light-green)" rx="3"/>
+            <text x="450" y="53" fill="var(--green-mid)" font-size="10" font-weight="700" text-anchor="middle">PRODUCTION</text>
+
+            <rect x="560" y="36" width="130" height="26" fill="var(--light-blue)" rx="3"/>
+            <text x="625" y="53" fill="var(--blue)" font-size="10" font-weight="700" text-anchor="middle">CLEAN SIDE (OUT)</text>
+
+            <!-- Flow 1: People -->
+            <rect x="30" y="76" width="140" height="56" fill="#FEF6F6" stroke="var(--red)" stroke-width="1" rx="4"/>
+            <text x="100" y="96" fill="var(--deep-green)" font-size="10" font-weight="700" text-anchor="middle">1. PEOPLE</text>
+            <text x="100" y="110" fill="var(--text-muted)" font-size="8" text-anchor="middle">Staff, visitors arrive</text>
+            <text x="100" y="122" fill="var(--text-muted)" font-size="8" text-anchor="middle">from external</text>
+            <line x1="170" y1="104" x2="200" y2="104" stroke="var(--gold)" stroke-width="2" marker-end="url(#arrowGold)"/>
+            <rect x="200" y="76" width="140" height="56" fill="#FEF9EC" stroke="var(--gold)" stroke-width="1" rx="4"/>
+            <text x="270" y="96" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Hygiene zone</text>
+            <text x="270" y="110" fill="var(--text-muted)" font-size="8" text-anchor="middle">Change, wash, PPE</text>
+            <text x="270" y="122" fill="var(--text-muted)" font-size="8" text-anchor="middle">Foot bath, air shower</text>
+            <line x1="340" y1="104" x2="370" y2="104" stroke="var(--gold)" stroke-width="2" marker-end="url(#arrowGold)"/>
+            <rect x="370" y="76" width="160" height="56" fill="#F0F6EC" stroke="var(--green-mid)" stroke-width="1" rx="4"/>
+            <text x="450" y="96" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Clean production zones</text>
+            <text x="450" y="110" fill="var(--text-muted)" font-size="8" text-anchor="middle">Spine, Wings</text>
+            <text x="450" y="122" fill="var(--text-muted)" font-size="8" text-anchor="middle">Controlled access only</text>
+
+            <!-- Flow 2: Inputs -->
+            <rect x="30" y="146" width="140" height="56" fill="#FEF6F6" stroke="var(--red)" stroke-width="1" rx="4"/>
+            <text x="100" y="166" fill="var(--deep-green)" font-size="10" font-weight="700" text-anchor="middle">2. INPUTS</text>
+            <text x="100" y="180" fill="var(--text-muted)" font-size="8" text-anchor="middle">Seeds, nutrients, media,</text>
+            <text x="100" y="192" fill="var(--text-muted)" font-size="8" text-anchor="middle">supplies arrive at service</text>
+            <line x1="170" y1="174" x2="200" y2="174" stroke="var(--gold)" stroke-width="2" marker-end="url(#arrowGold)"/>
+            <rect x="200" y="146" width="140" height="56" fill="#FEF9EC" stroke="var(--gold)" stroke-width="1" rx="4"/>
+            <text x="270" y="166" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Receiving / inspection</text>
+            <text x="270" y="180" fill="var(--text-muted)" font-size="8" text-anchor="middle">Check, decontaminate</text>
+            <text x="270" y="192" fill="var(--text-muted)" font-size="8" text-anchor="middle">Repackage if needed</text>
+            <line x1="340" y1="174" x2="370" y2="174" stroke="var(--gold)" stroke-width="2" marker-end="url(#arrowGold)"/>
+            <rect x="370" y="146" width="160" height="56" fill="#F0F6EC" stroke="var(--green-mid)" stroke-width="1" rx="4"/>
+            <text x="450" y="166" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Clean storage / mixing</text>
+            <text x="450" y="180" fill="var(--text-muted)" font-size="8" text-anchor="middle">Per-module nutrient prep</text>
+            <text x="450" y="192" fill="var(--text-muted)" font-size="8" text-anchor="middle">No shared untreated return</text>
+
+            <!-- Flow 3: Harvest -->
+            <rect x="370" y="216" width="160" height="56" fill="#F0F6EC" stroke="var(--green-mid)" stroke-width="1" rx="4"/>
+            <text x="450" y="236" fill="var(--deep-green)" font-size="10" font-weight="700" text-anchor="middle">3. HARVEST</text>
+            <text x="450" y="250" fill="var(--text-muted)" font-size="8" text-anchor="middle">Crop harvested in</text>
+            <text x="450" y="262" fill="var(--text-muted)" font-size="8" text-anchor="middle">clean production zone</text>
+            <line x1="530" y1="244" x2="560" y2="244" stroke="var(--gold)" stroke-width="2" marker-end="url(#arrowGold)"/>
+            <rect x="560" y="216" width="130" height="56" fill="#EBF0F5" stroke="var(--blue)" stroke-width="1" rx="4"/>
+            <text x="625" y="236" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Pack + cold chain</text>
+            <text x="625" y="250" fill="var(--text-muted)" font-size="8" text-anchor="middle">Grade, pack, store at</text>
+            <text x="625" y="262" fill="var(--text-muted)" font-size="8" text-anchor="middle">crop-appropriate temp</text>
+
+            <!-- Flow 4: Waste -->
+            <rect x="370" y="286" width="160" height="56" fill="#F0F6EC" stroke="var(--green-mid)" stroke-width="1" rx="4"/>
+            <text x="450" y="306" fill="var(--deep-green)" font-size="10" font-weight="700" text-anchor="middle">4. WASTE</text>
+            <text x="450" y="320" fill="var(--text-muted)" font-size="8" text-anchor="middle">Organic waste, spent</text>
+            <text x="450" y="332" fill="var(--text-muted)" font-size="8" text-anchor="middle">nutrient, packaging</text>
+            <line x1="370" y1="314" x2="340" y2="314" stroke="var(--gold)" stroke-width="2"/>
+            <polygon points="340,314 348,310 348,318" fill="var(--gold)"/>
+            <rect x="200" y="286" width="140" height="56" fill="#FEF9EC" stroke="var(--gold)" stroke-width="1" rx="4"/>
+            <text x="270" y="306" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Waste segregation</text>
+            <text x="270" y="320" fill="var(--text-muted)" font-size="8" text-anchor="middle">Separate from product</text>
+            <text x="270" y="332" fill="var(--text-muted)" font-size="8" text-anchor="middle">flow at all points</text>
+            <line x1="200" y1="314" x2="170" y2="314" stroke="var(--gold)" stroke-width="2"/>
+            <polygon points="170,314 178,310 178,318" fill="var(--gold)"/>
+            <rect x="30" y="286" width="140" height="56" fill="#FEF6F6" stroke="var(--red)" stroke-width="1" rx="4"/>
+            <text x="100" y="306" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Approved disposal</text>
+            <text x="100" y="320" fill="var(--text-muted)" font-size="8" text-anchor="middle">Compost / removal</text>
+            <text x="100" y="332" fill="var(--text-muted)" font-size="8" text-anchor="middle">via service yard</text>
+
+            <!-- Flow 5: Maintenance -->
+            <rect x="30" y="356" width="140" height="56" fill="#FEF6F6" stroke="var(--red)" stroke-width="1" rx="4"/>
+            <text x="100" y="376" fill="var(--deep-green)" font-size="10" font-weight="700" text-anchor="middle">5. MAINTENANCE</text>
+            <text x="100" y="390" fill="var(--text-muted)" font-size="8" text-anchor="middle">Technicians, tools,</text>
+            <text x="100" y="402" fill="var(--text-muted)" font-size="8" text-anchor="middle">spare parts arrive</text>
+            <line x1="170" y1="384" x2="200" y2="384" stroke="var(--gold)" stroke-width="2" marker-end="url(#arrowGold)"/>
+            <rect x="200" y="356" width="140" height="56" fill="#FEF9EC" stroke="var(--gold)" stroke-width="1" rx="4"/>
+            <text x="270" y="376" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Decontamination</text>
+            <text x="270" y="390" fill="var(--text-muted)" font-size="8" text-anchor="middle">Tools cleaned, PPE</text>
+            <text x="270" y="402" fill="var(--text-muted)" font-size="8" text-anchor="middle">donned, access logged</text>
+            <line x1="340" y1="384" x2="370" y2="384" stroke="var(--gold)" stroke-width="2" marker-end="url(#arrowGold)"/>
+            <rect x="370" y="356" width="160" height="56" fill="#F0F6EC" stroke="var(--green-mid)" stroke-width="1" rx="4"/>
+            <text x="450" y="376" fill="var(--deep-green)" font-size="9" font-weight="600" text-anchor="middle">Controlled access</text>
+            <text x="450" y="390" fill="var(--text-muted)" font-size="8" text-anchor="middle">Service corridors, utility</text>
+            <text x="450" y="402" fill="var(--text-muted)" font-size="8" text-anchor="middle">risers, roof plant</text>
+
+            <!-- Dispatch arrow -->
+            <line x1="690" y1="244" x2="715" y2="244" stroke="var(--green-mid)" stroke-width="2.5"/>
+            <polygon points="715,244 707,239 707,249" fill="var(--green-mid)"/>
+            <text x="710" y="232" fill="var(--green-mid)" font-size="7" font-weight="600">To buyers</text>
+
+            <!-- Arrow marker -->
+            <defs>
+              <marker id="arrowGold" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                <polygon points="0,0 8,3 0,6" fill="var(--gold)"/>
+              </marker>
+            </defs>
+
+            <!-- Legend bar -->
+            <rect x="30" y="426" width="660" height="18" fill="var(--cream)" rx="3"/>
+            <text x="360" y="438" fill="var(--text-muted)" font-size="8" font-weight="500" text-anchor="middle">Butterfly = flow logic (dirty-to-clean separation) — NOT building shape &nbsp;&nbsp;|&nbsp;&nbsp; Each flow has defined transition and control point</text>
+          </svg>
+        </div>
+        <!-- Right: flow descriptions -->
+        <div style="flex:2;display:flex;flex-direction:column;gap:8px;">
+          <div class="card" style="padding:10px;border-left:3px solid var(--red);">
+            <h4 style="font-size:10px;">1. People Flow</h4>
+            <p style="font-size:9px;">All personnel transition through hygiene zone before entering production. Visitors restricted. Movement logged. Clean-side clothing only in production areas.</p>
+          </div>
+          <div class="card" style="padding:10px;border-left:3px solid var(--orange);">
+            <h4 style="font-size:10px;">2. Input Flow</h4>
+            <p style="font-size:9px;">All materials received at service yard (dirty side). Inspected, decontaminated and repackaged before transfer to clean storage. No direct path from external to production.</p>
+          </div>
+          <div class="card" style="padding:10px;border-left:3px solid var(--green-mid);">
+            <h4 style="font-size:10px;">3. Harvest Flow</h4>
+            <p style="font-size:9px;">Product moves from production to packhouse through clean transfer. Graded, packed and stored at crop-appropriate temperatures. Basil above approximately 12 &deg;C (chilling-sensitive). Dispatch from clean side only.</p>
+          </div>
+          <div class="card" style="padding:10px;border-left:3px solid var(--purple);">
+            <h4 style="font-size:10px;">4. Waste Flow</h4>
+            <p style="font-size:9px;">Organic waste, spent nutrient solution, and packaging routed out of production through dedicated waste path. Never crosses product flow. Exits via service yard for approved disposal or composting.</p>
+          </div>
+          <div class="card" style="padding:10px;border-left:3px solid var(--blue);">
+            <h4 style="font-size:10px;">5. Maintenance Flow</h4>
+            <p style="font-size:9px;">Technicians and tools enter through decontamination. Access to service corridors, utility risers and roof plant via controlled routes. Maintenance activity logged. Tools cleaned on entry and exit.</p>
+          </div>
+          <div class="card" style="padding:8px;background:var(--light-gold);border:1px solid var(--gold);">
+            <p style="font-size:9px;color:var(--text);font-weight:500;text-align:center;">The five flows are a design principle. Detailed SOPs, access protocols and physical barriers will be developed during detailed design with reference to food safety and biosecurity best practice.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S06 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S07/12 — MODULE ISOLATION
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S07 / Module Isolation</div>
+      <div class="page-heading">Keep Failure Inside One Module</div>
+      <div class="page-subheading">
+        Each production module (wing or Spine zone) has its own nutrient mixing, crop return and isolation boundary. No shared untreated return lines. If a disease, contamination or system failure occurs in one module, it does not propagate to others. This is the most important design principle in the entire programme.
+      </div>
+
+      <div style="flex:1;display:flex;gap:24px;">
+        <div style="flex:3;">
+          <svg viewBox="0 0 700 420" style="width:100%;height:auto;display:block;" role="img" aria-label="Nutrient isolation schematic showing independent module loops">
+            <rect x="0" y="0" width="700" height="420" fill="var(--white)" rx="6" stroke="var(--border)" stroke-width="1"/>
+            <text x="350" y="22" fill="var(--deep-green)" font-size="12" font-weight="700" text-anchor="middle">NUTRIENT ISOLATION SCHEMATIC — EACH MODULE INDEPENDENT</text>
+            <text x="350" y="36" fill="var(--text-muted)" font-size="8" text-anchor="middle">Concept diagram — NTS — no pipe sizes, tank volumes or equipment specifications committed</text>
+
+            <!-- Fresh water source -->
+            <rect x="280" y="52" width="140" height="36" fill="var(--light-blue)" stroke="var(--blue)" stroke-width="1.5" rx="4"/>
+            <text x="350" y="70" fill="var(--blue)" font-size="10" font-weight="700" text-anchor="middle">FRESH WATER SOURCE</text>
+            <text x="350" y="82" fill="var(--text-muted)" font-size="7" text-anchor="middle">WASA / well / rain — tested and treated</text>
+
+            <!-- Distribution line -->
+            <line x1="350" y1="88" x2="350" y2="108" stroke="var(--blue)" stroke-width="2"/>
+            <rect x="260" y="108" width="180" height="22" fill="#F0F5FA" stroke="var(--blue)" stroke-width="1" rx="3"/>
+            <text x="350" y="122" fill="var(--blue)" font-size="8" font-weight="600" text-anchor="middle">TREATED WATER DISTRIBUTION (clean supply only)</text>
+
+            <!-- Branches to modules -->
+            <line x1="140" y1="119" x2="260" y2="119" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <line x1="440" y1="119" x2="560" y2="119" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <line x1="350" y1="130" x2="350" y2="150" stroke="var(--blue)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+            <!-- Module A (Wing 0) -->
+            <rect x="40" y="140" width="200" height="180" fill="#FEF9F0" stroke="var(--deep-green)" stroke-width="2" rx="6"/>
+            <rect x="40" y="140" width="200" height="24" fill="var(--deep-green)" rx="6 6 0 0"/>
+            <text x="140" y="156" fill="var(--white)" font-size="10" font-weight="700" text-anchor="middle">MODULE A — WING 0</text>
+            <!-- Isolation boundary notation -->
+            <rect x="52" y="174" width="176" height="134" fill="var(--white)" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4,2" rx="4"/>
+            <text x="140" y="188" fill="var(--gold)" font-size="8" font-weight="600" text-anchor="middle">ISOLATION BOUNDARY</text>
+            <rect x="66" y="196" width="148" height="24" fill="var(--light-blue)" stroke="var(--blue)" stroke-width="1" rx="3"/>
+            <text x="140" y="212" fill="var(--blue)" font-size="8" font-weight="600" text-anchor="middle">Own nutrient mixing</text>
+            <rect x="66" y="228" width="148" height="24" fill="var(--light-green)" stroke="var(--green-mid)" stroke-width="1" rx="3"/>
+            <text x="140" y="244" fill="var(--green-mid)" font-size="8" font-weight="600" text-anchor="middle">Own growing system</text>
+            <rect x="66" y="260" width="148" height="24" fill="var(--light-gold)" stroke="var(--gold)" stroke-width="1" rx="3"/>
+            <text x="140" y="276" fill="var(--gold)" font-size="8" font-weight="600" text-anchor="middle">Own return / drain</text>
+            <!-- Return arrow (self-contained) -->
+            <path d="M214,276 Q230,276 230,244 Q230,212 214,212" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <text x="236" y="244" fill="var(--orange)" font-size="7" font-weight="500" transform="rotate(90,236,244)">recirculate</text>
+
+            <!-- Module B (Spine LED) -->
+            <rect x="250" y="154" width="200" height="166" fill="#F0FBF0" stroke="var(--deep-green)" stroke-width="2" rx="6"/>
+            <rect x="250" y="154" width="200" height="24" fill="var(--deep-green)" rx="6 6 0 0"/>
+            <text x="350" y="170" fill="var(--white)" font-size="10" font-weight="700" text-anchor="middle">MODULE B — SPINE LED</text>
+            <rect x="262" y="188" width="176" height="120" fill="var(--white)" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4,2" rx="4"/>
+            <text x="350" y="202" fill="var(--gold)" font-size="8" font-weight="600" text-anchor="middle">ISOLATION BOUNDARY</text>
+            <rect x="276" y="210" width="148" height="24" fill="var(--light-blue)" stroke="var(--blue)" stroke-width="1" rx="3"/>
+            <text x="350" y="226" fill="var(--blue)" font-size="8" font-weight="600" text-anchor="middle">Own nutrient mixing</text>
+            <rect x="276" y="242" width="148" height="24" fill="var(--light-green)" stroke="var(--green-mid)" stroke-width="1" rx="3"/>
+            <text x="350" y="258" fill="var(--green-mid)" font-size="8" font-weight="600" text-anchor="middle">Own growing system</text>
+            <rect x="276" y="274" width="148" height="24" fill="var(--light-gold)" stroke="var(--gold)" stroke-width="1" rx="3"/>
+            <text x="350" y="290" fill="var(--gold)" font-size="8" font-weight="600" text-anchor="middle">Own return / drain</text>
+            <path d="M424,290 Q440,290 440,258 Q440,226 424,226" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <text x="446" y="258" fill="var(--orange)" font-size="7" font-weight="500" transform="rotate(90,446,258)">recirculate</text>
+
+            <!-- Module C (Wing 1) -->
+            <rect x="460" y="140" width="200" height="180" fill="#FEF9F0" stroke="var(--deep-green)" stroke-width="2" rx="6"/>
+            <rect x="460" y="140" width="200" height="24" fill="var(--deep-green)" rx="6 6 0 0"/>
+            <text x="560" y="156" fill="var(--white)" font-size="10" font-weight="700" text-anchor="middle">MODULE C — WING 1</text>
+            <rect x="472" y="174" width="176" height="134" fill="var(--white)" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4,2" rx="4"/>
+            <text x="560" y="188" fill="var(--gold)" font-size="8" font-weight="600" text-anchor="middle">ISOLATION BOUNDARY</text>
+            <rect x="486" y="196" width="148" height="24" fill="var(--light-blue)" stroke="var(--blue)" stroke-width="1" rx="3"/>
+            <text x="560" y="212" fill="var(--blue)" font-size="8" font-weight="600" text-anchor="middle">Own nutrient mixing</text>
+            <rect x="486" y="228" width="148" height="24" fill="var(--light-green)" stroke="var(--green-mid)" stroke-width="1" rx="3"/>
+            <text x="560" y="244" fill="var(--green-mid)" font-size="8" font-weight="600" text-anchor="middle">Own growing system</text>
+            <rect x="486" y="260" width="148" height="24" fill="var(--light-gold)" stroke="var(--gold)" stroke-width="1" rx="3"/>
+            <text x="560" y="276" fill="var(--gold)" font-size="8" font-weight="600" text-anchor="middle">Own return / drain</text>
+            <path d="M634,276 Q650,276 650,244 Q650,212 634,212" fill="none" stroke="var(--orange)" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <text x="656" y="244" fill="var(--orange)" font-size="7" font-weight="500" transform="rotate(90,656,244)">recirculate</text>
+
+            <!-- NO SHARED RETURN callout -->
+            <rect x="110" y="340" width="480" height="32" fill="var(--light-red)" stroke="var(--red)" stroke-width="1.5" rx="4"/>
+            <text x="350" y="360" fill="var(--red)" font-size="10" font-weight="700" text-anchor="middle">NO SHARED UNTREATED RETURN LINE BETWEEN MODULES</text>
+
+            <!-- Treated discharge -->
+            <rect x="180" y="384" width="340" height="28" fill="#F0F5FA" stroke="var(--blue)" stroke-width="1" rx="4"/>
+            <text x="350" y="402" fill="var(--blue)" font-size="9" font-weight="600" text-anchor="middle">Treated discharge to approved standard — per EMA requirements</text>
+          </svg>
+        </div>
+        <div style="flex:2;display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="flex:1;">
+            <div class="card-label">Why Isolation Matters</div>
+            <ul style="font-size:10px;">
+              <li><strong>Disease containment:</strong> Root-zone pathogens (Pythium, Fusarium) cannot spread between modules through shared nutrient lines</li>
+              <li><strong>Contamination control:</strong> A chemical error in one module's mixing does not poison other crops</li>
+              <li><strong>Failure isolation:</strong> A pump failure, leak or sensor fault affects only one module</li>
+              <li><strong>Independent diagnostics:</strong> Each module's nutrient, pH, EC and flow data is self-contained — easier to identify and fix problems</li>
+              <li><strong>Staged commissioning:</strong> Modules can be commissioned, tested and adjusted independently</li>
+            </ul>
+          </div>
+          <div class="card" style="flex:1;">
+            <div class="card-label">What Each Module Contains</div>
+            <ul style="font-size:10px;">
+              <li>Own nutrient stock tanks and dosing (A/B concentrate + pH)</li>
+              <li>Own mixing and delivery system</li>
+              <li>Own growing system (NFT, DWC, drip — type per crop)</li>
+              <li>Own return collection and recirculation</li>
+              <li>Own drain-to-waste or treated discharge path</li>
+              <li>Own sub-metering: water, nutrient, energy, climate</li>
+            </ul>
+          </div>
+          <div class="card" style="flex:0;background:var(--deep-green);">
+            <p style="font-size:10px;color:var(--white);text-align:center;font-weight:500;">Fresh water is the only shared input. Everything downstream of the mixing point is module-specific. This is non-negotiable.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S07 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S08/12 — PHASING AND INVESTMENT GATES
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S08 / Phasing and Investment Gates</div>
+      <div class="page-heading">Stages 0–4 — No Jump from Idea to Full Build</div>
+      <div class="page-subheading">
+        Gate-based programme. No calendar promises. Proceed only when gate criteria are met with measured evidence. Each stage has explicit pass/fail criteria; the outcome at every gate is Go, Redesign, Defer, or No-Go.
+      </div>
+
+      <div style="flex:1;display:flex;gap:24px;">
+        <div style="flex:3;display:flex;flex-direction:column;gap:8px;">
+          <!-- Stage 0 -->
+          <div class="phase-row">
+            <div class="phase-marker" style="background:#6B7078;">0</div>
+            <div class="phase-content" style="flex:1;">
+              <h4>Stage 0 — Measure and Verify <span class="tag" style="margin-left:6px;">Pre-Build</span></h4>
+              <div class="cols-2" style="gap:10px;margin-top:4px;">
+                <div>
+                  <p style="font-size:9px;font-weight:600;color:var(--deep-green);">Activities:</p>
+                  <ul style="font-size:9px;">
+                    <li>Cadastral survey, geotechnical investigation, drainage study</li>
+                    <li>Confirm planning path (DevelopTT), utility connections (T&amp;TEC, WASA)</li>
+                    <li>Water quality testing, source verification</li>
+                    <li>On-site psychrometric data collection (minimum 12 months)</li>
+                    <li>Market research: buyers, pricing, demand confirmation</li>
+                  </ul>
+                </div>
+                <div>
+                  <p style="font-size:9px;font-weight:600;color:var(--gold);">Gate 0 Criteria:</p>
+                  <ul style="font-size:9px;">
+                    <li>Site boundaries and levels confirmed</li>
+                    <li>Planning pathway clear</li>
+                    <li>Water source viable</li>
+                    <li>Climate data sufficient for HVAC concept</li>
+                    <li>At least one buyer engaged</li>
+                    <li>Investment case supportable</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Stage 1 -->
+          <div class="phase-row">
+            <div class="phase-marker" style="background:var(--green-mid);">1</div>
+            <div class="phase-content" style="flex:1;">
+              <h4>Stage 1 — Wing 0 Proving Cell <span class="tag tag-blue" style="margin-left:6px;">Low Capital</span></h4>
+              <div class="cols-2" style="gap:10px;margin-top:4px;">
+                <div>
+                  <p style="font-size:9px;font-weight:600;color:var(--deep-green);">Activities:</p>
+                  <ul style="font-size:9px;">
+                    <li>Assess and retrofit existing structure (approximately 279 m&sup2;, subject to survey)</li>
+                    <li>Install full monitoring: climate, water quality, energy metering</li>
+                    <li>Test crops, climate management, operating procedures</li>
+                    <li>Train first operators; build maintenance knowledge</li>
+                  </ul>
+                </div>
+                <div>
+                  <p style="font-size:9px;font-weight:600;color:var(--gold);">Gate 1 Criteria:</p>
+                  <ul style="font-size:9px;">
+                    <li>Crop yield data from local conditions</li>
+                    <li>Energy and water consumption measured</li>
+                    <li>Operating cost baseline established</li>
+                    <li>Team trained and competent</li>
+                    <li>System reliability demonstrated</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Stage 2 -->
+          <div class="phase-row">
+            <div class="phase-marker" style="background:var(--blue);">2</div>
+            <div class="phase-content" style="flex:1;">
+              <h4>Stage 2 — Pilot / First Commercial Campus <span class="tag tag-gold" style="margin-left:6px;">Primary Investment</span></h4>
+              <div class="cols-2" style="gap:10px;margin-top:4px;">
+                <div>
+                  <p style="font-size:9px;font-weight:600;color:var(--deep-green);">Activities:</p>
+                  <ul style="font-size:9px;">
+                    <li>Build compact Spine (2 levels + roof) and Wing 1</li>
+                    <li>Packhouse and cold chain facility</li>
+                    <li>Full utilities: power, water, fertigation, controls</li>
+                    <li>First commercial sales and market integration</li>
+                  </ul>
+                </div>
+                <div>
+                  <p style="font-size:9px;font-weight:600;color:var(--gold);">Gate 2 Criteria:</p>
+                  <ul style="font-size:9px;">
+                    <li>Stable production at target quality</li>
+                    <li>Buyer relationships established</li>
+                    <li>Unit economics measured (not projected)</li>
+                    <li>Uptime and reliability data</li>
+                    <li>Maintenance costs tracked</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Stage 3 -->
+          <div class="phase-row">
+            <div class="phase-marker" style="background:var(--gold);">3</div>
+            <div class="phase-content" style="flex:1;">
+              <h4>Stage 3 — Controlled Pilot Expansion <span class="tag" style="margin-left:6px;">If Justified</span></h4>
+              <p style="font-size:9px;">Additional modules on pilot site only if demand and economics justify. No second commercial wing assumed in base case. Expand operating team and training programme. Decision driven by measured margins, not projections.</p>
+            </div>
+          </div>
+          <!-- Stage 4 -->
+          <div class="phase-row">
+            <div class="phase-marker" style="background:var(--deep-green);">4</div>
+            <div class="phase-content" style="flex:1;">
+              <h4>Stage 4 — Conditional Full-Scale Campus <span class="tag tag-red" style="margin-left:6px;">Subject to All Gates</span></h4>
+              <p style="font-size:9px;">State land allocation pursued only with proven operating data. Requires: tenure (Commissioner of State Lands) + planning (DevelopTT) + environmental (EMA CEC) + finance + demand. Replicate proven modules; four Wings (A–D) around central Spine. Regional replication potential from demonstrated model.</p>
+            </div>
+          </div>
+        </div>
+        <div style="flex:2;display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="flex:0;">
+            <div class="card-label">The Evidence Chain</div>
+            <svg viewBox="0 0 300 160" style="width:100%;height:auto;display:block;" role="img" aria-label="Evidence chain from claim to gate decision">
+              <rect x="0" y="0" width="300" height="160" fill="var(--white)" rx="4"/>
+              <rect x="10" y="10" width="130" height="28" fill="var(--cream)" stroke="var(--deep-green)" stroke-width="1.2" rx="3"/>
+              <text x="75" y="28" fill="var(--deep-green)" font-size="8" font-weight="600" text-anchor="middle">MATERIAL CLAIM</text>
+              <line x1="140" y1="24" x2="160" y2="24" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arrowGold2)"/>
+              <rect x="160" y="10" width="130" height="28" fill="var(--cream)" stroke="var(--blue)" stroke-width="1.2" rx="3"/>
+              <text x="225" y="28" fill="var(--blue)" font-size="8" font-weight="600" text-anchor="middle">EVIDENCE REQUIRED</text>
+
+              <rect x="10" y="48" width="130" height="28" fill="var(--cream)" stroke="var(--green-mid)" stroke-width="1.2" rx="3"/>
+              <text x="75" y="66" fill="var(--green-mid)" font-size="8" font-weight="600" text-anchor="middle">EVIDENCE OBTAINED</text>
+              <line x1="140" y1="62" x2="160" y2="62" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arrowGold2)"/>
+              <rect x="160" y="48" width="130" height="28" fill="var(--cream)" stroke="var(--orange)" stroke-width="1.2" rx="3"/>
+              <text x="225" y="66" fill="var(--orange)" font-size="8" font-weight="600" text-anchor="middle">CONTRARY EVIDENCE</text>
+
+              <line x1="150" y1="76" x2="150" y2="92" stroke="var(--gold)" stroke-width="1.5" marker-end="url(#arrowGold2)"/>
+
+              <rect x="80" y="92" width="140" height="28" fill="var(--light-gold)" stroke="var(--gold)" stroke-width="1.5" rx="3"/>
+              <text x="150" y="110" fill="var(--gold)" font-size="9" font-weight="700" text-anchor="middle">GATE DECISION</text>
+
+              <rect x="15" y="132" width="60" height="18" fill="var(--light-green)" rx="2"/>
+              <text x="45" y="144" fill="var(--green-mid)" font-size="7" font-weight="600" text-anchor="middle">GO</text>
+              <rect x="85" y="132" width="60" height="18" fill="var(--light-blue)" rx="2"/>
+              <text x="115" y="144" fill="var(--blue)" font-size="7" font-weight="600" text-anchor="middle">REDESIGN</text>
+              <rect x="155" y="132" width="60" height="18" fill="var(--light-gold)" rx="2"/>
+              <text x="185" y="144" fill="var(--gold)" font-size="7" font-weight="600" text-anchor="middle">DEFER</text>
+              <rect x="225" y="132" width="60" height="18" fill="var(--light-red)" rx="2"/>
+              <text x="255" y="144" fill="var(--red)" font-size="7" font-weight="600" text-anchor="middle">NO-GO</text>
+              <defs>
+                <marker id="arrowGold2" markerWidth="6" markerHeight="5" refX="6" refY="2.5" orient="auto">
+                  <polygon points="0,0 6,2.5 0,5" fill="var(--gold)"/>
+                </marker>
+              </defs>
+            </svg>
+          </div>
+          <div class="card" style="flex:1;">
+            <div class="card-label">Gate Disciplines</div>
+            <div class="cols-2" style="gap:8px;margin-top:4px;">
+              <div>
+                <h4 style="font-size:9px;color:var(--deep-green);">Technical</h4>
+                <p style="font-size:9px;">Site, climate, utilities, reliability verified with measured data</p>
+              </div>
+              <div>
+                <h4 style="font-size:9px;color:var(--green-mid);">Commercial</h4>
+                <p style="font-size:9px;">Buyers confirmed, price validated, demand demonstrated</p>
+              </div>
+              <div>
+                <h4 style="font-size:9px;color:var(--blue);">Financial</h4>
+                <p style="font-size:9px;">Unit economics measured, funding secured, lifecycle cost</p>
+              </div>
+              <div>
+                <h4 style="font-size:9px;color:var(--gold);">Regulatory</h4>
+                <p style="font-size:9px;">Tenure, planning, EMA, utilities, food safety approvals</p>
+              </div>
+              <div>
+                <h4 style="font-size:9px;color:var(--purple);">Operations</h4>
+                <p style="font-size:9px;">Maintenance proven, people trained, spares sourced, SOPs written</p>
+              </div>
+              <div>
+                <h4 style="font-size:9px;color:var(--red);">Risk</h4>
+                <p style="font-size:9px;">Material risks identified, mitigated or accepted with eyes open</p>
+              </div>
+            </div>
+          </div>
+          <div class="callout" style="flex:0;">
+            <p style="font-size:11px;font-weight:500;">Purpose: Reduce exposure to unresolved material assumptions before commitment. Make the reason for each gate decision traceable and defensible.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S08 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S09/12 — CROP STRATEGY
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S09 / Crop Strategy</div>
+      <div class="page-heading">Choose Crops Through Buyers and Measured Margins</div>
+      <div class="page-subheading">
+        Crop selection is not a design decision made in advance — it is a commercial decision driven by buyer requirements, local market pricing, measured production costs and proven yield. The architecture accommodates a range of crops; the market determines which ones earn their place.
+      </div>
+
+      <div style="flex:1;display:flex;gap:20px;">
+        <div style="flex:1;">
+          <div class="card" style="margin-bottom:12px;">
+            <div class="card-label">Spine Crops — LED / High-Control Environment</div>
+            <h3 style="font-size:13px;">Nursery and High-Value Leafy Production</h3>
+            <table class="data-table" style="margin-top:8px;">
+              <thead>
+                <tr><th>Category</th><th>Candidate Crops</th><th>Rationale</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="category">Seedlings</td><td>Tomato, pepper, lettuce transplants</td><td>Clean propagation; disease-free stock for Wings</td></tr>
+                <tr><td class="category">Leafy Greens</td><td>Lettuce varieties, pak choi, kale</td><td>Short cycle; benefits from climate control; local demand</td></tr>
+                <tr><td class="category">Herbs</td><td>Basil, cilantro, mint, chives</td><td>Year-round supply; hotel/restaurant demand. Note: basil is chilling-sensitive — storage above approximately 12 &deg;C</td></tr>
+                <tr><td class="category">Microgreens</td><td>Sunflower, pea shoots, radish</td><td>High value per area; fast turnover; niche market potential</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-label">Wing Crops — Sunlight / Protected Greenhouse</div>
+            <h3 style="font-size:13px;">Commercial Greenhouse Production</h3>
+            <table class="data-table" style="margin-top:8px;">
+              <thead>
+                <tr><th>Category</th><th>Candidate Crops</th><th>Rationale</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="category">Tomatoes</td><td>Indeterminate varieties</td><td>High local demand; import substitution; year-round premium. Post-harvest temperature varies by maturity.</td></tr>
+                <tr><td class="category">Sweet Peppers</td><td>Bell, seasoning peppers</td><td>Import substitution; consistent quality; existing market</td></tr>
+                <tr><td class="category">Cucumbers</td><td>English cucumber</td><td>Fast cycle; high yield per area; market familiar</td></tr>
+                <tr><td class="category">Leafy Greens</td><td>Lettuce, bok choy, callaloo</td><td>Low energy; uses natural light; complements Spine output</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="flex:0;">
+            <div class="card-label">Crop Selection Principle</div>
+            <p style="font-size:11px;font-weight:600;color:var(--deep-green);margin-bottom:6px;">The buyer decides what we grow. Measured margins decide if it is viable.</p>
+            <ul style="font-size:10px;">
+              <li>No crop is committed until buyer demand and pricing are confirmed</li>
+              <li>Production cost must be measured in Wing 0 / Stage 1 before commercial commitment</li>
+              <li>Yield data from local conditions, not imported assumptions</li>
+              <li>Post-harvest handling is crop-specific — no universal cold chain temperature</li>
+              <li>Crop mix may change over time as market and margins evolve</li>
+            </ul>
+          </div>
+
+          <div class="card" style="flex:0;">
+            <div class="card-label">Market Flow</div>
+            <div style="display:flex;align-items:center;gap:0;justify-content:center;margin:10px 0;">
+              <div style="padding:6px 12px;background:var(--light-green);border-radius:4px;font-size:9px;font-weight:600;color:var(--green-mid);text-align:center;">HARVEST</div>
+              <div style="padding:0 4px;color:var(--gold);font-weight:700;">&#9654;</div>
+              <div style="padding:6px 12px;background:var(--light-gold);border-radius:4px;font-size:9px;font-weight:600;color:var(--gold);text-align:center;">GRADE + PACK</div>
+              <div style="padding:0 4px;color:var(--gold);font-weight:700;">&#9654;</div>
+              <div style="padding:6px 12px;background:var(--light-blue);border-radius:4px;font-size:9px;font-weight:600;color:var(--blue);text-align:center;">COLD STORAGE</div>
+              <div style="padding:0 4px;color:var(--gold);font-weight:700;">&#9654;</div>
+              <div style="padding:6px 12px;background:var(--white);border:1.5px solid var(--green-mid);border-radius:4px;font-size:9px;font-weight:600;color:var(--green-mid);text-align:center;">DISPATCH</div>
+            </div>
+            <p style="font-size:9px;color:var(--text-light);text-align:center;">Crop-appropriate temperatures at each stage. No universal 4 &deg;C cold chain.</p>
+          </div>
+
+          <div class="card" style="flex:1;">
+            <div class="card-label">Target Market Channels</div>
+            <div class="cols-2" style="gap:8px;margin-top:4px;">
+              <div>
+                <h4 style="font-size:10px;">Supermarkets</h4>
+                <p style="font-size:9px;">PriceSmart, Massy, local chains. Consistent volume and quality required.</p>
+              </div>
+              <div>
+                <h4 style="font-size:10px;">Hotels and Restaurants</h4>
+                <p style="font-size:9px;">Premium herbs and greens. Year-round availability is the value.</p>
+              </div>
+              <div>
+                <h4 style="font-size:10px;">Institutional</h4>
+                <p style="font-size:9px;">Schools, hospitals, catering. Volume at competitive pricing.</p>
+              </div>
+              <div>
+                <h4 style="font-size:10px;">Direct / Market</h4>
+                <p style="font-size:9px;">Community access. Brand building. Feedback loop on quality.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout-gold" style="flex:0;">
+            <p style="font-size:10px;font-weight:600;">All crop candidates are subject to trial in Wing 0 / Stage 1. No production commitment is made until measured yield, quality and cost data confirm commercial viability under Carlsen Field conditions.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S09 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S10/12 — INVESTMENT RISKS
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S10 / Investment Risks</div>
+      <div class="page-heading">What the Investment Must Survive</div>
+      <div class="page-subheading">
+        Every risk is addressed by the gate-based approach. No commitment without evidence. The design philosophy: reduce exposure to unresolved material assumptions before capital is committed. These risks are acknowledged, not dismissed.
+      </div>
+
+      <div style="flex:1;display:flex;gap:20px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+          <div class="risk-card risk-high">
+            <h4>Energy Cost and Grid Reliability</h4>
+            <div class="risk-level">High Impact</div>
+            <p><strong>Risk:</strong> T&amp;TEC tariff changes or extended outages could undermine operating economics. Generator fuel costs are volatile.</p>
+            <p style="margin-top:4px;"><strong>Mitigation:</strong> Passive-first Wing design minimises energy demand. Generator + UPS provides backup. Sub-metering tracks every kWh. Solar PV reduces grid dependency. Survival Mode protects critical loads. Actual energy costs measured in Stage 1 before scaling.</p>
+          </div>
+          <div class="risk-card risk-high">
+            <h4>State Land Tenure</h4>
+            <div class="risk-level">High Impact</div>
+            <p><strong>Risk:</strong> Full-scale campus depends on state land allocation through Commissioner of State Lands — process may be slow, conditional or unsuccessful.</p>
+            <p style="margin-top:4px;"><strong>Mitigation:</strong> Pilot is entirely on private land. State land is Stage 4 only. The pilot must prove viability independently. No capital is at risk from tenure uncertainty.</p>
+          </div>
+          <div class="risk-card risk-med">
+            <h4>Market Demand and Pricing</h4>
+            <div class="risk-level">Medium Impact</div>
+            <p><strong>Risk:</strong> Local market may not absorb production at economically viable prices. Competition from imports or other producers.</p>
+            <p style="margin-top:4px;"><strong>Mitigation:</strong> Market validation is a Stage 0 gate requirement. First commercial sales at Stage 2 before scaling. Multiple channels. Scale only when demand is measured, not assumed.</p>
+          </div>
+          <div class="risk-card risk-med">
+            <h4>Climate Performance Gap</h4>
+            <div class="risk-level">Medium Impact</div>
+            <p><strong>Risk:</strong> Imported CEA assumptions may not hold under Trinidad's heat, humidity and rainfall. Equipment sized from temperate-climate data may underperform.</p>
+            <p style="margin-top:4px;"><strong>Mitigation:</strong> Wing 0 proving cell tests everything locally before building Wing 1. On-site psychrometric data drives HVAC sizing — no imported specifications used unchecked. UWI research supports local evidence base.</p>
+          </div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+          <div class="risk-card risk-med">
+            <h4>Supply Chain for Spares and Consumables</h4>
+            <div class="risk-level">Medium Impact</div>
+            <p><strong>Risk:</strong> Specialised components may be hard to source in Trinidad. Lead times and FX costs for imported parts.</p>
+            <p style="margin-top:4px;"><strong>Mitigation:</strong> Design uses mature, widely available technology. Manual fallback for critical functions. No proprietary lock-in. Local technician maintainability is a design requirement.</p>
+          </div>
+          <div class="risk-card risk-med">
+            <h4>Regulatory and Approval Risk</h4>
+            <div class="risk-level">Medium Impact</div>
+            <p><strong>Risk:</strong> Planning (DevelopTT), environmental (EMA CEC), utility approvals, and food safety certification timelines are uncertain.</p>
+            <p style="margin-top:4px;"><strong>Mitigation:</strong> Pre-application enquiries at Stage 0 before capital commitment. No construction starts without required approvals. Regulatory pathway is a gate criterion.</p>
+          </div>
+          <div class="risk-card risk-low">
+            <h4>Water Source Reliability</h4>
+            <div class="risk-level">Low–Medium Impact</div>
+            <p><strong>Risk:</strong> WASA supply interruptions; well yield may be insufficient or water quality unsuitable.</p>
+            <p style="margin-top:4px;"><strong>Mitigation:</strong> Water testing and source verification is Stage 0 gate. On-site storage sized for supply interruptions. Rainwater harvesting supplements supply. Recirculating hydroponics minimises total consumption.</p>
+          </div>
+          <div class="risk-card risk-low">
+            <h4>Workforce and Skills</h4>
+            <div class="risk-level">Low–Medium Impact</div>
+            <p><strong>Risk:</strong> Skilled greenhouse operators, maintenance technicians and data-literate staff may be scarce locally.</p>
+            <p style="margin-top:4px;"><strong>Mitigation:</strong> Training built into the programme from Stage 1. Wing 0 is the training ground. Standard operating procedures developed and refined before scaling. Technology chosen for local maintainability.</p>
+          </div>
+          <div class="callout" style="flex:0;padding:10px;">
+            <p style="font-size:10px;">The gate-based approach does not eliminate risk. It ensures that each risk is identified, measured where possible, and mitigated before the capital associated with it is committed.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S10 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S11/12 — STAKEHOLDER CONVERSATION
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S11 / Stakeholder Conversation</div>
+      <div class="page-heading">Who to Talk to and What to Seek</div>
+      <div class="page-subheading">
+        Different stakeholders need different emphasis. Same programme, same evidence standard — tailored message. This page maps who is involved and what each conversation should address.
+      </div>
+
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="smap-card">
+          <div class="smap-header" style="background:var(--deep-green);">Government / Ministry of Agriculture</div>
+          <div class="smap-body">
+            <h4>What They Care About</h4>
+            <ul>
+              <li>Reducing food import dependency and FX drain</li>
+              <li>National food security and resilience</li>
+              <li>Job creation and skills development</li>
+              <li>Visible, replicable success story</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>Policy alignment confirmation. Access to agricultural incentives. Introduction to state land allocation process. Support for SIDS food security agenda.</p>
+          </div>
+        </div>
+        <div class="smap-card">
+          <div class="smap-header" style="background:var(--gold);color:var(--text);">Commissioner of State Lands / DevelopTT</div>
+          <div class="smap-body">
+            <h4>What They Care About</h4>
+            <ul>
+              <li>Productive use of state land</li>
+              <li>Proven operator, not speculative proposal</li>
+              <li>Environmental compliance and community benefit</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>State land allocation pathway. Planning permission requirements and timeline. Pre-application guidance. Understanding of conditions and obligations.</p>
+          </div>
+        </div>
+        <div class="smap-card">
+          <div class="smap-header" style="background:var(--blue);">Financial Institutions / Investors</div>
+          <div class="smap-body">
+            <h4>What They Care About</h4>
+            <ul>
+              <li>Clear business model and unit economics</li>
+              <li>Risk mitigation through staged investment</li>
+              <li>Proven technology, not experimental</li>
+              <li>Collateral and exit strategy</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>Staged financing aligned to gate outcomes. Agricultural development loans or incentives. Investment structured around measured (not projected) returns.</p>
+          </div>
+        </div>
+        <div class="smap-card">
+          <div class="smap-header" style="background:var(--green-mid);">EMA / Environmental</div>
+          <div class="smap-body">
+            <h4>What They Care About</h4>
+            <ul>
+              <li>Environmental impact assessment</li>
+              <li>Water discharge and drainage compliance</li>
+              <li>Waste management plan</li>
+              <li>Noise, dust, traffic during construction</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>Certificate of Environmental Clearance (CEC) requirements. Pre-application guidance. Understanding of conditions for agricultural facilities in this area.</p>
+          </div>
+        </div>
+        <div class="smap-card">
+          <div class="smap-header" style="background:#5A6B5E;">T&amp;TEC / Govt Electrical Inspectorate</div>
+          <div class="smap-body">
+            <h4>T&amp;TEC (Supply)</h4>
+            <ul>
+              <li>Load requirements and connection capacity</li>
+              <li>Tariff structure and phased demand growth</li>
+            </ul>
+            <h4>Govt Electrical Inspectorate (Certification)</h4>
+            <ul>
+              <li>Installation certification and inspection</li>
+              <li>Generator and PV interconnection requirements</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>Load enquiry response. Tariff confirmation. Installation certification pathway.</p>
+          </div>
+        </div>
+        <div class="smap-card">
+          <div class="smap-header" style="background:var(--purple);">WASA / Water Authority</div>
+          <div class="smap-body">
+            <h4>What They Care About</h4>
+            <ul>
+              <li>Water demand and connection capacity</li>
+              <li>Discharge compliance</li>
+              <li>Responsible use and metering</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>Connection availability and capacity. Water quality data for source water. Discharge requirements. Metering arrangements.</p>
+          </div>
+        </div>
+        <div class="smap-card">
+          <div class="smap-header" style="background:var(--orange);">Technical Partners / Engineers</div>
+          <div class="smap-body">
+            <h4>What They Care About</h4>
+            <ul>
+              <li>Design that works in tropical conditions</li>
+              <li>Maintainability with local technicians</li>
+              <li>Clear specifications from measured data</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>Structural, mechanical, electrical engineering services. Local experience with agricultural and industrial buildings. Willingness to design from measured data, not imported assumptions.</p>
+          </div>
+        </div>
+        <div class="smap-card">
+          <div class="smap-header" style="background:#6B7078;">Local Community / Carlsen Field</div>
+          <div class="smap-body">
+            <h4>What They Care About</h4>
+            <ul>
+              <li>Employment and training opportunities</li>
+              <li>Environmental impact, traffic, noise</li>
+              <li>Access to fresh produce</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>Community support and understanding. Local recruitment pipeline. Feedback on concerns. This is an agricultural campus built responsibly in the community, not a factory.</p>
+          </div>
+        </div>
+        <div class="smap-card">
+          <div class="smap-header" style="background:var(--deep-green);">Research / UWI / Knowledge Partners</div>
+          <div class="smap-body">
+            <h4>What They Care About</h4>
+            <ul>
+              <li>Applied research opportunities in tropical CEA</li>
+              <li>Data sharing and publication</li>
+              <li>Student projects and training</li>
+            </ul>
+            <h4>What to Seek</h4>
+            <p>Research collaboration on climate performance, crop trials, energy optimisation. Access to existing tropical greenhouse research (Suraj, Ekwue and Birch; Graamans et al.). Student placement programme.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S11 / 12</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     S12/12 — REFERENCES AND EVIDENCE BOUNDARY
+     ================================================================ -->
+<div class="page">
+  <div class="page-inner">
+    <div class="header-bar">
+      <div class="header-left">
+        <span class="header-title">Carlsen Field</span>
+        <span class="header-separator">/</span>
+        <span class="header-title">CEA Programme</span>
+      </div>
+      <div class="header-right">Christopher Joseph &nbsp;|&nbsp; September 2026</div>
+    </div>
+    <div class="gold-bar"></div>
+    <div class="content">
+
+      <div class="page-label">S12 / References and Evidence Boundary</div>
+      <div class="page-heading">What This Document Is — and Is Not</div>
+      <div class="page-subheading">
+        This document is a concept-level stakeholder visual set. It describes design intent, programme structure and the approach to risk. It is not a detailed design, a construction document, an engineering specification or a compliance submission. Every statement is at concept status. Nothing in this document should be read as a commitment, a guarantee, or a claim of compliance.
+      </div>
+
+      <div style="flex:1;display:flex;gap:24px;">
+        <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="flex:0;">
+            <div class="card-label">Evidence Boundary</div>
+            <table class="data-table">
+              <thead>
+                <tr><th style="width:50%;">This Document Is</th><th style="width:50%;">This Document Is Not</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>A concept-level description of programme intent</td><td>A detailed design or engineering specification</td></tr>
+                <tr><td>A framework for staged, evidence-based investment</td><td>A financial projection or investment prospectus</td></tr>
+                <tr><td>Functional arrangements showing zone relationships</td><td>Dimensioned site plans or construction drawings</td></tr>
+                <tr><td>A map of risks acknowledged and mitigation approaches</td><td>A claim that risks are eliminated or managed</td></tr>
+                <tr><td>A basis for stakeholder conversations</td><td>A regulatory submission or compliance document</td></tr>
+                <tr><td>Concept status throughout — no item is "designed"</td><td>Ready for procurement, tendering or construction</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card" style="flex:1;">
+            <div class="card-label">Key References</div>
+            <ul class="ref-list">
+              <li><span class="ref-cat">Regulatory — Environment:</span> Environmental Management Authority (EMA) — Certificate of Environmental Clearance (CEC) requirements for agricultural development projects in Trinidad and Tobago</li>
+              <li><span class="ref-cat">Regulatory — Planning:</span> DevelopTT (formerly Town and Country Planning Division) — planning permission requirements and application process</li>
+              <li><span class="ref-cat">Regulatory — Power Supply:</span> Trinidad and Tobago Electricity Commission (T&amp;TEC) — tariff schedules, connection requirements, load enquiry process</li>
+              <li><span class="ref-cat">Regulatory — Electrical Certification:</span> Ministry of Public Utilities, Government Electrical Inspectorate — installation inspection and certification requirements</li>
+              <li><span class="ref-cat">Regulatory — Water:</span> Water and Sewerage Authority (WASA) — connection, supply, discharge and metering requirements</li>
+              <li><span class="ref-cat">Regulatory — Land:</span> Commissioner of State Lands — state land allocation process (for conditional scale site)</li>
+              <li><span class="ref-cat">Post-Harvest:</span> UC Davis Postharvest Technology Center — Produce Fact Sheets for crop-specific temperature, humidity and storage guidance</li>
+              <li><span class="ref-cat">Local Research:</span> Suraj, Ekwue and Birch (2018) — active climate control in Trinidad and Tobago greenhouse conditions</li>
+              <li><span class="ref-cat">CEA Energy:</span> Graamans et al. (2017, 2018) — energy balance comparison of plant factories and greenhouses; implications for tropical operation</li>
+              <li><span class="ref-cat">Regional Research:</span> UWI (University of the West Indies) — CEA and greenhouse research programmes relevant to Caribbean conditions</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="flex:0;">
+            <div class="card-label">What Must Happen Before Construction</div>
+            <ul style="font-size:10px;">
+              <li>Cadastral survey and boundary confirmation</li>
+              <li>Geotechnical investigation</li>
+              <li>Hydrological study and drainage design</li>
+              <li>Structural assessment of Wing 0 (existing structure)</li>
+              <li>Minimum 12 months on-site climate data collection</li>
+              <li>Water source testing and quality analysis</li>
+              <li>T&amp;TEC load enquiry and connection confirmation</li>
+              <li>Govt Electrical Inspectorate requirements confirmed</li>
+              <li>WASA connection and discharge enquiry</li>
+              <li>DevelopTT planning pre-application and submission</li>
+              <li>EMA CEC application (for scale site)</li>
+              <li>Structural engineering design (new structures)</li>
+              <li>M&amp;E engineering design (HVAC, electrical, plumbing)</li>
+              <li>Market validation and buyer engagement</li>
+              <li>Financial model based on measured data</li>
+              <li>Legal review of all agreements and obligations</li>
+            </ul>
+          </div>
+
+          <div class="card" style="flex:0;">
+            <div class="card-label">Six Things Every Stakeholder Should Know</div>
+            <ol style="font-size:10px;padding-left:16px;">
+              <li style="margin-bottom:4px;"><strong>Food security starts with evidence, not ambition.</strong> Every material assumption is measured and verified before capital is committed.</li>
+              <li style="margin-bottom:4px;"><strong>Private site proves, state site scales.</strong> No taxpayer money at risk during the proving phase.</li>
+              <li style="margin-bottom:4px;"><strong>Mature technology, smarter architecture.</strong> The innovation is in the system design, not in unproven tech.</li>
+              <li style="margin-bottom:4px;"><strong>Designed for Trinidad.</strong> Heat, humidity, grid reality, local maintenance capacity — all considered.</li>
+              <li style="margin-bottom:4px;"><strong>Jobs and capability.</strong> Operator, maintenance, data and management skills built into the programme.</li>
+              <li style="margin-bottom:4px;"><strong>The value is replicability.</strong> A proven module that can be repeated responsibly.</li>
+            </ol>
+          </div>
+
+          <div class="callout" style="flex:0;">
+            <p style="font-size:13px;font-weight:600;letter-spacing:0.5px;">
+              Use mature, serviceable technology in a smarter architecture.<br>
+              Complexity must earn its place.
+            </p>
+            <p style="margin-top:10px;font-size:11px;opacity:0.8;">
+              Carlsen Field / CEA Programme<br>
+              Christopher Joseph &nbsp;&middot;&nbsp; September 2026
+            </p>
+          </div>
+
+          <div style="text-align:center;padding:8px 0;">
+            <p style="font-size:10px;color:var(--text-muted);font-weight:500;">
+              MEASURE &nbsp;&rsaquo;&nbsp; VERIFY &nbsp;&rsaquo;&nbsp; PROVE &nbsp;&rsaquo;&nbsp; SCALE
+            </p>
+            <p style="font-size:9px;color:var(--text-light);margin-top:4px;">
+              &copy; Christopher Joseph 2026. All rights reserved. Concept design — not for construction.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bar">
+      <div class="footer-left">Concept Design — Not for Construction &nbsp;|&nbsp; All Drawings NTS</div>
+      <div class="footer-center">Measure &nbsp;&rsaquo;&nbsp; Verify &nbsp;&rsaquo;&nbsp; Prove &nbsp;&rsaquo;&nbsp; Scale</div>
+      <div class="footer-right">S12 / 12</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
